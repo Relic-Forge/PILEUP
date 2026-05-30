@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DESIGN_HEIGHT } from './ResponsiveScaleSystem';
-import type { RuntimeRoom, RuntimeRoomSegment } from '../data/levelTypes';
+import type { RuntimeFloorBounds, RuntimeRoom, RuntimeRoomSegment } from '../data/levelTypes';
 
 type LayerId = 'farBackground' | 'backgroundClutter' | 'mainGameplay' | 'foregroundClutter' | 'fxLighting';
 
@@ -80,7 +80,7 @@ export class ParallaxSystem {
     this.root = this.scene.add.container(0, 0).setDepth(0);
 
     for (const segment of room.segments) {
-      this.renderSegment(segment);
+      this.renderSegment(segment, room.floorBounds);
     }
 
     this.renderRoomBounds(room);
@@ -103,16 +103,18 @@ export class ParallaxSystem {
     this.debugObjects.forEach((object) => object.setVisible(visible));
   }
 
-  private renderSegment(segment: RuntimeRoomSegment): void {
+  private renderSegment(segment: RuntimeRoomSegment, floorBounds: RuntimeFloorBounds): void {
     for (const layer of LAYER_STYLES) {
+      const y = layer.id === 'mainGameplay' ? floorBounds.minY : layer.y;
+      const height = layer.id === 'mainGameplay' ? floorBounds.maxY - floorBounds.minY : layer.height;
       const rect = this.scene.add
-        .rectangle(segment.x + segment.width / 2, layer.y + layer.height / 2, segment.width, layer.height, layer.color, layer.alpha)
+        .rectangle(segment.x + segment.width / 2, y + height / 2, segment.width, height, layer.color, layer.alpha)
         .setDepth(layer.depth)
         .setScrollFactor(layer.scrollFactor, 1);
       this.root?.add(rect);
 
       const label = this.scene.add
-        .text(segment.x + 34, layer.y + 20, `${segment.id} / ${layer.label} / sf ${layer.scrollFactor}`, {
+        .text(segment.x + 34, y + 20, `${segment.id} / ${layer.label} / sf ${layer.scrollFactor}`, {
           color: '#b8d79a',
           fontFamily: 'monospace',
           fontSize: '18px',
@@ -242,23 +244,41 @@ export class ParallaxSystem {
   }
 
   private renderRoomBounds(room: RuntimeRoom): void {
-    const floorLine = this.scene.add
-      .rectangle(room.width / 2, 900, room.width, 4, 0x8ba778, 0.55)
+    const floor = room.floorBounds;
+    const floorFill = this.scene.add
+      .rectangle(
+        floor.minX + (floor.maxX - floor.minX) / 2,
+        floor.minY + (floor.maxY - floor.minY) / 2,
+        floor.maxX - floor.minX,
+        floor.maxY - floor.minY,
+        0x8ba778,
+        0.08,
+      )
       .setDepth(2_000)
+      .setScrollFactor(1, 1)
+      .setVisible(this.debugVisible);
+    const top = this.scene.add
+      .rectangle(floor.minX + (floor.maxX - floor.minX) / 2, floor.minY, floor.maxX - floor.minX, 4, 0x8ba778, 0.75)
+      .setDepth(2_001)
+      .setScrollFactor(1, 1)
+      .setVisible(this.debugVisible);
+    const bottom = this.scene.add
+      .rectangle(floor.minX + (floor.maxX - floor.minX) / 2, floor.maxY, floor.maxX - floor.minX, 4, 0x8ba778, 0.75)
+      .setDepth(2_001)
       .setScrollFactor(1, 1)
       .setVisible(this.debugVisible);
     const left = this.scene.add
-      .rectangle(0, 540, 6, DESIGN_HEIGHT, 0x8ba778, 0.5)
-      .setDepth(2_000)
+      .rectangle(floor.minX, floor.minY + (floor.maxY - floor.minY) / 2, 6, floor.maxY - floor.minY, 0x8ba778, 0.75)
+      .setDepth(2_001)
       .setScrollFactor(1, 1)
       .setVisible(this.debugVisible);
     const right = this.scene.add
-      .rectangle(room.width, 540, 6, DESIGN_HEIGHT, 0x8ba778, 0.5)
-      .setDepth(2_000)
+      .rectangle(floor.maxX, floor.minY + (floor.maxY - floor.minY) / 2, 6, floor.maxY - floor.minY, 0x8ba778, 0.75)
+      .setDepth(2_001)
       .setScrollFactor(1, 1)
       .setVisible(this.debugVisible);
 
-    this.root?.add([floorLine, left, right]);
-    this.debugObjects.push(floorLine, left, right);
+    this.root?.add([floorFill, top, bottom, left, right]);
+    this.debugObjects.push(floorFill, top, bottom, left, right);
   }
 }

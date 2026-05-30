@@ -26,6 +26,9 @@ export class MainMenuScene extends Phaser.Scene {
     this.input.keyboard?.on(`keydown-${debugCommands.overlayToggleKey}`, () => {
       this.debugOverlay?.toggle();
     });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.responsive?.destroy();
+    });
   }
 
   update(): void {
@@ -41,7 +44,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.menuObjects = [];
 
     const layout = this.responsive?.getLayout();
-    if (!layout) {
+    if (!layout || !this.cameras.main) {
       return;
     }
 
@@ -64,7 +67,7 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const startText = this.add
-      .text(width / 2, height * 0.62, 'Start Phase 3 Floor-Plane Check', {
+      .text(width / 2, height * 0.62, 'Start Phase 4 Flashlight Check', {
         color: '#11100f',
         backgroundColor: '#e3d36f',
         fontSize: `${Math.round(22 * uiScale)}px`,

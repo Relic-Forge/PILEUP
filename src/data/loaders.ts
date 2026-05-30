@@ -39,8 +39,8 @@ export const adaptRoomFromSource = (room: SourceRoomData): RuntimeRoom => {
     floorBounds: {
       minX: 120,
       maxX: Math.max(120, cursorX - 120),
-      minY: 650,
-      maxY: 875,
+      minY: 560,
+      maxY: 850,
     },
     segments,
   };

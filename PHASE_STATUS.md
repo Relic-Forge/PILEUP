@@ -2,26 +2,27 @@
 
 ## Phase Completed
 
-Phase 3 - Player controller and floor-plane movement
+Phase 4 - Flashlight depth targeting
 
 ## Acceptance Criteria Status
 
-- [x] Player can move left/right and up/down within floor bounds.
-- [x] Player cannot pass blockers.
-- [x] Player depth-sorts correctly against props/enemy placeholders.
-- [x] Sprint drains stamina and recovers when not sprinting.
-- [x] Crouch reduces speed and noise.
+- [x] Flashlight follows aim direction.
+- [x] Player can switch depth target.
+- [x] HUD shows selected depth target.
+- [x] Cone detects test objects in correct layer only.
+- [x] Focus beam has stronger/narrower detection.
+- [x] Low battery/flicker state can be triggered in debug.
 
 ## Commands Run
 
 - `npm run typecheck`
 - `npm run build`
-- Browser verification at `http://127.0.0.1:5173/` in a 2560x990 ultrawide viewport:
-  - Entered `LevelScene`.
-  - Confirmed Phase 3 HUD/graybox scene renders with player placeholder, floor-plane props, and JSON room layers.
-  - Confirmed no relevant app errors or warnings in the in-app browser console.
-  - Exercised movement/camera-follow flow with keyboard controls.
-  - Browser screenshot capture timed out late in QA after the initial Phase 3 screenshot succeeded, so final visual proof is partially limited.
+- Browser verification at `http://127.0.0.1:5174/?scene=level` in a 1440x900 viewport:
+  - Confirmed Phase 4 HUD/graybox scene renders with player placeholder, JSON room layers, and visible flashlight cone.
+  - Confirmed `2`/`3` depth targeting detects only same-layer test objects (`main-target`, `foreground-target`).
+  - Confirmed `Space` focus state is sampled by the debug state and narrows/strengthens the beam.
+  - Confirmed `F6` triggers the flashlight flicker/low-battery debug state.
+  - Confirmed portrait mode suppresses the HUD behind the rotate prompt.
 
 ## Known Issues
 
@@ -29,14 +30,13 @@ See `KNOWN_ISSUES.md`.
 
 ## Files Changed
 
-- Implemented `Player` placeholder entity with basic walk/sprint/crouch visual states.
-- Implemented `InputSystem` keyboard abstraction with held-key and short tap-buffer support.
-- Implemented `PlayerController` for 2.5D floor-plane movement, floor bounds, blocker collision, sprint stamina, crouch speed, and noise state.
-- Implemented `DepthPlaneSystem` for Y-based render depth.
-- Updated `LevelScene` to use player camera follow instead of the Phase 2 debug camera anchor.
-- Added dev-only Phase 3 telemetry and `?scene=level` shortcut for browser QA.
-- Updated `UIScene` to react to stamina changes.
+- Implemented `FlashlightSystem` with cone rendering, depth-layer targeting, focus beam geometry, battery drain, flicker state, and layer-filtered target detection.
+- Extended `InputSystem` with flashlight depth controls, focus input, and flicker debug input.
+- Added Phase 4 graybox test targets for background, main, and foreground layers.
+- Updated `UIScene` to show flashlight depth, battery, focus, and flicker state.
+- Updated dev-only Phase 4 telemetry for browser QA.
+- Updated README prototype status and controls.
 
 ## Next Recommended Phase
 
-Phase 4 - Flashlight depth targeting.
+Phase 5 - Search, loot, and inventory.

@@ -13,5 +13,12 @@ interface Window {
       isCrouching: boolean;
       noise: number;
     };
+    flashlight?: {
+      layer: string;
+      focus: boolean;
+      flicker: boolean;
+      battery: number;
+      hitIds: string[];
+    };
   };
 }

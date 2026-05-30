@@ -12,6 +12,7 @@ import { ParallaxSystem } from '../systems/ParallaxSystem';
 import { InputSystem } from '../systems/InputSystem';
 import { PlayerController } from '../systems/PlayerController';
 import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
+import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
 
 export class LevelScene extends Phaser.Scene {
   private debugOverlay?: DebugOverlay;
@@ -20,11 +21,13 @@ export class LevelScene extends Phaser.Scene {
   private parallaxSystem?: ParallaxSystem;
   private inputSystem?: InputSystem;
   private playerController?: PlayerController;
+  private flashlightSystem?: FlashlightSystem;
   private player?: Player;
   private room?: RuntimeRoom;
   private depthPlane = new DepthPlaneSystem();
   private phaseLabels: Phaser.GameObjects.GameObject[] = [];
   private depthReferenceObjects: Phaser.GameObjects.GameObject[] = [];
+  private flashlightTargets: FlashlightTarget[] = [];
 
   constructor() {
     super('LevelScene');
@@ -46,6 +49,7 @@ export class LevelScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor('#111016');
     this.responsive.onResize(() => this.renderRoom());
+    this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
 
     this.scene.launch('UIScene', { state });
     gameEvents.emit({ type: 'objective.changed', text: state.objective });
@@ -62,6 +66,10 @@ export class LevelScene extends Phaser.Scene {
     this.input.keyboard?.on(`keydown-${debugCommands.worldDebugToggleKey}`, () => {
       this.parallaxSystem?.toggleDebug();
     });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.responsive?.destroy();
+      this.flashlightSystem?.destroy();
+    });
   }
 
   update(_: number, delta: number): void {
@@ -69,8 +77,11 @@ export class LevelScene extends Phaser.Scene {
     let movementState;
     if (input) {
       movementState = this.playerController?.update(input, delta);
+      const flashlightState = this.flashlightSystem?.update(input, delta);
+      this.publishDebugState(movementState, flashlightState);
+    } else {
+      this.publishDebugState(movementState);
     }
-    this.publishDebugState(movementState);
     this.debugOverlay?.update();
   }
 
@@ -85,6 +96,8 @@ export class LevelScene extends Phaser.Scene {
     this.cameraSystem.configureFoundation(layout, room.width, DESIGN_HEIGHT);
     this.parallaxSystem.renderRoom(room);
     this.renderDepthReferenceObjects(room);
+    this.refreshFlashlightTargets();
+    this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
     this.depthPlane.applyDepth(player.container, player.y, room.floorBounds);
     this.cameraSystem.follow(player.container);
@@ -96,7 +109,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 3 player floor-plane controller', {
+      .text(64, 96, 'Phase 4 flashlight depth targeting', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -109,7 +122,7 @@ export class LevelScene extends Phaser.Scene {
         [
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
-          'WASD/arrows move. Shift sprints. C crouches. F4 toggles layer/collision labels.',
+          'WASD/arrows move. Mouse aims light. Q/E or 1/2/3 switch depth. Space focuses. F6 flickers.',
         ],
         {
           color: '#aaa196',
@@ -128,9 +141,9 @@ export class LevelScene extends Phaser.Scene {
     this.depthReferenceObjects = [];
 
     const furniture = [
-      { label: 'rear hamper blocker', x: 940, y: 700, width: 120, height: 86, color: 0x4b4354 },
-      { label: 'front toy pile', x: 1_210, y: 835, width: 154, height: 74, color: 0x69525e },
-      { label: 'laundry placeholder', x: 1_520, y: 765, width: 112, height: 116, color: 0x3c3145 },
+      { label: 'background target', layer: 'background' as const, x: 940, y: 700, width: 120, height: 86, color: 0x3f5470 },
+      { label: 'foreground target', layer: 'foreground' as const, x: 1_210, y: 835, width: 154, height: 74, color: 0x72515b },
+      { label: 'main target', layer: 'main' as const, x: 1_135, y: 765, width: 112, height: 116, color: 0x514365 },
     ];
 
     furniture.forEach((item) => {
@@ -145,17 +158,37 @@ export class LevelScene extends Phaser.Scene {
         .setOrigin(0.5);
       this.depthPlane.applyDepth(base, item.y, room.floorBounds, -4);
       this.depthPlane.applyDepth(label, item.y, room.floorBounds, -3);
+      base.setData('flashlightTarget', {
+        id: item.label.replaceAll(' ', '-'),
+        layer: item.layer,
+        x: item.x,
+        y: item.y,
+        radius: Math.max(item.width, item.height) * 0.46,
+      });
       this.depthReferenceObjects.push(base, label);
     });
   }
 
-  private publishDebugState(movementState?: ReturnType<PlayerController['update']>): void {
+  private refreshFlashlightTargets(): void {
+    this.flashlightTargets.length = 0;
+    this.depthReferenceObjects.forEach((object) => {
+      const target = object.getData?.('flashlightTarget') as Omit<FlashlightTarget, 'object'> | undefined;
+      if (target) {
+        this.flashlightTargets.push({ ...target, object });
+      }
+    });
+  }
+
+  private publishDebugState(
+    movementState?: ReturnType<PlayerController['update']>,
+    flashlightState?: FlashlightState,
+  ): void {
     if (!import.meta.env.DEV || !this.player || !movementState) {
       return;
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 3',
+      phase: 'Phase 4',
       player: {
         x: Math.round(this.player.x),
         y: Math.round(this.player.y),
@@ -165,8 +198,17 @@ export class LevelScene extends Phaser.Scene {
         isCrouching: movementState.isCrouching,
         noise: movementState.noise,
       },
+      flashlight: flashlightState
+        ? {
+            layer: flashlightState.layer,
+            focus: flashlightState.focus,
+            flicker: flashlightState.flicker,
+            battery: flashlightState.battery,
+            hitIds: flashlightState.hitIds,
+          }
+        : undefined,
     };
-    document.body.dataset.pileupPhase = 'Phase 3';
+    document.body.dataset.pileupPhase = 'Phase 4';
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
     document.body.dataset.pileupPlayerY = String(Math.round(this.player.y));
     document.body.dataset.pileupStamina = String(movementState.stamina);
@@ -174,5 +216,12 @@ export class LevelScene extends Phaser.Scene {
     document.body.dataset.pileupSprinting = String(movementState.isSprinting);
     document.body.dataset.pileupCrouching = String(movementState.isCrouching);
     document.body.dataset.pileupNoise = movementState.noise.toFixed(2);
+    if (flashlightState) {
+      document.body.dataset.pileupFlashlightLayer = flashlightState.layer;
+      document.body.dataset.pileupFlashlightFocus = String(flashlightState.focus);
+      document.body.dataset.pileupFlashlightFlicker = String(flashlightState.flicker);
+      document.body.dataset.pileupFlashlightBattery = String(flashlightState.battery);
+      document.body.dataset.pileupFlashlightHits = flashlightState.hitIds.join(',');
+    }
   }
 }

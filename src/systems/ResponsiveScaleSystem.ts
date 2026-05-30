@@ -203,6 +203,12 @@ export class ResponsiveScaleSystem {
     const shade = this.portraitPrompt.getData('shade') as Phaser.GameObjects.Rectangle;
     const title = this.portraitPrompt.getData('title') as Phaser.GameObjects.Text;
     const body = this.portraitPrompt.getData('body') as Phaser.GameObjects.Text;
+    if (!shade || !title || !body) {
+      this.portraitPrompt.destroy();
+      this.portraitPrompt = undefined;
+      return;
+    }
+
     const promptScale = Math.min(1, viewportWidth / 520);
 
     shade.setSize(viewportWidth, viewportHeight);

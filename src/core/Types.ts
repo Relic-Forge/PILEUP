@@ -113,6 +113,7 @@ export type GameEvent =
   | { type: 'objective.changed'; text: string }
   | { type: 'hotbar.changed'; slots: unknown[] }
   | { type: 'flashlight.depthChanged'; layer: DepthLayer }
+  | { type: 'flashlight.batteryChanged'; value: number; flicker: boolean; focus: boolean }
   | {
       type: 'flashlight.hitEnemy';
       enemyId: string;

@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 3. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, supports left/right and up/down movement, drains stamina while sprinting, and supports crouch/quiet movement.
+Current prototype status: Phase 4. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, supports left/right and up/down movement, and includes a visible flashlight cone with foreground/main/background depth targeting, focus beam, battery drain, and debug flicker feedback.
 
 Controls:
 
@@ -46,8 +46,13 @@ Controls:
 - `WASD` or arrow keys: move on the floor plane.
 - `Shift`: sprint.
 - `C`: crouch.
+- Mouse: aim flashlight.
+- `Q` / `E`: cycle flashlight depth.
+- `1` / `2` / `3`: target background, main, or foreground depth.
+- `Space`: focus flashlight beam.
 - `F3`: debug overlay.
 - `F4`: world layer/collision labels.
+- `F6`: trigger flashlight flicker/low-battery debug state.
 
 ## Folder structure
 
