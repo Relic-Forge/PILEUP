@@ -62,7 +62,18 @@ export class FlashlightSystem {
   }
 
   setTargets(targets: FlashlightTarget[]): void {
+    const sameMarkers =
+      targets.length === this.targets.length && targets.every((target, index) => target.id === this.targets[index]?.id);
     this.targets = targets;
+    if (sameMarkers) {
+      this.hitMarkers.forEach((marker, index) => {
+        const target = targets[index];
+        marker.setPosition(target.x, target.y);
+        marker.setRadius(target.radius + 8);
+      });
+      return;
+    }
+
     this.hitMarkers.forEach((marker) => marker.destroy());
     this.hitMarkers = targets.map((target) =>
       this.scene.add.circle(target.x, target.y, target.radius + 8, 0xffffff, 0).setStrokeStyle(2, 0x3b3630, 0.55),
@@ -178,6 +189,7 @@ export class FlashlightSystem {
     this.debugBeam.strokeCircle(origin.x, origin.y, range);
     this.hitMarkers.forEach((marker, index) => {
       const target = this.targets[index];
+      marker.setPosition(target.x, target.y);
       const isActiveLayer = target.layer === this.layer;
       const isHit = hitIds.includes(target.id);
       marker.setStrokeStyle(isHit ? 4 : 2, isHit ? color : 0x3b3630, isActiveLayer ? 0.9 : 0.25);

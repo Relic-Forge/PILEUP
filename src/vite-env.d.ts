@@ -27,5 +27,12 @@ interface Window {
       noise: number;
       lastResult?: string;
     };
+    enemies?: Array<{
+      id: string;
+      state: string;
+      layer: string;
+      health: number;
+      exposureMs: number;
+    }>;
   };
 }

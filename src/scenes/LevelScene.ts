@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { createInitialGameState } from '../core/GameState';
+import { createInitialGameState, type GameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { getFirstRoom } from '../data/loaders';
 import type { RuntimeRoom, SourceLevelData } from '../data/levelTypes';
@@ -15,8 +15,10 @@ import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
 import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
 import { InventorySystem } from '../systems/InventorySystem';
 import { SearchSystem, type SearchState } from '../systems/SearchSystem';
+import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
 
 export class LevelScene extends Phaser.Scene {
+  private state?: GameState;
   private debugOverlay?: DebugOverlay;
   private responsive?: ResponsiveScaleSystem;
   private cameraSystem?: CameraSystem;
@@ -26,6 +28,7 @@ export class LevelScene extends Phaser.Scene {
   private flashlightSystem?: FlashlightSystem;
   private inventorySystem?: InventorySystem;
   private searchSystem?: SearchSystem;
+  private enemySystem?: EnemySystem;
   private player?: Player;
   private room?: RuntimeRoom;
   private depthPlane = new DepthPlaneSystem();
@@ -38,7 +41,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   create(): void {
-    const state = createInitialGameState();
+    this.state = createInitialGameState();
     const levelData = this.cache.json.get('level01FamilyHouse') as SourceLevelData | undefined;
     this.room = getFirstRoom(levelData ?? { schema: 'missing', level_id: 'missing', title: 'Missing', rooms: [] });
     this.responsive = new ResponsiveScaleSystem(this);
@@ -56,8 +59,9 @@ export class LevelScene extends Phaser.Scene {
     this.responsive.onResize(() => this.renderRoom());
     this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
 
-    this.scene.launch('UIScene', { state });
-    gameEvents.emit({ type: 'objective.changed', text: state.objective });
+    this.scene.launch('UIScene', { state: this.state });
+    gameEvents.emit({ type: 'objective.changed', text: this.state.objective });
+    gameEvents.emit({ type: 'player.healthChanged', value: this.state.health, max: this.state.maxHealth });
 
     this.input.keyboard?.once('keydown-ESC', () => {
       this.scene.stop('UIScene');
@@ -75,6 +79,7 @@ export class LevelScene extends Phaser.Scene {
       this.responsive?.destroy();
       this.flashlightSystem?.destroy();
       this.searchSystem?.destroy();
+      this.enemySystem?.destroy();
     });
   }
 
@@ -83,9 +88,12 @@ export class LevelScene extends Phaser.Scene {
     let movementState;
     if (input) {
       movementState = this.playerController?.update(input, delta);
+      const enemyState = this.enemySystem?.update(delta);
+      this.refreshFlashlightTargets();
+      this.flashlightSystem?.setTargets(this.flashlightTargets);
       const flashlightState = this.flashlightSystem?.update(input, delta);
       const searchState = this.searchSystem?.update(input, delta);
-      this.publishDebugState(movementState, flashlightState, searchState);
+      this.publishDebugState(movementState, flashlightState, searchState, enemyState);
     } else {
       this.publishDebugState(movementState);
     }
@@ -104,7 +112,9 @@ export class LevelScene extends Phaser.Scene {
     this.parallaxSystem.renderRoom(room);
     this.renderDepthReferenceObjects(room);
     this.searchSystem?.destroy();
+    this.enemySystem?.destroy();
     this.searchSystem = this.inventorySystem ? new SearchSystem(this, room, player, this.inventorySystem) : undefined;
+    this.enemySystem = new EnemySystem(this, room, player, (amount, source) => this.applyPlayerDamage(amount, source));
     this.refreshFlashlightTargets();
     this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
@@ -118,7 +128,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 5 search loot inventory', {
+      .text(64, 96, 'Phase 6 Laundry Monster enemy framework', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -131,7 +141,7 @@ export class LevelScene extends Phaser.Scene {
         [
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
-          'WASD/arrows move. E searches. Mouse aims light. 1/2/3 switch depth. Space focuses. F flickers.',
+          'WASD/arrows move. E searches. Mouse aims light. 1/2/3 switch depth. Space focuses. F flickers. F3 debug.',
         ],
         {
           color: '#aaa196',
@@ -186,19 +196,39 @@ export class LevelScene extends Phaser.Scene {
         this.flashlightTargets.push({ ...target, object });
       }
     });
+    this.enemySystem?.getFlashlightTargets().forEach((target) => this.flashlightTargets.push(target));
+  }
+
+  private applyPlayerDamage(amount: number, source: string): void {
+    if (!this.state) {
+      return;
+    }
+
+    this.state.health = Math.max(0, this.state.health - amount);
+    gameEvents.emit({ type: 'player.healthChanged', value: this.state.health, max: this.state.maxHealth });
+    if (this.state.health === 0) {
+      this.scene.stop('UIScene');
+      this.scene.start('GameOverScene');
+      return;
+    }
+
+    if (import.meta.env.DEV) {
+      document.body.dataset.pileupLastDamageSource = source;
+    }
   }
 
   private publishDebugState(
     movementState?: ReturnType<PlayerController['update']>,
     flashlightState?: FlashlightState,
     searchState?: SearchState,
+    enemyState?: EnemySystemState,
   ): void {
     if (!import.meta.env.DEV || !this.player || !movementState) {
       return;
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 5',
+      phase: 'Phase 6',
       player: {
         x: Math.round(this.player.x),
         y: Math.round(this.player.y),
@@ -226,8 +256,9 @@ export class LevelScene extends Phaser.Scene {
             lastResult: searchState.lastResult,
           }
         : undefined,
+      enemies: enemyState?.enemies,
     };
-    document.body.dataset.pileupPhase = 'Phase 5';
+    document.body.dataset.pileupPhase = 'Phase 6';
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
     document.body.dataset.pileupPlayerY = String(Math.round(this.player.y));
     document.body.dataset.pileupStamina = String(movementState.stamina);
@@ -248,6 +279,12 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupSearchProgress = searchState.progress01.toFixed(2);
       document.body.dataset.pileupSearchNoise = searchState.noise.toFixed(1);
       document.body.dataset.pileupSearchResult = searchState.lastResult ?? '';
+    }
+    if (enemyState?.enemies[0]) {
+      document.body.dataset.pileupEnemyId = enemyState.enemies[0].id;
+      document.body.dataset.pileupEnemyState = enemyState.enemies[0].state;
+      document.body.dataset.pileupEnemyLayer = enemyState.enemies[0].layer;
+      document.body.dataset.pileupEnemyExposure = String(enemyState.enemies[0].exposureMs);
     }
   }
 }

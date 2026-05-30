@@ -135,6 +135,7 @@ export type GameEvent =
   | { type: 'item.collected'; itemId: string }
   | { type: 'enemy.stateChanged'; enemyId: string; state: EnemyState }
   | { type: 'enemy.attackTelegraph'; enemyId: string }
+  | { type: 'player.damaged'; source: string; amount: number }
   | { type: 'door.unlockStarted'; doorId: string }
   | { type: 'door.unlockProgress'; doorId: string; progress01: number }
   | { type: 'door.unlocked'; doorId: string }

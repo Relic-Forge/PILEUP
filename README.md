@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 5. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, includes flashlight depth targeting, and supports hold-to-search graybox clutter piles with deterministic loot results, hotbar updates, burden state, noise output, and key objective handling.
+Current prototype status: Phase 6. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, includes flashlight depth targeting, supports hold-to-search graybox clutter piles with deterministic loot results, and now spawns a graybox Laundry Monster with dormant, stalking, reveal, telegraph, attack, recovery, and stun-ready flashlight states.
 
 Controls:
 

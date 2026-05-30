@@ -63,6 +63,20 @@ export class UIScene extends Phaser.Scene {
       };
       this.renderHud();
     }));
+    this.unsubscribeEvents.push(gameEvents.on('player.healthChanged', (event) => {
+      this.state = {
+        ...(this.state ?? {
+          stamina: 100,
+          maxStamina: 100,
+          mess: 0,
+          maxMess: 100,
+          objective: 'Find the key.',
+        }),
+        health: event.value,
+        maxHealth: event.max,
+      };
+      this.renderHud();
+    }));
     this.unsubscribeEvents.push(gameEvents.on('flashlight.depthChanged', (event) => {
       this.flashlightLayer = event.layer;
       this.renderHud();
