@@ -20,5 +20,12 @@ interface Window {
       battery: number;
       hitIds: string[];
     };
+    search?: {
+      nearestId?: string;
+      activeId?: string;
+      progress01: number;
+      noise: number;
+      lastResult?: string;
+    };
   };
 }

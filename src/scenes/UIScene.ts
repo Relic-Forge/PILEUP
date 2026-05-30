@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { GameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import type { DepthLayer } from '../core/Types';
+import type { InventoryItem } from '../systems/InventorySystem';
 import { ResponsiveScaleSystem } from '../systems/ResponsiveScaleSystem';
 
 interface UISceneData {
@@ -15,6 +16,13 @@ export class UIScene extends Phaser.Scene {
   private flashlightBattery = 100;
   private flashlightFocus = false;
   private flashlightFlicker = false;
+  private searchLabel = 'No search target';
+  private searchProgress = 0;
+  private searchNoise = 0;
+  private searchActive = false;
+  private burdenState = 'light';
+  private burdenValue = 0;
+  private hotbarSlots: InventoryItem[] = [];
   private uiObjects: Phaser.GameObjects.GameObject[] = [];
   private unsubscribeEvents: Array<() => void> = [];
 
@@ -63,6 +71,22 @@ export class UIScene extends Phaser.Scene {
       this.flashlightBattery = event.value;
       this.flashlightFocus = event.focus;
       this.flashlightFlicker = event.flicker;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('search.progressChanged', (event) => {
+      this.searchLabel = event.label;
+      this.searchProgress = event.progress01;
+      this.searchNoise = event.noise;
+      this.searchActive = event.isSearching;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('player.burdenChanged', (event) => {
+      this.burdenState = event.state;
+      this.burdenValue = event.value;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('hotbar.changed', (event) => {
+      this.hotbarSlots = event.slots as InventoryItem[];
       this.renderHud();
     }));
 
@@ -137,8 +161,54 @@ export class UIScene extends Phaser.Scene {
         fontSize: `${Math.max(13, Math.round(13 * scale))}px`,
       })
       .setOrigin(0, 1);
+    const searchWidth = Math.min(520 * scale, safe.width * 0.42);
+    const searchBaseY = safe.bottom - 68 * scale;
+    const searchBack = this.add
+      .rectangle(safe.left, searchBaseY, searchWidth, 18 * scale, 0x1a1715, 0.78)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0);
+    const searchFill = this.add
+      .rectangle(safe.left, searchBaseY, searchWidth * this.searchProgress, 18 * scale, this.searchActive ? 0xe3d36f : 0x8ba778, 0.88)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0);
+    const searchText = this.add
+      .text(
+        safe.left,
+        searchBaseY - 30 * scale,
+        `SEARCH ${this.searchLabel} / NOISE ${Math.round(this.searchNoise)}`,
+        {
+          color: this.searchActive ? '#f4efe0' : '#9e9589',
+          fontSize: `${Math.max(13, Math.round(14 * scale))}px`,
+        },
+      )
+      .setScrollFactor(0);
+    const hotbarText = this.add
+      .text(
+        safe.right,
+        safe.bottom - 54 * scale,
+        `HOTBAR ${this.hotbarSlots.map((slot) => slot.label).join(' | ') || 'empty'} / LOAD ${this.burdenState.toUpperCase()} ${this.burdenValue}`,
+        {
+          color: '#d2c276',
+          fontSize: `${Math.max(13, Math.round(14 * scale))}px`,
+          align: 'right',
+        },
+      )
+      .setOrigin(1, 1)
+      .setScrollFactor(0);
 
-    this.uiObjects = [background, health, stamina, mess, flashlight, objective, layoutText];
+    this.uiObjects = [
+      background,
+      health,
+      stamina,
+      mess,
+      flashlight,
+      objective,
+      layoutText,
+      searchBack,
+      searchFill,
+      searchText,
+      hotbarText,
+    ];
     this.responsive?.ensurePortraitPrompt();
   }
 }

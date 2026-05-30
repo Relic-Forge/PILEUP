@@ -6,6 +6,7 @@ export interface PlayerInputState {
   y: number;
   sprint: boolean;
   crouch: boolean;
+  interact: boolean;
   aim: Phaser.Math.Vector2;
   focus: boolean;
   depthCycle: -1 | 0 | 1;
@@ -16,7 +17,7 @@ export interface PlayerInputState {
 export class InputSystem {
   private readonly cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys?: Record<
-    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f6',
+    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f',
     Phaser.Input.Keyboard.Key
   >;
   private tapX = 0;
@@ -25,6 +26,7 @@ export class InputSystem {
   private sprintTapUntil = 0;
   private crouchTapUntil = 0;
   private focusTapUntil = 0;
+  private interactTapUntil = 0;
   private depthCycle: -1 | 0 | 1 = 0;
   private depthDirect?: DepthLayer;
   private debugFlickerUntil = 0;
@@ -45,7 +47,7 @@ export class InputSystem {
           one: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
           two: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
           three: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
-          f6: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F6),
+          f: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
         }
       : undefined;
 
@@ -68,6 +70,7 @@ export class InputSystem {
       y: heldY !== 0 ? heldY : now < this.tapUntil ? this.tapY : 0,
       sprint: Boolean(this.cursors?.shift.isDown || this.keys?.shift.isDown || now < this.sprintTapUntil),
       crouch: Boolean(this.keys?.c.isDown || now < this.crouchTapUntil),
+      interact: Boolean(this.keys?.e.isDown || now < this.interactTapUntil),
       aim: new Phaser.Math.Vector2(),
       focus: Boolean(this.keys?.space.isDown || now < this.focusTapUntil),
       depthCycle: this.depthCycle,
@@ -105,17 +108,17 @@ export class InputSystem {
       this.crouchTapUntil = until;
     } else if (key === ' ') {
       this.focusTapUntil = until;
+    } else if (key === 'e') {
+      this.interactTapUntil = until;
     } else if (key === 'q') {
       this.depthCycle = -1;
-    } else if (key === 'e') {
-      this.depthCycle = 1;
     } else if (key === '1') {
       this.depthDirect = 'background';
     } else if (key === '2') {
       this.depthDirect = 'main';
     } else if (key === '3') {
       this.depthDirect = 'foreground';
-    } else if (key === 'f6') {
+    } else if (key === 'f') {
       this.debugFlickerUntil = performance.now() + 2200;
     }
 

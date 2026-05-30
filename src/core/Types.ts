@@ -122,6 +122,14 @@ export type GameEvent =
       durationMs: number;
     }
   | { type: 'search.started'; nodeId: string }
+  | {
+      type: 'search.progressChanged';
+      nodeId?: string;
+      label: string;
+      progress01: number;
+      noise: number;
+      isSearching: boolean;
+    }
   | { type: 'search.cancelled'; nodeId: string }
   | { type: 'search.completed'; nodeId: string; resultType: SearchResultType }
   | { type: 'item.collected'; itemId: string }

@@ -13,6 +13,8 @@ import { InputSystem } from '../systems/InputSystem';
 import { PlayerController } from '../systems/PlayerController';
 import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
 import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
+import { InventorySystem } from '../systems/InventorySystem';
+import { SearchSystem, type SearchState } from '../systems/SearchSystem';
 
 export class LevelScene extends Phaser.Scene {
   private debugOverlay?: DebugOverlay;
@@ -22,6 +24,8 @@ export class LevelScene extends Phaser.Scene {
   private inputSystem?: InputSystem;
   private playerController?: PlayerController;
   private flashlightSystem?: FlashlightSystem;
+  private inventorySystem?: InventorySystem;
+  private searchSystem?: SearchSystem;
   private player?: Player;
   private room?: RuntimeRoom;
   private depthPlane = new DepthPlaneSystem();
@@ -41,6 +45,7 @@ export class LevelScene extends Phaser.Scene {
     this.cameraSystem = new CameraSystem(this);
     this.parallaxSystem = new ParallaxSystem(this);
     this.inputSystem = new InputSystem(this);
+    this.inventorySystem = new InventorySystem();
     this.player = new Player(this, DESIGN_WIDTH * 0.38, 750);
     this.playerController = new PlayerController(this.player, {
       floorBounds: this.room.floorBounds,
@@ -69,6 +74,7 @@ export class LevelScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.responsive?.destroy();
       this.flashlightSystem?.destroy();
+      this.searchSystem?.destroy();
     });
   }
 
@@ -78,7 +84,8 @@ export class LevelScene extends Phaser.Scene {
     if (input) {
       movementState = this.playerController?.update(input, delta);
       const flashlightState = this.flashlightSystem?.update(input, delta);
-      this.publishDebugState(movementState, flashlightState);
+      const searchState = this.searchSystem?.update(input, delta);
+      this.publishDebugState(movementState, flashlightState, searchState);
     } else {
       this.publishDebugState(movementState);
     }
@@ -96,6 +103,8 @@ export class LevelScene extends Phaser.Scene {
     this.cameraSystem.configureFoundation(layout, room.width, DESIGN_HEIGHT);
     this.parallaxSystem.renderRoom(room);
     this.renderDepthReferenceObjects(room);
+    this.searchSystem?.destroy();
+    this.searchSystem = this.inventorySystem ? new SearchSystem(this, room, player, this.inventorySystem) : undefined;
     this.refreshFlashlightTargets();
     this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
@@ -109,7 +118,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 4 flashlight depth targeting', {
+      .text(64, 96, 'Phase 5 search loot inventory', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -122,7 +131,7 @@ export class LevelScene extends Phaser.Scene {
         [
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
-          'WASD/arrows move. Mouse aims light. Q/E or 1/2/3 switch depth. Space focuses. F6 flickers.',
+          'WASD/arrows move. E searches. Mouse aims light. 1/2/3 switch depth. Space focuses. F flickers.',
         ],
         {
           color: '#aaa196',
@@ -182,13 +191,14 @@ export class LevelScene extends Phaser.Scene {
   private publishDebugState(
     movementState?: ReturnType<PlayerController['update']>,
     flashlightState?: FlashlightState,
+    searchState?: SearchState,
   ): void {
     if (!import.meta.env.DEV || !this.player || !movementState) {
       return;
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 4',
+      phase: 'Phase 5',
       player: {
         x: Math.round(this.player.x),
         y: Math.round(this.player.y),
@@ -207,8 +217,17 @@ export class LevelScene extends Phaser.Scene {
             hitIds: flashlightState.hitIds,
           }
         : undefined,
+      search: searchState
+        ? {
+            nearestId: searchState.nearestId,
+            activeId: searchState.activeId,
+            progress01: Number(searchState.progress01.toFixed(2)),
+            noise: Number(searchState.noise.toFixed(1)),
+            lastResult: searchState.lastResult,
+          }
+        : undefined,
     };
-    document.body.dataset.pileupPhase = 'Phase 4';
+    document.body.dataset.pileupPhase = 'Phase 5';
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
     document.body.dataset.pileupPlayerY = String(Math.round(this.player.y));
     document.body.dataset.pileupStamina = String(movementState.stamina);
@@ -222,6 +241,13 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupFlashlightFlicker = String(flashlightState.flicker);
       document.body.dataset.pileupFlashlightBattery = String(flashlightState.battery);
       document.body.dataset.pileupFlashlightHits = flashlightState.hitIds.join(',');
+    }
+    if (searchState) {
+      document.body.dataset.pileupSearchNearest = searchState.nearestId ?? '';
+      document.body.dataset.pileupSearchActive = searchState.activeId ?? '';
+      document.body.dataset.pileupSearchProgress = searchState.progress01.toFixed(2);
+      document.body.dataset.pileupSearchNoise = searchState.noise.toFixed(1);
+      document.body.dataset.pileupSearchResult = searchState.lastResult ?? '';
     }
   }
 }
