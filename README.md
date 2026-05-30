@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 7. The level scene now supports a complete one-room graybox loop: move through the bedroom, search clutter for the front-door key, manage flashlight depth against the Laundry Monster, reach the exit door, hold interact to unlock it, and resolve into victory or game over with retry.
+Current prototype status: Phase 8. The level scene now supports the full Level 01 graybox house sequence: Bedroom, Hallway, Bathroom, Kitchen, and Living Room/Front Door are stitched into one traversable level with seeded objective placement, room-specific search nodes, multiple enemy archetype anchors, and the Phase 7 win/loss loop preserved at the final door.
 
 Controls:
 

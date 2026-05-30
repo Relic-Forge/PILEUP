@@ -147,7 +147,7 @@ export class UIScene extends Phaser.Scene {
     const state = this.state;
     const safe = layout.safeArea;
     const scale = layout.uiScale;
-    const barHeight = Math.round(76 * scale);
+    const barHeight = Math.round(96 * scale);
     const fontSize = Math.max(layout.isPhone ? 18 : 16, Math.round(18 * scale));
     const background = this.add
       .rectangle(0, 0, layout.viewportWidth, barHeight + safe.top * 0.35, 0x070608, 0.78)
@@ -183,11 +183,12 @@ export class UIScene extends Phaser.Scene {
       },
     );
     const objective = this.add
-      .text(safe.right, safe.top, `Objective: ${state?.objective ?? 'Find the key.'}`, {
+      .text(safe.left, safe.top + 30 * scale, `OBJECTIVE ${state?.objective ?? 'Find the key.'}`, {
         color: '#cfc8bd',
-        fontSize: `${fontSize}px`,
+        fontSize: `${Math.max(14, Math.round(15 * scale))}px`,
+        wordWrap: { width: Math.max(320, safe.width * 0.58) },
       })
-      .setOrigin(1, 0);
+      .setOrigin(0, 0);
     const layoutText = this.add
       .text(safe.left, safe.bottom - 26 * scale, `${layout.viewportClass} / safe area anchored`, {
         color: '#716a61',

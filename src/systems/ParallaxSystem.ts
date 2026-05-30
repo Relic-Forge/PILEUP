@@ -83,6 +83,7 @@ export class ParallaxSystem {
       this.renderSegment(segment, room.floorBounds);
     }
 
+    this.renderRoomTransitions(room);
     this.renderRoomBounds(room);
     this.setDebugVisible(this.debugVisible);
     return this.root;
@@ -240,6 +241,30 @@ export class ParallaxSystem {
         .setVisible(this.debugVisible);
       this.root?.add([debugBlocker, label]);
       this.debugObjects.push(debugBlocker, label);
+    });
+  }
+
+  private renderRoomTransitions(room: RuntimeRoom): void {
+    room.roomTransitions.forEach((transition, index) => {
+      const centerX = transition.x + transition.width / 2;
+      const band = this.scene.add
+        .rectangle(centerX, 548, transition.width, 22, index % 2 === 0 ? 0x3f5470 : 0x55415f, 0.34)
+        .setDepth(21)
+        .setScrollFactor(1, 1);
+      const label = this.scene.add
+        .text(transition.x + 42, 570, `${transition.order}. ${transition.label}`, {
+          color: '#d7cfbf',
+          fontSize: '24px',
+          backgroundColor: 'rgba(7, 6, 8, 0.45)',
+          padding: { x: 10, y: 5 },
+        })
+        .setDepth(2_050)
+        .setScrollFactor(1, 1);
+      const exitLine = this.scene.add
+        .rectangle(transition.x + transition.width - 8, 705, 8, 288, 0xd2c276, 0.18)
+        .setDepth(23)
+        .setScrollFactor(1, 1);
+      this.root?.add([band, label, exitLine]);
     });
   }
 

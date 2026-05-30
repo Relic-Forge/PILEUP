@@ -94,9 +94,10 @@ export class SearchSystem {
   }
 
   private createPileConfigs(room: RuntimeRoom): SearchPileConfig[] {
+    const placements = new Map(room.searchPlacements.map((placement) => [placement.nodeId, placement]));
     return room.segments.flatMap((segment) =>
       segment.searchNodes.map((nodeId, index) => {
-        const result = RESULT_TABLE[nodeId] ?? { resultType: 'empty' as const };
+        const result = placements.get(nodeId) ?? RESULT_TABLE[nodeId] ?? { resultType: 'empty' as const };
         return {
           id: `${segment.id}_${nodeId}`,
           label: nodeId.replaceAll('_', ' '),

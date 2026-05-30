@@ -4,6 +4,9 @@ interface Window {
   __PILEUP_GAME__?: Phaser.Game;
   __PILEUP_DEBUG__?: {
     phase: string;
+    seed?: string;
+    activeRoomId?: string;
+    keyNode?: string;
     player: {
       x: number;
       y: number;

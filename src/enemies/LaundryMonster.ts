@@ -4,11 +4,15 @@ import type { DepthLayer, EnemyState } from '../core/Types';
 import { Enemy, type EnemyLightExposure, type EnemyUpdateContext } from '../entities/Enemy';
 import { EnemyStateMachine } from '../systems/EnemyStateMachine';
 
-interface LaundryMonsterConfig {
+export interface LaundryMonsterConfig {
   id: string;
   x: number;
   y: number;
   startingLayer: DepthLayer;
+  displayName?: string;
+  bodyColor?: number;
+  damage?: number;
+  mainSpeed?: number;
 }
 
 const REVEAL_DISTANCE = 620;
@@ -46,10 +50,15 @@ export class LaundryMonster extends Enemy {
   private lastDamageAtMs = -10_000;
   private recentLightHit = false;
 
+  private readonly displayName: string;
+  private readonly damage: number;
+  private readonly mainSpeed: number;
+
   constructor(scene: Phaser.Scene, config: LaundryMonsterConfig) {
     const shadow = scene.add.ellipse(0, 46, 142, 28, 0x070608, 0.46);
-    const mound = scene.add.rectangle(0, 18, 136, 76, 0x3e3942, 0.94).setStrokeStyle(2, 0x756a75, 0.75);
-    const body = scene.add.ellipse(-6, 0, 116, 96, 0x34303a, 0.94).setStrokeStyle(3, 0x8a7c84, 0.78);
+    const baseColor = config.bodyColor ?? 0x34303a;
+    const mound = scene.add.rectangle(0, 18, 136, 76, baseColor, 0.94).setStrokeStyle(2, 0x756a75, 0.75);
+    const body = scene.add.ellipse(-6, 0, 116, 96, baseColor, 0.94).setStrokeStyle(3, 0x8a7c84, 0.78);
     const eyeLeft = scene.add.circle(-24, -22, 6, 0xf4e7a8, 0.85);
     const eyeRight = scene.add.circle(15, -23, 6, 0xf4e7a8, 0.85);
     const claw = scene.add.rectangle(50, 14, 46, 12, 0xcbbfa8, 0.9).setRotation(-0.25);
@@ -71,6 +80,9 @@ export class LaundryMonster extends Enemy {
     this.eyeRight = eyeRight;
     this.claw = claw;
     this.label = label;
+    this.displayName = config.displayName ?? 'Laundry Monster';
+    this.damage = config.damage ?? DAMAGE;
+    this.mainSpeed = config.mainSpeed ?? MAIN_SPEED;
     this.container.setAlpha(config.startingLayer === 'background' ? 0.34 : 0.72);
     this.applyVisualState();
   }
@@ -144,7 +156,7 @@ export class LaundryMonster extends Enemy {
       return;
     }
 
-    const speed = this.stateMachine.state === 'Revealed' ? MAIN_SPEED : STALK_SPEED;
+    const speed = this.stateMachine.state === 'Revealed' ? this.mainSpeed : STALK_SPEED;
     this.stepToward(context.playerX, context.playerY, speed, context.deltaMs);
   }
 
@@ -165,7 +177,7 @@ export class LaundryMonster extends Enemy {
     }
 
     this.lastDamageAtMs = now;
-    gameEvents.emit({ type: 'player.damaged', source: this.id, amount: DAMAGE });
+    gameEvents.emit({ type: 'player.damaged', source: this.id, amount: this.damage });
   }
 
   private transition(nextState: EnemyState): void {
@@ -187,7 +199,7 @@ export class LaundryMonster extends Enemy {
     this.claw.setRotation(this.stateMachine.state === 'Attacking' ? 0.45 : -0.25 - attackPull);
     this.eyeLeft.setAlpha(this.stateMachine.state === 'Dormant' ? 0 : 0.55 + Math.sin(this.scene.time.now / 90) * 0.35);
     this.eyeRight.setAlpha(this.eyeLeft.alpha);
-    this.label.setText(`${this.stateMachine.state} ${Math.round(this.exposureMs)}ms`);
+    this.label.setText(`${this.displayName}\n${this.stateMachine.state} ${Math.round(this.exposureMs)}ms`);
     if (this.stateMachine.state === 'Attacking') {
       this.container.x += Math.cos(this.scene.time.now / 35) * deltaMs * 0.02;
     }

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { createInitialGameState, type GameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
-import { getFirstRoom } from '../data/loaders';
+import { adaptLevelFromSource } from '../data/loaders';
 import type { RuntimeRoom, SourceLevelData } from '../data/levelTypes';
 import { DebugOverlay } from '../dev/DebugOverlay';
 import { debugCommands } from '../dev/DebugCommands';
@@ -39,6 +39,7 @@ export class LevelScene extends Phaser.Scene {
   private phaseLabels: Phaser.GameObjects.GameObject[] = [];
   private depthReferenceObjects: Phaser.GameObjects.GameObject[] = [];
   private flashlightTargets: FlashlightTarget[] = [];
+  private activeRoomId = '';
 
   constructor() {
     super('LevelScene');
@@ -47,14 +48,15 @@ export class LevelScene extends Phaser.Scene {
   create(): void {
     this.state = createInitialGameState();
     const levelData = this.cache.json.get('level01FamilyHouse') as SourceLevelData | undefined;
-    this.room = getFirstRoom(levelData ?? { schema: 'missing', level_id: 'missing', title: 'Missing', rooms: [] });
+    const seed = new URLSearchParams(window.location.search).get('seed') ?? `pileup-${Date.now().toString(36)}`;
+    this.room = adaptLevelFromSource(levelData ?? { schema: 'missing', level_id: 'missing', title: 'Missing', rooms: [] }, seed);
     this.responsive = new ResponsiveScaleSystem(this);
     this.cameraSystem = new CameraSystem(this);
     this.parallaxSystem = new ParallaxSystem(this);
     this.inputSystem = new InputSystem(this);
     this.inventorySystem = new InventorySystem();
     this.audioSystem = new AudioSystem(this);
-    this.player = new Player(this, DESIGN_WIDTH * 0.38, 750);
+    this.player = new Player(this, this.room.floorBounds.minX + 220, 750);
     this.playerController = new PlayerController(this.player, {
       floorBounds: this.room.floorBounds,
       blockers: this.room.segments.flatMap((segment) => segment.blockers),
@@ -65,6 +67,8 @@ export class LevelScene extends Phaser.Scene {
     this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
 
     this.scene.launch('UIScene', { state: this.state });
+    gameEvents.emit({ type: 'run.seeded', seed });
+    this.publishRunSeedDebug();
     gameEvents.emit({ type: 'objective.changed', text: this.state.objective });
     gameEvents.emit({ type: 'player.healthChanged', value: this.state.health, max: this.state.maxHealth });
 
@@ -102,6 +106,7 @@ export class LevelScene extends Phaser.Scene {
       const searchState = this.searchSystem?.update(input, delta);
       const doorState = this.doorSystem?.update(input, delta);
       this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState);
+      this.updateActiveRoomObjective();
     } else {
       this.publishDebugState(movementState);
     }
@@ -139,7 +144,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 7 one-room vertical slice', {
+      .text(64, 96, 'Phase 8 full house sequence', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -152,12 +157,14 @@ export class LevelScene extends Phaser.Scene {
         [
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
+          `seed: ${room.seed}`,
           'WASD/arrows move. E searches/unlocks. Mouse aims light. 1/2/3 switch depth. Space focuses. F3 debug.',
         ],
         {
           color: '#aaa196',
           fontSize: '18px',
           lineSpacing: 5,
+          wordWrap: { width: Math.min(1_020, this.scale.width - 96) },
         },
       )
       .setDepth(2_200)
@@ -233,6 +240,15 @@ export class LevelScene extends Phaser.Scene {
     this.scene.start('VictoryScene');
   }
 
+  private publishRunSeedDebug(): void {
+    if (!import.meta.env.DEV || !this.room) {
+      return;
+    }
+
+    const keyPlacement = this.room.searchPlacements.find((placement) => placement.itemId === 'front_door_key');
+    document.body.dataset.pileupKeyNode = keyPlacement?.nodeId ?? '';
+  }
+
   private publishDebugState(
     movementState?: ReturnType<PlayerController['update']>,
     flashlightState?: FlashlightState,
@@ -245,7 +261,10 @@ export class LevelScene extends Phaser.Scene {
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 7',
+      phase: 'Phase 8',
+      seed: this.room?.seed,
+      activeRoomId: this.activeRoomId,
+      keyNode: this.room?.searchPlacements.find((placement) => placement.itemId === 'front_door_key')?.nodeId,
       player: {
         x: Math.round(this.player.x),
         y: Math.round(this.player.y),
@@ -276,7 +295,9 @@ export class LevelScene extends Phaser.Scene {
       enemies: enemyState?.enemies,
       door: doorState,
     };
-    document.body.dataset.pileupPhase = 'Phase 7';
+    document.body.dataset.pileupPhase = 'Phase 8';
+    document.body.dataset.pileupSeed = this.room?.seed ?? '';
+    document.body.dataset.pileupActiveRoom = this.activeRoomId;
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
     document.body.dataset.pileupPlayerY = String(Math.round(this.player.y));
     document.body.dataset.pileupStamina = String(movementState.stamina);
@@ -309,6 +330,27 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupDoorUnlocking = String(doorState.unlocking);
       document.body.dataset.pileupDoorUnlocked = String(doorState.unlocked);
       document.body.dataset.pileupDoorProgress = String(doorState.progress01);
+    }
+  }
+
+  private updateActiveRoomObjective(): void {
+    const room = this.room;
+    const player = this.player;
+    const state = this.state;
+    if (!room || !player || !state) {
+      return;
+    }
+
+    const activeRoom = room.roomTransitions.find(
+      (transition) => player.x >= transition.x && player.x <= transition.x + transition.width,
+    );
+    if (!activeRoom || activeRoom.roomId === this.activeRoomId) {
+      return;
+    }
+
+    this.activeRoomId = activeRoom.roomId;
+    if (!this.inventorySystem?.keyFound()) {
+      gameEvents.emit({ type: 'objective.changed', text: `Search the ${activeRoom.label}.` });
     }
   }
 }
