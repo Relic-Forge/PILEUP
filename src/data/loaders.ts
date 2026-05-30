@@ -22,9 +22,9 @@ export const adaptRoomFromSource = (room: SourceRoomData): RuntimeRoom => {
         {
           id: `${segment.id}_blocker_left`,
           x: cursorX + width * 0.18,
-          y: 790,
+          y: 870,
           width: Math.min(180, width * 0.16),
-          height: 110,
+          height: 52,
         },
       ],
     };

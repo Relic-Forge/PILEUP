@@ -16,6 +16,8 @@ import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '.
 import { InventorySystem } from '../systems/InventorySystem';
 import { SearchSystem, type SearchState } from '../systems/SearchSystem';
 import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
+import { DoorSystem, type DoorSystemState } from '../systems/DoorSystem';
+import { AudioSystem } from '../systems/AudioSystem';
 
 export class LevelScene extends Phaser.Scene {
   private state?: GameState;
@@ -29,6 +31,8 @@ export class LevelScene extends Phaser.Scene {
   private inventorySystem?: InventorySystem;
   private searchSystem?: SearchSystem;
   private enemySystem?: EnemySystem;
+  private doorSystem?: DoorSystem;
+  private audioSystem?: AudioSystem;
   private player?: Player;
   private room?: RuntimeRoom;
   private depthPlane = new DepthPlaneSystem();
@@ -49,6 +53,7 @@ export class LevelScene extends Phaser.Scene {
     this.parallaxSystem = new ParallaxSystem(this);
     this.inputSystem = new InputSystem(this);
     this.inventorySystem = new InventorySystem();
+    this.audioSystem = new AudioSystem(this);
     this.player = new Player(this, DESIGN_WIDTH * 0.38, 750);
     this.playerController = new PlayerController(this.player, {
       floorBounds: this.room.floorBounds,
@@ -80,6 +85,8 @@ export class LevelScene extends Phaser.Scene {
       this.flashlightSystem?.destroy();
       this.searchSystem?.destroy();
       this.enemySystem?.destroy();
+      this.doorSystem?.destroy();
+      this.audioSystem?.destroy();
     });
   }
 
@@ -93,7 +100,8 @@ export class LevelScene extends Phaser.Scene {
       this.flashlightSystem?.setTargets(this.flashlightTargets);
       const flashlightState = this.flashlightSystem?.update(input, delta);
       const searchState = this.searchSystem?.update(input, delta);
-      this.publishDebugState(movementState, flashlightState, searchState, enemyState);
+      const doorState = this.doorSystem?.update(input, delta);
+      this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState);
     } else {
       this.publishDebugState(movementState);
     }
@@ -113,8 +121,11 @@ export class LevelScene extends Phaser.Scene {
     this.renderDepthReferenceObjects(room);
     this.searchSystem?.destroy();
     this.enemySystem?.destroy();
+    this.doorSystem?.destroy();
     this.searchSystem = this.inventorySystem ? new SearchSystem(this, room, player, this.inventorySystem) : undefined;
     this.enemySystem = new EnemySystem(this, room, player, (amount, source) => this.applyPlayerDamage(amount, source));
+    this.doorSystem =
+      this.inventorySystem ? new DoorSystem(this, room, player, this.inventorySystem, () => this.completeEscape()) : undefined;
     this.refreshFlashlightTargets();
     this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
@@ -128,7 +139,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 6 Laundry Monster enemy framework', {
+      .text(64, 96, 'Phase 7 one-room vertical slice', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -141,7 +152,7 @@ export class LevelScene extends Phaser.Scene {
         [
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
-          'WASD/arrows move. E searches. Mouse aims light. 1/2/3 switch depth. Space focuses. F flickers. F3 debug.',
+          'WASD/arrows move. E searches/unlocks. Mouse aims light. 1/2/3 switch depth. Space focuses. F3 debug.',
         ],
         {
           color: '#aaa196',
@@ -217,18 +228,24 @@ export class LevelScene extends Phaser.Scene {
     }
   }
 
+  private completeEscape(): void {
+    this.scene.stop('UIScene');
+    this.scene.start('VictoryScene');
+  }
+
   private publishDebugState(
     movementState?: ReturnType<PlayerController['update']>,
     flashlightState?: FlashlightState,
     searchState?: SearchState,
     enemyState?: EnemySystemState,
+    doorState?: DoorSystemState,
   ): void {
     if (!import.meta.env.DEV || !this.player || !movementState) {
       return;
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 6',
+      phase: 'Phase 7',
       player: {
         x: Math.round(this.player.x),
         y: Math.round(this.player.y),
@@ -257,8 +274,9 @@ export class LevelScene extends Phaser.Scene {
           }
         : undefined,
       enemies: enemyState?.enemies,
+      door: doorState,
     };
-    document.body.dataset.pileupPhase = 'Phase 6';
+    document.body.dataset.pileupPhase = 'Phase 7';
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
     document.body.dataset.pileupPlayerY = String(Math.round(this.player.y));
     document.body.dataset.pileupStamina = String(movementState.stamina);
@@ -285,6 +303,12 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupEnemyState = enemyState.enemies[0].state;
       document.body.dataset.pileupEnemyLayer = enemyState.enemies[0].layer;
       document.body.dataset.pileupEnemyExposure = String(enemyState.enemies[0].exposureMs);
+    }
+    if (doorState) {
+      document.body.dataset.pileupDoorNearby = String(doorState.nearby);
+      document.body.dataset.pileupDoorUnlocking = String(doorState.unlocking);
+      document.body.dataset.pileupDoorUnlocked = String(doorState.unlocked);
+      document.body.dataset.pileupDoorProgress = String(doorState.progress01);
     }
   }
 }

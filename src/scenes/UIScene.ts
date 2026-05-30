@@ -20,6 +20,9 @@ export class UIScene extends Phaser.Scene {
   private searchProgress = 0;
   private searchNoise = 0;
   private searchActive = false;
+  private doorProgress = 0;
+  private doorActive = false;
+  private doorUnlocked = false;
   private burdenState = 'light';
   private burdenValue = 0;
   private hotbarSlots: InventoryItem[] = [];
@@ -92,6 +95,22 @@ export class UIScene extends Phaser.Scene {
       this.searchProgress = event.progress01;
       this.searchNoise = event.noise;
       this.searchActive = event.isSearching;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('door.unlockStarted', () => {
+      this.doorActive = true;
+      this.doorUnlocked = false;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('door.unlockProgress', (event) => {
+      this.doorProgress = event.progress01;
+      this.doorActive = event.progress01 > 0 && event.progress01 < 1;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('door.unlocked', () => {
+      this.doorProgress = 1;
+      this.doorActive = false;
+      this.doorUnlocked = true;
       this.renderHud();
     }));
     this.unsubscribeEvents.push(gameEvents.on('player.burdenChanged', (event) => {
@@ -209,6 +228,19 @@ export class UIScene extends Phaser.Scene {
       )
       .setOrigin(1, 1)
       .setScrollFactor(0);
+    const doorText = this.add
+      .text(
+        safe.right,
+        safe.bottom - 86 * scale,
+        `DOOR ${this.doorUnlocked ? 'UNLOCKED' : `${Math.round(this.doorProgress * 100)}%`}${this.doorActive ? ' HOLD' : ''}`,
+        {
+          color: this.doorUnlocked ? '#8ba778' : this.doorActive ? '#e3d36f' : '#81796f',
+          fontSize: `${Math.max(13, Math.round(14 * scale))}px`,
+          align: 'right',
+        },
+      )
+      .setOrigin(1, 1)
+      .setScrollFactor(0);
 
     this.uiObjects = [
       background,
@@ -221,6 +253,7 @@ export class UIScene extends Phaser.Scene {
       searchBack,
       searchFill,
       searchText,
+      doorText,
       hotbarText,
     ];
     this.responsive?.ensurePortraitPrompt();

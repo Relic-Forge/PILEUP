@@ -34,5 +34,12 @@ interface Window {
       health: number;
       exposureMs: number;
     }>;
+    door?: {
+      doorId: string;
+      nearby: boolean;
+      unlocking: boolean;
+      unlocked: boolean;
+      progress01: number;
+    };
   };
 }

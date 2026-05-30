@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 6. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, includes flashlight depth targeting, supports hold-to-search graybox clutter piles with deterministic loot results, and now spawns a graybox Laundry Monster with dormant, stalking, reveal, telegraph, attack, recovery, and stun-ready flashlight states.
+Current prototype status: Phase 7. The level scene now supports a complete one-room graybox loop: move through the bedroom, search clutter for the front-door key, manage flashlight depth against the Laundry Monster, reach the exit door, hold interact to unlock it, and resolve into victory or game over with retry.
 
 Controls:
 
@@ -49,7 +49,7 @@ Controls:
 - Mouse: aim flashlight.
 - `1` / `2` / `3`: target background, main, or foreground depth.
 - `Space`: focus flashlight beam.
-- `E`: hold to search nearby clutter.
+- `E`: hold to search nearby clutter or unlock the exit door after finding the key.
 - `F3`: debug overlay.
 - `F4`: world layer/collision labels.
 - `F`: trigger flashlight flicker/low-battery debug state.

@@ -18,7 +18,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.responsive.onResize(() => this.renderMenu());
 
     this.input.keyboard?.once('keydown-ENTER', () => this.startLevel());
-    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('scene') === 'level') {
+    if (new URLSearchParams(window.location.search).get('scene') === 'level') {
       this.time.delayedCall(0, () => this.startLevel());
     }
 
@@ -67,7 +67,7 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const startText = this.add
-      .text(width / 2, height * 0.62, 'Start Phase 6 Enemy Check', {
+      .text(width / 2, height * 0.62, 'Start Phase 7 Vertical Slice', {
         color: '#11100f',
         backgroundColor: '#e3d36f',
         fontSize: `${Math.round(22 * uiScale)}px`,

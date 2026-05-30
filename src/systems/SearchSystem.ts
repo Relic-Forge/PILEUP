@@ -26,6 +26,7 @@ const RESULT_TABLE: Record<string, { resultType: SearchResultType; itemId?: stri
 
 export class SearchSystem {
   private readonly piles: SearchPile[];
+  private readonly unsubscribeEvents: Array<() => void> = [];
   private activePile?: SearchPile;
   private progressSeconds = 0;
   private accumulatedNoise = 0;
@@ -38,6 +39,7 @@ export class SearchSystem {
     private readonly inventory: InventorySystem,
   ) {
     this.piles = this.createPileConfigs(room).map((config) => new SearchPile(scene, config));
+    this.unsubscribeEvents.push(gameEvents.on('player.damaged', () => this.cancelSearch()));
   }
 
   update(input: PlayerInputState, deltaMs: number): SearchState {
@@ -86,6 +88,8 @@ export class SearchSystem {
   }
 
   destroy(): void {
+    this.unsubscribeEvents.forEach((unsubscribe) => unsubscribe());
+    this.unsubscribeEvents.length = 0;
     this.piles.forEach((pile) => pile.destroy());
   }
 
