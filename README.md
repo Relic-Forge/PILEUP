@@ -1,11 +1,53 @@
-# PILEUP MVP / PRD Package
+# PILEUP
 
 **Title:** PILEUP  
 **Tagline:** "I'll deal with it tomorrow."  
 **Alt line:** Famous last words.  
 **Pitch:** Search the clutter, find the key, and survive what you left behind.
 
-This package contains a v2 MVP/PRD, art bible, systems notes, asset specs, sample data manifests, and the current prototype visual references generated during concept exploration.
+This repo contains the PILEUP v2 MVP/PRD package plus the Phaser 4 + TypeScript + Vite prototype.
+
+## Run and build
+
+Requirements:
+
+- Node.js 20 or newer.
+- npm.
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Start the local dev server:
+
+```sh
+npm run dev
+```
+
+Build and typecheck:
+
+```sh
+npm run build
+```
+
+Run typecheck only:
+
+```sh
+npm run typecheck
+```
+
+Current prototype status: Phase 3. The level scene renders JSON-driven graybox room segments, follows the player placeholder across the floor plane, supports left/right and up/down movement, drains stamina while sprinting, and supports crouch/quiet movement.
+
+Controls:
+
+- `Enter` or click start: enter the level.
+- `WASD` or arrow keys: move on the floor plane.
+- `Shift`: sprint.
+- `C`: crouch.
+- `F3`: debug overlay.
+- `F4`: world layer/collision labels.
 
 ## Folder structure
 

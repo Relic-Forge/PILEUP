@@ -1,0 +1,65 @@
+{
+  "schema": "pileup_ui_layout_breakpoints_v1",
+  "units": "logical_pixels",
+  "font_strategy": "SDF_or_vector_style_font_rendering",
+  "panel_strategy": "9_slice_scaling",
+  "breakpoints": [
+    {
+      "id": "phone_compact",
+      "condition": "touch_enabled or viewport_height < 900",
+      "hud_scale": 0.9,
+      "layout": "compact",
+      "text_min_px": 18,
+      "touch_target_min_px": 48
+    },
+    {
+      "id": "tablet_landscape",
+      "condition": "touch_enabled and viewport_width >= 1200",
+      "hud_scale": 1.0,
+      "layout": "standard_touch",
+      "text_min_px": 18,
+      "touch_target_min_px": 48
+    },
+    {
+      "id": "desktop_1080",
+      "condition": "viewport_width 1280-2559",
+      "hud_scale": 1.0,
+      "layout": "standard",
+      "text_min_px": 16,
+      "touch_target_min_px": null
+    },
+    {
+      "id": "desktop_1440_4k",
+      "condition": "viewport_width >= 2560",
+      "hud_scale": 1.15,
+      "layout": "standard_large_display",
+      "text_min_px": 18,
+      "touch_target_min_px": null
+    },
+    {
+      "id": "ultrawide",
+      "condition": "aspect_ratio >= 2.1",
+      "hud_scale": 1.05,
+      "layout": "edge_safe_ultrawide",
+      "text_min_px": 18,
+      "touch_target_min_px": null
+    }
+  ],
+  "anchors": {
+    "health_stamina_mess": "top_left_safe_area",
+    "objective_time": "top_right_safe_area",
+    "inventory_hotbar": "bottom_center_safe_area",
+    "control_hints_desktop": "bottom_right_safe_area",
+    "touch_controls_phone": {
+      "movement": "bottom_left_safe_area",
+      "actions": "bottom_right_safe_area",
+      "inventory": "bottom_center_above_home_indicator"
+    }
+  },
+  "minimum_display_sizes": {
+    "inventory_icon_phone": 56,
+    "inventory_icon_desktop": 64,
+    "prompt_text_phone": 18,
+    "prompt_text_desktop": 16
+  }
+}

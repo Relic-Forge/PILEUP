@@ -1,0 +1,63 @@
+{
+  "schema": "pileup_item_pool_v1",
+  "objective_item_count_per_run": 5,
+  "required_objective_item": "front_door_key",
+  "items": [
+    {
+      "id": "front_door_key",
+      "category": "required_objective",
+      "hotbar": false,
+      "burden": 0,
+      "effect": "enables_door_boss_sequence"
+    },
+    {
+      "id": "spare_batteries",
+      "category": "consumable",
+      "hotbar": true,
+      "burden": 1,
+      "effect": "restore_flashlight_battery"
+    },
+    {
+      "id": "cleaning_spray",
+      "category": "utility_weapon",
+      "hotbar": true,
+      "burden": 1,
+      "effect": "short_stun_on_mess_enemies"
+    },
+    {
+      "id": "duct_tape",
+      "category": "utility",
+      "hotbar": true,
+      "burden": 1,
+      "effect": "repair_or_reinforce_once"
+    },
+    {
+      "id": "family_photo",
+      "category": "memory",
+      "hotbar": false,
+      "burden": 0,
+      "effect": "reduce_panic_or_unlock_postrun_token"
+    },
+    {
+      "id": "phone_charger",
+      "category": "utility",
+      "hotbar": true,
+      "burden": 1,
+      "effect": "one_clue_ping_if_phone_found"
+    },
+    {
+      "id": "toy_decoy",
+      "category": "decoy",
+      "hotbar": true,
+      "burden": 1,
+      "effect": "throw_to_create_noise_distraction"
+    },
+    {
+      "id": "junk_stack",
+      "category": "junk",
+      "hotbar": false,
+      "burden": 2,
+      "effect": "score_or_tradeoff_only"
+    }
+  ]
+}

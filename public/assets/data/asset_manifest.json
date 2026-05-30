@@ -1,0 +1,220 @@
+{
+  "project": "PILEUP",
+  "version": "mvp_prd_package_v2_responsive_display_update",
+  "created_utc": "2026-05-30T15:17:24Z",
+  "prototype_assets": [
+    {
+      "id": "laundry_monster_idle_sheet_proto_1774x887_rgb",
+      "path": "assets/reference/prototype_sprites/laundry_monster_idle_sheet_proto_1774x887_rgb.png",
+      "source_path": "/mnt/data/laundry_monster_sprite_sheet.png",
+      "pixel_size": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "status": "prototype_reference",
+      "production_notes": "Generated concept/prototype reference. Not final production art until alpha cleanup, frame alignment, source files, and export QA are complete."
+    },
+    {
+      "id": "laundry_monster_attack_sheet_proto_1774x887_rgb",
+      "path": "assets/reference/prototype_sprites/laundry_monster_attack_sheet_proto_1774x887_rgb.png",
+      "source_path": "/mnt/data/monstrous_rag_creature_attack_sequence.png",
+      "pixel_size": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "status": "prototype_reference",
+      "production_notes": "Generated concept/prototype reference. Not final production art until alpha cleanup, frame alignment, source files, and export QA are complete."
+    },
+    {
+      "id": "gameplay_ui_mockup_proto_1672x941_rgb",
+      "path": "assets/reference/concept_drawings/gameplay_ui_mockup_proto_1672x941_rgb.png",
+      "source_path": "/mnt/data/fleeing_the_nightmare_in_the_laundry_room.png",
+      "pixel_size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "status": "prototype_reference",
+      "production_notes": "Generated concept/prototype reference. Not final production art until alpha cleanup, frame alignment, source files, and export QA are complete."
+    },
+    {
+      "id": "parallax_room_mockup_proto_1672x941_rgb",
+      "path": "assets/reference/concept_drawings/parallax_room_mockup_proto_1672x941_rgb.png",
+      "source_path": "/mnt/data/surviving_the_night_in_the_laundry_room.png",
+      "pixel_size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "status": "prototype_reference",
+      "production_notes": "Generated concept/prototype reference. Not final production art until alpha cleanup, frame alignment, source files, and export QA are complete."
+    },
+    {
+      "id": "pileup_reference_contact_sheet",
+      "path": "assets/reference/pileup_reference_contact_sheet.png",
+      "pixel_size": [
+        1000,
+        660
+      ],
+      "mode": "RGB",
+      "status": "reference_index",
+      "production_notes": "Contact sheet generated from the prototype visual references."
+    }
+  ],
+  "production_targets": {
+    "runtime_canvas": [
+      1920,
+      1080
+    ],
+    "standard_enemy_frame_runtime_min": [
+      512,
+      512
+    ],
+    "standard_enemy_frame_source_preferred": [
+      1024,
+      1024
+    ],
+    "standard_enemy_sheet_runtime_8_frames_4x2": [
+      2048,
+      1024
+    ],
+    "standard_enemy_sheet_source_8_frames_4x2": [
+      4096,
+      2048
+    ],
+    "boss_frame_runtime_min": [
+      1024,
+      1024
+    ],
+    "boss_frame_source_preferred": [
+      4096,
+      4096
+    ],
+    "room_layer_source_min": [
+      3840,
+      2160
+    ],
+    "ui_icon_source": [
+      512,
+      512
+    ],
+    "required_sprite_format": "RGBA PNG with true alpha transparency",
+    "required_background_format": "Layered source + exported PNG layers",
+    "design_resolution_logical": [
+      1920,
+      1080
+    ],
+    "minimum_supported_resolution": [
+      1280,
+      720
+    ],
+    "desktop_standard_room_layer_export": [
+      2560,
+      1440
+    ],
+    "desktop_high_room_layer_export": [
+      3840,
+      2160
+    ],
+    "mobile_room_layer_export": [
+      1920,
+      1080
+    ],
+    "hero_room_segment_source_preferred": [
+      5120,
+      2880
+    ],
+    "non_hero_room_segment_source_min": [
+      3840,
+      2160
+    ],
+    "player_frame_source_preferred": [
+      2048,
+      2048
+    ],
+    "player_frame_runtime_tiers": [
+      [
+        512,
+        512
+      ],
+      [
+        768,
+        768
+      ],
+      [
+        1024,
+        1024
+      ]
+    ],
+    "hero_enemy_frame_source_preferred": [
+      2048,
+      2048
+    ],
+    "hero_enemy_frame_runtime_tiers": [
+      [
+        512,
+        512
+      ],
+      [
+        768,
+        768
+      ],
+      [
+        1024,
+        1024
+      ]
+    ],
+    "boss_frame_runtime_tiers": [
+      [
+        1024,
+        1024
+      ],
+      [
+        1536,
+        1536
+      ],
+      [
+        2048,
+        2048
+      ]
+    ],
+    "ui_icon_source_preferred": [
+      1024,
+      1024
+    ],
+    "ui_icon_runtime_tiers": [
+      [
+        128,
+        128
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        512,
+        512
+      ]
+    ],
+    "background_export_strategy": "streamable layered room segments with resolution tiers and parallax overscan",
+    "ui_strategy": "anchor-based responsive HUD with safe-area margins, 9-slice panels, and scalable fonts"
+  },
+  "quality_gate": [
+    "true_alpha_no_checkerboard",
+    "consistent_frame_size",
+    "consistent_anchor_pivot",
+    "metadata_json_present",
+    "hitboxes_hurtboxes_defined",
+    "tested_at_720p_and_1080p",
+    "style_matches_art_bible",
+    "tested_at_1440p_4k_ultrawide_phone_landscape",
+    "source_art_above_runtime_resolution",
+    "no_stretched_backgrounds",
+    "ui_safe_area_and_touch_targets_pass",
+    "parallax_overscan_bleed_present",
+    "resolution_tier_exports_present"
+  ],
+  "updated_utc": "2026-05-30T17:25:00Z"
+}

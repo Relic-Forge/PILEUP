@@ -1,0 +1,544 @@
+{
+  "schema": "pileup_level_v2_responsive_segments",
+  "level_id": "level_01_family_house",
+  "title": "The Family House",
+  "run_length_minutes_target": [
+    8,
+    12
+  ],
+  "win_conditions": [
+    "escape_through_front_door",
+    "survive_until_6am"
+  ],
+  "rooms": [
+    {
+      "id": "bedroom",
+      "order": 1,
+      "role": "start/tutorial",
+      "search_nodes": [
+        "laundry_pile",
+        "toy_bin",
+        "backpack",
+        "under_bed",
+        "dresser_drawer"
+      ],
+      "enemy_pool": [
+        "socklings",
+        "laundry_pile_monster"
+      ],
+      "width_screens": 2.25,
+      "target_traversal_seconds_walk": 17,
+      "target_search_time_seconds": 90,
+      "segment_count": 3,
+      "segments": [
+        {
+          "id": "bed_left_start",
+          "width_screens": 0.75,
+          "purpose": "safe_start",
+          "search_nodes": [
+            "backpack",
+            "dresser_drawer"
+          ],
+          "foreground_sets": [
+            "laundry_basket_left",
+            "hanging_hoodie"
+          ],
+          "background_sets": [
+            "family_photos",
+            "bookshelf",
+            "kid_drawings"
+          ],
+          "enemy_spawns": [],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "bed_center_mess",
+          "width_screens": 0.85,
+          "purpose": "search_pressure",
+          "search_nodes": [
+            "laundry_pile",
+            "toy_bin"
+          ],
+          "foreground_sets": [
+            "toy_bin_occluder"
+          ],
+          "background_sets": [
+            "bed",
+            "under_bed_shadow"
+          ],
+          "enemy_spawns": [
+            "socklings",
+            "laundry_pile_monster_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "bed_right_exit",
+          "width_screens": 0.65,
+          "purpose": "exit_gate",
+          "search_nodes": [
+            "under_bed"
+          ],
+          "foreground_sets": [
+            "bed_frame_edge"
+          ],
+          "background_sets": [
+            "doorway",
+            "closet_shadow"
+          ],
+          "enemy_spawns": [
+            "hanging_coat_stalker_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        }
+      ],
+      "art_export_profiles_required": [
+        "mobile",
+        "standard",
+        "high_4k"
+      ]
+    },
+    {
+      "id": "hallway",
+      "order": 2,
+      "role": "connector_pressure",
+      "search_nodes": [
+        "shoe_pile",
+        "mail_table",
+        "coat_rack",
+        "linen_basket"
+      ],
+      "enemy_pool": [
+        "hanging_coat_stalker",
+        "socklings"
+      ],
+      "width_screens": 1.75,
+      "target_traversal_seconds_walk": 13,
+      "target_search_time_seconds": 55,
+      "segment_count": 2,
+      "segments": [
+        {
+          "id": "hall_left_family_wall",
+          "width_screens": 0.85,
+          "purpose": "connector_pressure",
+          "search_nodes": [
+            "shoe_pile",
+            "mail_table"
+          ],
+          "foreground_sets": [
+            "banister_occluder"
+          ],
+          "background_sets": [
+            "family_photo_wall",
+            "coat_rack"
+          ],
+          "enemy_spawns": [
+            "hanging_coat_stalker_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "hall_right_linen_exit",
+          "width_screens": 0.9,
+          "purpose": "ambush_exit_gate",
+          "search_nodes": [
+            "coat_rack",
+            "linen_basket"
+          ],
+          "foreground_sets": [
+            "hanging_coats"
+          ],
+          "background_sets": [
+            "dark_bathroom_door"
+          ],
+          "enemy_spawns": [
+            "socklings"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        }
+      ],
+      "art_export_profiles_required": [
+        "mobile",
+        "standard",
+        "high_4k"
+      ]
+    },
+    {
+      "id": "bathroom",
+      "order": 3,
+      "role": "tight_resource_room",
+      "search_nodes": [
+        "hamper",
+        "medicine_cabinet",
+        "sink_drawer",
+        "towel_pile"
+      ],
+      "enemy_pool": [
+        "drawer_mimic",
+        "socklings"
+      ],
+      "width_screens": 1.5,
+      "target_traversal_seconds_walk": 11,
+      "target_search_time_seconds": 60,
+      "segment_count": 2,
+      "segments": [
+        {
+          "id": "bath_entry_sink",
+          "width_screens": 0.75,
+          "purpose": "tight_resource",
+          "search_nodes": [
+            "medicine_cabinet",
+            "sink_drawer"
+          ],
+          "foreground_sets": [
+            "doorframe_occluder"
+          ],
+          "background_sets": [
+            "mirror_sink"
+          ],
+          "enemy_spawns": [
+            "drawer_mimic_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "bath_tub_hamper",
+          "width_screens": 0.75,
+          "purpose": "ambush",
+          "search_nodes": [
+            "hamper",
+            "towel_pile"
+          ],
+          "foreground_sets": [
+            "shower_curtain"
+          ],
+          "background_sets": [
+            "tub_shadow"
+          ],
+          "enemy_spawns": [
+            "socklings"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        }
+      ],
+      "art_export_profiles_required": [
+        "mobile",
+        "standard",
+        "high_4k"
+      ]
+    },
+    {
+      "id": "kitchen",
+      "order": 4,
+      "role": "noisy_high_reward_room",
+      "search_nodes": [
+        "junk_drawer",
+        "dish_stack",
+        "trash_bag",
+        "counter_pile"
+      ],
+      "enemy_pool": [
+        "dish_stack_crawler",
+        "drawer_mimic"
+      ],
+      "width_screens": 2.75,
+      "target_traversal_seconds_walk": 21,
+      "target_search_time_seconds": 110,
+      "segment_count": 3,
+      "segments": [
+        {
+          "id": "kitchen_entry_table",
+          "width_screens": 0.85,
+          "purpose": "breather_search",
+          "search_nodes": [
+            "counter_pile"
+          ],
+          "foreground_sets": [
+            "table_chair_occluders"
+          ],
+          "background_sets": [
+            "family_calendar",
+            "fridge_drawings"
+          ],
+          "enemy_spawns": [],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "kitchen_sink_noise",
+          "width_screens": 1.0,
+          "purpose": "search_pressure",
+          "search_nodes": [
+            "dish_stack",
+            "trash_bag"
+          ],
+          "foreground_sets": [
+            "trash_can_fg"
+          ],
+          "background_sets": [
+            "sink_dishes",
+            "upper_cabinets"
+          ],
+          "enemy_spawns": [
+            "dish_stack_crawler_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "kitchen_junk_exit",
+          "width_screens": 0.9,
+          "purpose": "exit_gate",
+          "search_nodes": [
+            "junk_drawer"
+          ],
+          "foreground_sets": [
+            "island_edge"
+          ],
+          "background_sets": [
+            "pantry_shadow"
+          ],
+          "enemy_spawns": [
+            "drawer_mimic"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        }
+      ],
+      "art_export_profiles_required": [
+        "mobile",
+        "standard",
+        "high_4k"
+      ]
+    },
+    {
+      "id": "living_room_front_door",
+      "order": 5,
+      "role": "finale_escape",
+      "search_nodes": [
+        "couch_cushions",
+        "coffee_table",
+        "toy_chest",
+        "front_door_clutter"
+      ],
+      "enemy_pool": [
+        "laundry_pile_monster",
+        "hanging_coat_stalker",
+        "hoard_at_the_door"
+      ],
+      "width_screens": 3.5,
+      "target_traversal_seconds_walk": 27,
+      "target_search_time_seconds": 120,
+      "segment_count": 4,
+      "segments": [
+        {
+          "id": "living_couch_left",
+          "width_screens": 0.85,
+          "purpose": "search_pressure",
+          "search_nodes": [
+            "couch_cushions"
+          ],
+          "foreground_sets": [
+            "couch_arm_fg"
+          ],
+          "background_sets": [
+            "tv_static",
+            "photo_wall"
+          ],
+          "enemy_spawns": [
+            "socklings"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "living_toy_chest_center",
+          "width_screens": 0.85,
+          "purpose": "ambush",
+          "search_nodes": [
+            "toy_chest"
+          ],
+          "foreground_sets": [
+            "toy_bin_fg"
+          ],
+          "background_sets": [
+            "bookshelf_shadow"
+          ],
+          "enemy_spawns": [
+            "laundry_pile_monster_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "living_front_door_clutter",
+          "width_screens": 0.8,
+          "purpose": "finale_setup",
+          "search_nodes": [
+            "coffee_table",
+            "front_door_clutter"
+          ],
+          "foreground_sets": [
+            "entry_table_fg"
+          ],
+          "background_sets": [
+            "front_door",
+            "shoe_pile"
+          ],
+          "enemy_spawns": [
+            "hanging_coat_stalker_hint"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        },
+        {
+          "id": "front_door_boss",
+          "width_screens": 1.0,
+          "purpose": "finale",
+          "search_nodes": [],
+          "foreground_sets": [
+            "door_shadow_fg"
+          ],
+          "background_sets": [
+            "front_door_boss_vignette"
+          ],
+          "enemy_spawns": [
+            "hoard_at_the_door"
+          ],
+          "parallax_bleed_required": true,
+          "art_export_tiers": {
+            "mobile": "1920x1080 per 1-screen layer segment",
+            "standard": "2560x1440 per 1-screen layer segment",
+            "high_4k": "3840x2160 per 1-screen layer segment",
+            "source_master_preferred": "5120x2880 per 1-screen layer segment"
+          }
+        }
+      ],
+      "art_export_profiles_required": [
+        "mobile",
+        "standard",
+        "high_4k"
+      ]
+    }
+  ],
+  "randomization_rules": {
+    "objective_items_per_run": 5,
+    "key_spawn_rooms_allowed": [
+      "bedroom",
+      "hallway",
+      "bathroom",
+      "kitchen",
+      "living_room_front_door"
+    ],
+    "key_cannot_spawn_in": [
+      "front_door_clutter_after_boss_trigger"
+    ],
+    "max_active_standard_enemies_per_room": 3,
+    "ambush_piles_per_run_range": [
+      3,
+      7
+    ],
+    "fixed_boss_location": "living_room_front_door"
+  },
+  "level_length_tuning": {
+    "one_screen_width_units": 100,
+    "player_walk_speed_units_per_second": [
+      12,
+      16
+    ],
+    "player_sprint_speed_units_per_second": [
+      22,
+      26
+    ],
+    "total_width_screens": 11.75,
+    "length_editing_rule": "Lengthen rooms by adding/removing segment objects, not by stretching art."
+  },
+  "display_and_scaling": {
+    "design_resolution_logical": [
+      1920,
+      1080
+    ],
+    "room_width_uses_screen_units_not_pixels": true,
+    "asset_layers_are_streamed_by_segment": true,
+    "backgrounds_do_not_stretch_to_fit": true,
+    "ultrawide_behavior": "show_additional_side_world_and_parallax_edges_with_safe_gameplay_area",
+    "phone_behavior": "landscape_compact_hud_preserve_player_enemy_scale",
+    "required_art_export_profiles": [
+      "mobile",
+      "standard",
+      "high_4k"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "depthTargets": [
+    "foreground",
+    "main",
+    "background"
+  ],
+  "states": [
+    "off",
+    "weak",
+    "normal",
+    "focused",
+    "flicker"
+  ],
+  "enemyResponses": {
+    "laundry_monster": {
+      "darkness": "moves slowly toward player",
+      "weak": "visible but not stopped",
+      "normal_under_1500ms": "slows/freezes",
+      "normal_over_2500ms": "enraged lunge",
+      "focused": "stuns if battery/stamina available; otherwise enrages"
+    },
+    "sock_goblin": {
+      "darkness": "fast movement",
+      "weak": "hesitates",
+      "normal": "retreats",
+      "focused": "brief stun"
+    },
+    "hanger_stalker": {
+      "darkness": "stalks from background or foreground",
+      "weak": "silhouette revealed",
+      "normal": "freezes",
+      "focused": "forced retreat or main-plane reveal"
+    },
+    "toy_swarm": {
+      "darkness": "spreads",
+      "weak": "path visible",
+      "normal": "slows/scatters",
+      "focused": "inefficient; clears small cone only"
+    }
+  }
+}

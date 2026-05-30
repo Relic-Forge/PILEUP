@@ -1,0 +1,113 @@
+{
+  "schema": "pileup_display_scaling_profile_v1",
+  "design_resolution_logical": {
+    "width": 1920,
+    "height": 1080,
+    "aspect": "16:9"
+  },
+  "world_scale": {
+    "one_screen_width_units": 100,
+    "movement_and_combat_use_world_units": true,
+    "camera_and_resolution_do_not_change_enemy_ranges": true
+  },
+  "supported_targets": [
+    {
+      "id": "minimum_window",
+      "resolution": [
+        1280,
+        720
+      ],
+      "mode": "playable_minimum"
+    },
+    {
+      "id": "desktop_1080",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "mode": "baseline"
+    },
+    {
+      "id": "desktop_1440",
+      "resolution": [
+        2560,
+        1440
+      ],
+      "mode": "standard_high"
+    },
+    {
+      "id": "desktop_4k",
+      "resolution": [
+        3840,
+        2160
+      ],
+      "mode": "premium_high"
+    },
+    {
+      "id": "ultrawide_21_9",
+      "resolution": [
+        3440,
+        1440
+      ],
+      "mode": "extra_horizontal_reveal"
+    },
+    {
+      "id": "phone_landscape",
+      "resolution": "device dependent",
+      "mode": "compact_safe_area"
+    }
+  ],
+  "camera_modes": {
+    "baseline_16_9": {
+      "show_more_world": false,
+      "preserve_safe_area": true
+    },
+    "wider_than_16_9": {
+      "show_more_horizontal_world": true,
+      "stretch_backgrounds": false,
+      "cap_enemy_agro_by_world_units": true
+    },
+    "smaller_or_phone": {
+      "preserve_player_enemy_scale": true,
+      "show_less_peripheral_art_if_needed": true,
+      "compact_hud": true
+    }
+  },
+  "safe_areas": {
+    "critical_gameplay_safe_area_percent": {
+      "width": 80,
+      "height": 78
+    },
+    "desktop_hud_margin_percent": 5,
+    "phone_hud_margin_percent": [
+      7,
+      10
+    ],
+    "no_critical_telegraph_outside_safe_area": true
+  },
+  "parallax_overscan": {
+    "far_bg": {
+      "horizontal_percent": 10,
+      "vertical_percent": 8
+    },
+    "bg_clutter": {
+      "horizontal_percent": 15,
+      "vertical_percent": 10
+    },
+    "main_floor": {
+      "horizontal_percent": 10,
+      "vertical_percent": 8
+    },
+    "fg_clutter": {
+      "horizontal_percent": [
+        20,
+        30
+      ],
+      "vertical_percent": 12
+    },
+    "fx_light": {
+      "horizontal_percent": 15,
+      "vertical_percent": 10
+    }
+  }
+}
