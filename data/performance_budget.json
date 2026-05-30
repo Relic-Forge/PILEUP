@@ -1,0 +1,28 @@
+{
+  "targets": {
+    "desktop1080p": {
+      "fps": 60
+    },
+    "desktop4k": {
+      "fpsPreferred": 60,
+      "fpsMinimumHeavyScene": 45
+    },
+    "phoneLandscape": {
+      "fpsMinimum": 30,
+      "fpsTarget": 60
+    }
+  },
+  "limits": {
+    "maxActiveMajorEnemies": 2,
+    "maxActiveSmallEnemies": 6,
+    "maxTotalActiveEnemies": 8,
+    "maxActiveSearchNodesLoaded": 12,
+    "maxCoreParallaxLayersPerSegment": 5,
+    "maxParticleEmittersDesktop": 6,
+    "maxParticleEmittersPhone": 3,
+    "maxLoadedRoomSegments": 3,
+    "maxRuntimeAtlasPhone": 4096,
+    "maxRuntimeAtlasDesktop": 4096,
+    "maxRuntimeAtlasDesktopHighVerified": 8192
+  }
+}

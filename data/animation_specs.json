@@ -1,0 +1,175 @@
+{
+  "schema": "pileup_animation_specs_v2_responsive_tiers",
+  "defaults": {
+    "sheet_layout": "4x2 for 8-frame animations unless otherwise noted",
+    "standard_frame_runtime": [
+      512,
+      512
+    ],
+    "standard_frame_source": [
+      1024,
+      1024
+    ],
+    "format": "RGBA PNG",
+    "anchor": "feet_center_or_body_base_center",
+    "design_resolution_logical": [
+      1920,
+      1080
+    ],
+    "runtime_frame_tiers": {
+      "mobile": [
+        512,
+        512
+      ],
+      "standard": [
+        768,
+        768
+      ],
+      "high_4k": [
+        1024,
+        1024
+      ]
+    },
+    "source_frame_preferred": [
+      2048,
+      2048
+    ],
+    "boss_source_frame_preferred": [
+      4096,
+      4096
+    ],
+    "atlas_max": {
+      "mobile": [
+        4096,
+        4096
+      ],
+      "desktop": [
+        8192,
+        8192
+      ]
+    },
+    "mipmaps_or_scaled_tiers_required": true
+  },
+  "laundry_pile_monster": {
+    "idle": {
+      "frames": 8,
+      "fps": 6,
+      "loop": true,
+      "target_sheet_runtime": [
+        2048,
+        1024
+      ]
+    },
+    "attack": {
+      "frames": 8,
+      "fps": 10,
+      "loop": false,
+      "target_sheet_runtime": [
+        2048,
+        1024
+      ]
+    },
+    "awaken": {
+      "frames": 8,
+      "fps": 8,
+      "loop": false,
+      "target_sheet_runtime": [
+        2048,
+        1024
+      ]
+    },
+    "crawl": {
+      "frames": 8,
+      "fps": 8,
+      "loop": true,
+      "target_sheet_runtime": [
+        2048,
+        1024
+      ]
+    },
+    "freeze_in_light": {
+      "frames": 4,
+      "fps": 6,
+      "loop": true
+    },
+    "light_lunge": {
+      "frames": 8,
+      "fps": 12,
+      "loop": false
+    },
+    "stunned": {
+      "frames": 6,
+      "fps": 8,
+      "loop": false
+    },
+    "retreat": {
+      "frames": 8,
+      "fps": 8,
+      "loop": false
+    },
+    "layer_transition_background_to_main": {
+      "frames": 8,
+      "fps": 10,
+      "loop": false
+    },
+    "layer_transition_foreground_to_main": {
+      "frames": 8,
+      "fps": 10,
+      "loop": false
+    },
+    "responsive_export_note": "Export mobile, standard, and high/4K tiers; maintain same pivots and hitboxes across tiers."
+  },
+  "player": {
+    "idle": {
+      "frames": 8,
+      "fps": 6,
+      "loop": true
+    },
+    "walk": {
+      "frames": 10,
+      "fps": 10,
+      "loop": true
+    },
+    "run": {
+      "frames": 10,
+      "fps": 14,
+      "loop": true
+    },
+    "depth_step_up": {
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "depth_step_down": {
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "search": {
+      "frames": 12,
+      "fps": 10,
+      "loop": true
+    },
+    "broom_attack": {
+      "frames": 8,
+      "fps": 12,
+      "loop": false
+    },
+    "spray_use": {
+      "frames": 6,
+      "fps": 10,
+      "loop": false
+    },
+    "hurt": {
+      "frames": 6,
+      "fps": 8,
+      "loop": false
+    },
+    "unlock_door": {
+      "frames": 12,
+      "fps": 8,
+      "loop": true
+    },
+    "responsive_export_note": "Export mobile, standard, and high/4K tiers; maintain same pivots and hitboxes across tiers."
+  }
+}

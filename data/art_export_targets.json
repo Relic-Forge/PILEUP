@@ -1,0 +1,155 @@
+{
+  "schema": "pileup_art_export_targets_v1",
+  "room_segment_per_one_screen": {
+    "source_master_preferred": [
+      5120,
+      2880
+    ],
+    "source_master_minimum_non_hero": [
+      3840,
+      2160
+    ],
+    "exports": {
+      "mobile": [
+        1920,
+        1080
+      ],
+      "standard": [
+        2560,
+        1440
+      ],
+      "high_4k": [
+        3840,
+        2160
+      ]
+    },
+    "split_if_wider_than_screens": 1.0,
+    "do_not_stretch": true
+  },
+  "sprites": {
+    "player": {
+      "source_frame_preferred": [
+        2048,
+        2048
+      ],
+      "runtime_tiers": {
+        "mobile": [
+          512,
+          512
+        ],
+        "standard": [
+          768,
+          768
+        ],
+        "high_4k": [
+          1024,
+          1024
+        ]
+      }
+    },
+    "hero_enemy_laundry_monster": {
+      "source_frame_preferred": [
+        2048,
+        2048
+      ],
+      "runtime_tiers": {
+        "mobile": [
+          512,
+          512
+        ],
+        "standard": [
+          768,
+          768
+        ],
+        "high_4k": [
+          1024,
+          1024
+        ]
+      }
+    },
+    "boss": {
+      "source_frame_preferred": [
+        4096,
+        4096
+      ],
+      "runtime_tiers": {
+        "standard": [
+          1024,
+          1024
+        ],
+        "high_4k": [
+          1536,
+          1536
+        ],
+        "cinematic": [
+          2048,
+          2048
+        ]
+      }
+    },
+    "pickup_props": {
+      "source_preferred": [
+        1024,
+        1024
+      ],
+      "runtime_range_px": [
+        256,
+        512
+      ]
+    },
+    "ui_icons": {
+      "source_preferred": [
+        1024,
+        1024
+      ],
+      "runtime_tiers": {
+        "small": [
+          128,
+          128
+        ],
+        "standard": [
+          256,
+          256
+        ],
+        "large": [
+          512,
+          512
+        ]
+      }
+    }
+  },
+  "texture_atlases": {
+    "mobile_max": [
+      4096,
+      4096
+    ],
+    "desktop_max": [
+      8192,
+      8192
+    ],
+    "grouping_rule": "pack by character_state_group or room_segment_group, not entire game"
+  },
+  "qa_resolutions": [
+    [
+      1280,
+      720
+    ],
+    [
+      1920,
+      1080
+    ],
+    [
+      2560,
+      1440
+    ],
+    [
+      3840,
+      2160
+    ],
+    [
+      3440,
+      1440
+    ],
+    "phone_landscape"
+  ]
+}

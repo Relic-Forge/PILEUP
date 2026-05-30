@@ -1,0 +1,28 @@
+{
+  "schema": "pileup_responsive_ui_tokens_v1",
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32
+  },
+  "safe_margin_percent": {
+    "desktop": 5,
+    "phone_min": 7,
+    "phone_max": 10
+  },
+  "font_sizes": {
+    "hud_small": 16,
+    "hud_phone_min": 18,
+    "objective_large": 32,
+    "objective_phone": 24
+  },
+  "scales": {
+    "phone_compact": 0.9,
+    "desktop": 1.0,
+    "desktop_4k": 1.15,
+    "ultrawide": 1.05
+  },
+  "touch_target_min_logical_px": 48
+}

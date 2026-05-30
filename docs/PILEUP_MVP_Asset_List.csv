@@ -1,0 +1,15 @@
+Category,Asset,MVP Required,Target Runtime Size,Source Size,Format,Status
+Character,player_child,Yes,512x512 frames,768-1024 square frames,RGBA PNG,Not started
+Enemy,laundry_pile_monster,Yes,512x512 frames,1024x1024 frames,RGBA PNG,Prototype reference included
+Enemy,socklings,Yes,256-512 frames,512-1024 frames,RGBA PNG,Not started
+Enemy,drawer_mimic,Yes,512 frames,1024 frames,RGBA PNG,Not started
+Enemy,hanging_coat_stalker,Yes,512 frames,1024 frames,RGBA PNG,Not started
+Enemy,dish_stack_crawler,Yes,512 frames,1024 frames,RGBA PNG,Not started
+Boss,hoard_at_the_door,Yes,1024+ frames,2048 frames,RGBA PNG,Not started
+Room,level01_bedroom_layers,Yes,1920x1080 view,3840x2160 layers,PNG layers,Concept reference only
+Room,level01_hallway_layers,Yes,1920x1080 view,3840x2160 layers,PNG layers,Not started
+Room,level01_bathroom_layers,Yes,1920x1080 view,3840x2160 layers,PNG layers,Not started
+Room,level01_kitchen_layers,Yes,1920x1080 view,3840x2160 layers,PNG layers,Not started
+Room,level01_living_room_front_door_layers,Yes,1920x1080 view,3840x2160 layers,PNG layers,Not started
+UI,hud_inventory_bars_objectives,Yes,1920x1080 layout,3840x2160 source,PNG/SVG,Concept reference included
+VFX,flashlight_cone_masks,Yes,1920x1080 masks,3840x2160 source,PNG/Shader,Not started

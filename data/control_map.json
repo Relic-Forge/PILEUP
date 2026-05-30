@@ -1,0 +1,51 @@
+{
+  "keyboardMouse": {
+    "moveHorizontal": [
+      "A/D",
+      "Left/Right"
+    ],
+    "moveDepth": [
+      "W/S",
+      "Up/Down"
+    ],
+    "aim": "Mouse",
+    "flashlightDepthCycle": [
+      "MouseWheel",
+      "Q/E"
+    ],
+    "sprint": "Shift",
+    "crouchQuiet": "Ctrl",
+    "interactSearchUnlock": "E hold",
+    "useAttack": "LeftClick",
+    "focusFlashlight": "RightClick",
+    "hotbar": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "pause": "Esc",
+    "debugOverlay": "F3"
+  },
+  "controller": {
+    "move": "LeftStick",
+    "aim": "RightStick",
+    "focusFlashlight": "LT",
+    "useAttack": "RT",
+    "interactSearchUnlock": "A/Cross hold",
+    "cancelBackstep": "B/Circle",
+    "hotbarCycle": "LB/RB",
+    "flashlightDepthCycle": "Y/Triangle",
+    "pause": "Start"
+  },
+  "phoneLandscape": {
+    "move": "left virtual stick",
+    "aim": "right drag region",
+    "flashlightDepthCycle": "depth toggle button",
+    "interactSearchUnlock": "interact hold button",
+    "useAttack": "use button",
+    "sprint": "sprint hold button",
+    "hotbar": "compact current item plus cycle buttons"
+  }
+}

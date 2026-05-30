@@ -1,0 +1,78 @@
+{
+  "schema": "pileup_room_segment_schema_v2_responsive_art",
+  "description": "Defines tunable room length, segment composition, parallax layers, search nodes, and threat integration for PILEUP rooms.",
+  "viewport_reference": {
+    "width_px": 1920,
+    "height_px": 1080,
+    "one_screen_width_units": 100
+  },
+  "room_fields": {
+    "room_id": "string",
+    "width_screens": "number",
+    "target_traversal_seconds_walk": "number",
+    "target_search_time_seconds": "number",
+    "clutter_density": "low|medium|medium_high|high",
+    "foreground_occlusion_density": "low|medium|high",
+    "background_threat_density": "low|medium|high",
+    "segments": "array<segment>"
+  },
+  "segment_fields": {
+    "id": "string",
+    "width_screens": "number",
+    "purpose": "safe_start|search_pressure|ambush|breather|exit_gate|finale",
+    "search_nodes": "array<string>",
+    "foreground_sets": "array<string>",
+    "background_sets": "array<string>",
+    "enemy_spawns": "array<string>",
+    "light_zones": "array<string>",
+    "collision_map": "string",
+    "parallax_layers": {
+      "far_bg": "asset_id",
+      "bg_clutter": "asset_id",
+      "main_floor": "asset_id",
+      "fg_clutter": "asset_id",
+      "light_mask": "asset_id"
+    },
+    "art_export_profiles": "array<mobile|standard|high_4k>",
+    "overscan_bleed": {
+      "far_bg": "10%x8%",
+      "bg_clutter": "15%x10%",
+      "main_floor": "10%x8%",
+      "fg_clutter": "20-30%x12%",
+      "fx_light": "15%x10%"
+    }
+  },
+  "recommended_widths": {
+    "small_connector": {
+      "width_screens": 1.5,
+      "width_units": 150
+    },
+    "standard_room": {
+      "width_screens": 2.25,
+      "width_units": 225
+    },
+    "search_heavy_room": {
+      "width_screens": 2.75,
+      "width_units": 275
+    },
+    "finale_room": {
+      "width_screens": 3.5,
+      "width_units": 350
+    }
+  },
+  "display_scaling_requirements": {
+    "logical_design_resolution": [
+      1920,
+      1080
+    ],
+    "room_length_defined_in_screen_units": true,
+    "pixel_exports_defined_by_art_export_profile": true,
+    "per_segment_art_tiers_required": [
+      "mobile",
+      "standard",
+      "high_4k"
+    ],
+    "overscan_bleed_required": true,
+    "ui_is_not_baked_into_room_art": true
+  }
+}

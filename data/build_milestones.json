@@ -1,0 +1,147 @@
+{
+  "version": "2.1",
+  "engine": "Phaser 4.x",
+  "language": "TypeScript",
+  "milestones": [
+    {
+      "id": "phase_0_scaffold",
+      "name": "Project scaffold",
+      "mustPass": [
+        "npm install",
+        "npm run dev",
+        "npm run build",
+        "title scene visible",
+        "debug overlay toggles"
+      ]
+    },
+    {
+      "id": "phase_1_responsive",
+      "name": "Responsive canvas and camera foundation",
+      "mustPass": [
+        "1280x720",
+        "1920x1080",
+        "4K",
+        "ultrawide",
+        "phone landscape",
+        "portrait rotate prompt"
+      ]
+    },
+    {
+      "id": "phase_2_parallax",
+      "name": "Room segment and parallax renderer",
+      "mustPass": [
+        "segment loaded from JSON",
+        "foreground overlaps",
+        "background recedes",
+        "no blank edges"
+      ]
+    },
+    {
+      "id": "phase_3_player",
+      "name": "Player floor-plane controller",
+      "mustPass": [
+        "left/right movement",
+        "up/down movement",
+        "blockers",
+        "sprint",
+        "crouch",
+        "y-sort"
+      ]
+    },
+    {
+      "id": "phase_4_flashlight",
+      "name": "Flashlight depth system",
+      "mustPass": [
+        "aim cone",
+        "depth target FG/main/BG",
+        "focus beam",
+        "HUD indicator",
+        "hit detection"
+      ]
+    },
+    {
+      "id": "phase_5_search_loot",
+      "name": "Search loot inventory",
+      "mustPass": [
+        "hold search",
+        "cancel search",
+        "noise",
+        "loot result",
+        "hotbar",
+        "burden"
+      ]
+    },
+    {
+      "id": "phase_6_enemy_laundry",
+      "name": "Enemy framework and Laundry Monster",
+      "mustPass": [
+        "state machine",
+        "telegraph",
+        "flashlight reactions",
+        "damage",
+        "debug states"
+      ]
+    },
+    {
+      "id": "phase_7_vertical_slice",
+      "name": "One-room vertical slice",
+      "mustPass": [
+        "find key",
+        "unlock door",
+        "win",
+        "lose",
+        "complete under 3 minutes"
+      ]
+    },
+    {
+      "id": "phase_8_full_level",
+      "name": "Full Level 01 room sequence",
+      "mustPass": [
+        "5 rooms",
+        "fair randomization",
+        "enemy pressure ramp",
+        "seeded runs"
+      ]
+    },
+    {
+      "id": "phase_9_boss_escape",
+      "name": "Boss door sequence",
+      "mustPass": [
+        "boss trigger",
+        "door hold",
+        "interruptions",
+        "victory"
+      ]
+    },
+    {
+      "id": "phase_10_audio_feedback",
+      "name": "Audio/feedback pass",
+      "mustPass": [
+        "depth cues",
+        "search cues",
+        "enemy telegraphs",
+        "boss ramp"
+      ]
+    },
+    {
+      "id": "phase_11_mobile",
+      "name": "Mobile/responsive polish",
+      "mustPass": [
+        "touch controls",
+        "compact HUD",
+        "30 FPS phone",
+        "safe areas"
+      ]
+    },
+    {
+      "id": "phase_12_hardening",
+      "name": "Hardening and handoff",
+      "mustPass": [
+        "QA checklist",
+        "known issues",
+        "release flags",
+        "data validation"
+      ]
+    }
+  ]
+}

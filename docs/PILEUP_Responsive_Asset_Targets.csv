@@ -1,0 +1,6 @@
+Asset Type,Source Target,Mobile Export,Standard Export,High/4K Export,Notes
+Room segment layer,5120x2880 preferred,1920x1080,2560x1440,3840x2160,Split into segment tiles; do not stretch
+Player frame,2048x2048 preferred,512x512,768x768,1024x1024,Same pivots/hitboxes across tiers
+Hero enemy frame,2048x2048 preferred,512x512,768x768,1024x1024,Laundry monster is hero enemy
+Boss frame,4096x4096 preferred,1024x1024,1024-1536x1536,1536-2048x2048,Split sheets by animation
+Inventory icon,1024x1024 preferred,128-256,256,512,Readable on phone and 4K

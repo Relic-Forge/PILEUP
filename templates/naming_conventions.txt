@@ -1,0 +1,35 @@
+PILEUP naming conventions
+
+General:
+- Use lowercase_snake_case.
+- Include character/enemy id, animation/state, frame or sheet, and version.
+- Do not use spaces.
+
+Examples:
+- laundry_pile_monster_idle_sheet_v001.png
+- laundry_pile_monster_attack_sheet_v001.png
+- laundry_pile_monster_attack_meta_v001.json
+- level01_bedroom_far_bg_v001.png
+- level01_bedroom_fg_clutter_v001.png
+- ui_icon_flashlight_v001.png
+
+Layer naming:
+- far_bg
+- bg_clutter
+- main_floor
+- fg_clutter
+- fx_light
+
+Animation states:
+- dormant
+- awaken
+- idle
+- move
+- crawl
+- attack
+- lunge
+- stunned
+- retreat
+- death
+- layer_transition_bg_to_main
+- layer_transition_fg_to_main

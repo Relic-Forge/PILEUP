@@ -1,0 +1,128 @@
+{
+  "schema": "pileup_enemy_archetypes_v1",
+  "archetypes": [
+    {
+      "id": "laundry_pile_monster",
+      "display_name": "Laundry Pile Monster",
+      "native_layers": [
+        "main_plane",
+        "background_clutter"
+      ],
+      "light_response": "freeze_then_lunge",
+      "sound_response": "attracted",
+      "attack_types": [
+        "heavy_swipe",
+        "grab"
+      ],
+      "role": "main pressure enemy",
+      "telegraphs": [
+        "cloth_twitch",
+        "glowing_eyes",
+        "low_rumble",
+        "dust_lint_burst"
+      ]
+    },
+    {
+      "id": "socklings",
+      "display_name": "Socklings",
+      "native_layers": [
+        "foreground_clutter",
+        "main_plane"
+      ],
+      "light_response": "scatter_in_light",
+      "sound_response": "swarm_noise",
+      "attack_types": [
+        "swarm",
+        "stamina_drain"
+      ],
+      "role": "movement pressure and search punishment",
+      "telegraphs": [
+        "tiny_eye_glints",
+        "rustle",
+        "floor_skitter"
+      ]
+    },
+    {
+      "id": "drawer_mimic",
+      "display_name": "Drawer Mimic",
+      "native_layers": [
+        "background_clutter",
+        "main_plane"
+      ],
+      "light_response": "reveals_eye_glint",
+      "sound_response": "dormant_until_search",
+      "attack_types": [
+        "bite",
+        "grab"
+      ],
+      "role": "loot paranoia",
+      "telegraphs": [
+        "handle_twitch",
+        "soft_knock",
+        "thin_eye_line"
+      ]
+    },
+    {
+      "id": "hanging_coat_stalker",
+      "display_name": "Hanging Coat Stalker",
+      "native_layers": [
+        "foreground_clutter",
+        "background_clutter"
+      ],
+      "light_response": "moves_when_unwatched",
+      "sound_response": "stalks_quietly",
+      "attack_types": [
+        "foreground_lunge",
+        "screen_edge_grab"
+      ],
+      "role": "depth threat and paranoia",
+      "telegraphs": [
+        "silhouette_shift",
+        "hanger_creak",
+        "sleeve_twitch"
+      ]
+    },
+    {
+      "id": "dish_stack_crawler",
+      "display_name": "Dish Stack Crawler",
+      "native_layers": [
+        "background_clutter"
+      ],
+      "light_response": "reflect_stun_window",
+      "sound_response": "clatter_attracted",
+      "attack_types": [
+        "counter_leap",
+        "shard_scratch"
+      ],
+      "role": "kitchen room variant",
+      "telegraphs": [
+        "dish_clink",
+        "wet_drag",
+        "brief_reflection"
+      ]
+    },
+    {
+      "id": "hoard_at_the_door",
+      "display_name": "The Hoard at the Door",
+      "native_layers": [
+        "foreground_clutter",
+        "main_plane",
+        "background_clutter"
+      ],
+      "light_response": "multi_segment_mixed",
+      "sound_response": "reacts_to_unlock_progress",
+      "attack_types": [
+        "foreground_grab",
+        "main_lunge",
+        "background_collapse"
+      ],
+      "role": "final boss-stage escape pressure",
+      "telegraphs": [
+        "door_creak",
+        "clutter_surge",
+        "many_eyes",
+        "lock_jam"
+      ]
+    }
+  ]
+}

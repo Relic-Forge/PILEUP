@@ -1,0 +1,47 @@
+{
+  "id": "enemy_or_character_animation_id",
+  "asset_file": "relative/path/to/sheet.png",
+  "frame_width": 512,
+  "frame_height": 512,
+  "columns": 4,
+  "rows": 2,
+  "frame_count": 8,
+  "fps": 10,
+  "loop": false,
+  "anchor": {
+    "x": 256,
+    "y": 420,
+    "description": "body base / feet center"
+  },
+  "hitboxes": [
+    {
+      "frame_range": [
+        0,
+        7
+      ],
+      "x": 160,
+      "y": 160,
+      "w": 200,
+      "h": 240
+    }
+  ],
+  "hurtboxes": [
+    {
+      "frame_range": [
+        0,
+        7
+      ],
+      "x": 120,
+      "y": 120,
+      "w": 280,
+      "h": 300
+    }
+  ],
+  "events": [
+    {
+      "frame": 5,
+      "event": "attack_active"
+    }
+  ],
+  "notes": "Replace values per asset."
+}

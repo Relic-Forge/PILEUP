@@ -1,0 +1,33 @@
+{
+  "version": "2.1",
+  "designResolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "worldUnit": "design pixel",
+  "floorPlane": {
+    "defaultYMin": 560,
+    "defaultYMax": 900,
+    "depthSortBy": "feetY"
+  },
+  "roomLengthRule": "lengthen by adding room segments, not stretching art",
+  "defaultParallaxScrollFactors": {
+    "farBackground": 0.2,
+    "backgroundClutter": 0.45,
+    "mainGameplay": 1.0,
+    "foregroundClutter": 1.18,
+    "fxLighting": 1.0
+  },
+  "camera": {
+    "followTarget": "player",
+    "deadzone": {
+      "width": 360,
+      "height": 180
+    },
+    "smoothing": {
+      "x": 0.1,
+      "y": 0.08
+    },
+    "ultrawideReveal": "allow extra horizontal context within art bleed; do not reveal blank edges"
+  }
+}
