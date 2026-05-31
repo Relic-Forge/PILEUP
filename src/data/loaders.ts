@@ -8,7 +8,7 @@ import type {
   SourceRoomData,
 } from './levelTypes';
 
-export const dataAssetPath = (fileName: string): string => `/assets/data/${fileName}`;
+export const dataAssetPath = (fileName: string): string => `${import.meta.env.BASE_URL}assets/data/${fileName}`;
 
 const hashSeed = (seed: string): number => {
   let hash = 2166136261;

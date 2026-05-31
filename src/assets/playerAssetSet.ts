@@ -19,7 +19,7 @@ export interface PlayerAssetSet {
 }
 
 export const PLAYER_ASSET_SET_KEY = 'playerChildAssetSet';
-export const PLAYER_ASSET_SET_URL = '/assets/characters/player_child/v0_2/player_child_v0_2.asset.json';
+export const PLAYER_ASSET_SET_URL = `${import.meta.env.BASE_URL}assets/characters/player_child/v0_2/player_child_v0_2.asset.json`;
 export const PLAYER_ANIMATION_PREFIX = 'player_child';
 
 export function selectPlayerRuntimeTier(width: number, devicePixelRatio: number, override?: string | null): PlayerRuntimeTier {
@@ -39,7 +39,7 @@ export function selectPlayerRuntimeTier(width: number, devicePixelRatio: number,
 }
 
 export function publicAssetPath(path: string): string {
-  return path.replace(/^public\//, '/');
+  return `${import.meta.env.BASE_URL}${path.replace(/^public\//, '')}`;
 }
 
 export function playerAnimationKey(animationId: string): string {

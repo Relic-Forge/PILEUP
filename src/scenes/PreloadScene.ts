@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { dataAssetPath } from '../data/loaders';
 import {
   PLAYER_ASSET_SET_KEY,
   PLAYER_ASSET_SET_URL,
@@ -16,10 +17,10 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.json('buildMilestones', '/assets/data/build_milestones.json');
-    this.load.json('controlMap', '/assets/data/control_map.json');
-    this.load.json('level01FamilyHouse', '/assets/data/level_01_family_house.json');
-    this.load.json('runtimeWorldUnits', '/assets/data/runtime_world_units.json');
+    this.load.json('buildMilestones', dataAssetPath('build_milestones.json'));
+    this.load.json('controlMap', dataAssetPath('control_map.json'));
+    this.load.json('level01FamilyHouse', dataAssetPath('level_01_family_house.json'));
+    this.load.json('runtimeWorldUnits', dataAssetPath('runtime_world_units.json'));
     this.load.json(PLAYER_ASSET_SET_KEY, PLAYER_ASSET_SET_URL);
   }
 
