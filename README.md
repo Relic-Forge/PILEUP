@@ -133,3 +133,13 @@ templates/package_json_phaser4_template.json
 ```
 
 Implementation rule: build phase-by-phase and do not advance until the acceptance criteria for the current phase pass.
+
+## Asset generation quality guardrails
+
+Before generating, replacing, or promoting any new art asset, read:
+
+```text
+docs/PILEUP_Asset_Generation_Quality_Guardrails.md
+```
+
+Core rule: approved assets are locked design references. Gameplay implementation phases may place, configure, animate, export, or reference approved assets, but they must not redesign or replace approved art unless a new asset version is explicitly requested and approved.
