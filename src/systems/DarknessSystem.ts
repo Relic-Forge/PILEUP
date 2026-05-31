@@ -99,6 +99,7 @@ const PLAYER_SPILL_RADIUS = 118;
 const DARKNESS_DEPTH = 1_390;
 const VIGNETTE_DEPTH = 1_392;
 const LIGHT_FX_DEPTH = 1_450;
+const SCREEN_SURFACE_OVERSCAN_PX = 160;
 
 export class DarknessSystem {
   private readonly darkness: Phaser.GameObjects.RenderTexture;
@@ -275,6 +276,8 @@ export class DarknessSystem {
     const zoom = Math.max(0.001, camera.zoom);
     const width = Math.max(1, Math.ceil(camera.width));
     const height = Math.max(1, Math.ceil(camera.height));
+    const surfaceWidth = width + SCREEN_SURFACE_OVERSCAN_PX * 2;
+    const surfaceHeight = height + SCREEN_SURFACE_OVERSCAN_PX * 2;
     this.projection = {
       scrollX: camera.scrollX,
       scrollY: camera.scrollY,
@@ -282,18 +285,19 @@ export class DarknessSystem {
       height,
       zoom,
     };
-    if (this.darkness.width !== width || this.darkness.height !== height) {
-      this.darkness.resize(width, height);
+    if (this.darkness.width !== surfaceWidth || this.darkness.height !== surfaceHeight) {
+      this.darkness.resize(surfaceWidth, surfaceHeight);
     }
 
     const inverseZoom = 1 / zoom;
-    this.darkness.setPosition(0, 0).setScale(inverseZoom);
-    this.vignette.setPosition(0, 0).setScale(inverseZoom);
+    const overscanOffset = -SCREEN_SURFACE_OVERSCAN_PX * inverseZoom;
+    this.darkness.setPosition(overscanOffset, overscanOffset).setScale(inverseZoom);
+    this.vignette.setPosition(overscanOffset, overscanOffset).setScale(inverseZoom);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
-    const screenX = (x - this.projection.scrollX) * this.projection.zoom;
-    const screenY = (y - this.projection.scrollY) * this.projection.zoom;
+    const screenX = (x - this.projection.scrollX) * this.projection.zoom + SCREEN_SURFACE_OVERSCAN_PX;
+    const screenY = (y - this.projection.scrollY) * this.projection.zoom + SCREEN_SURFACE_OVERSCAN_PX;
     this.drawSoftEraseCircle(screenX, screenY, radius * this.projection.zoom, strength);
   }
 
@@ -380,17 +384,20 @@ export class DarknessSystem {
   private renderVignette(light: FlashlightState | undefined): void {
     const profile = LAYER_LIGHT_PROFILES[light?.layer ?? 'main'];
     const view = this.projection;
+    const origin = SCREEN_SURFACE_OVERSCAN_PX;
+    const totalWidth = view.width + SCREEN_SURFACE_OVERSCAN_PX * 2;
+    const totalHeight = view.height + SCREEN_SURFACE_OVERSCAN_PX * 2;
     const topHeight = 72;
     const bottomHeight = 96;
     const sideWidth = 78;
     const alpha = profile.vignetteAlpha + (light?.batteryInstability01 ?? 0) * 0.12;
     this.vignette.clear();
     this.vignette.fillStyle(0x000000, alpha * 0.62);
-    this.vignette.fillRect(0, 0, view.width, topHeight);
-    this.vignette.fillRect(0, view.height - bottomHeight, view.width, bottomHeight);
+    this.vignette.fillRect(0, 0, totalWidth, origin + topHeight);
+    this.vignette.fillRect(0, origin + view.height - bottomHeight, totalWidth, origin + bottomHeight);
     this.vignette.fillStyle(0x000000, alpha * 0.42);
-    this.vignette.fillRect(0, 0, sideWidth, view.height);
-    this.vignette.fillRect(view.width - sideWidth, 0, sideWidth, view.height);
+    this.vignette.fillRect(0, 0, origin + sideWidth, totalHeight);
+    this.vignette.fillRect(origin + view.width - sideWidth, 0, origin + sideWidth, totalHeight);
   }
 
   private renderDebug(light: FlashlightState | undefined): void {
