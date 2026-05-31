@@ -78,6 +78,7 @@ export class ParallaxSystem {
   renderRoom(room: RuntimeRoom): Phaser.GameObjects.Container {
     this.destroy();
     this.root = this.scene.add.container(0, 0).setDepth(0);
+    this.renderLayerBands(room);
 
     for (const segment of room.segments) {
       this.renderSegment(segment, room.floorBounds);
@@ -107,13 +108,6 @@ export class ParallaxSystem {
   private renderSegment(segment: RuntimeRoomSegment, floorBounds: RuntimeFloorBounds): void {
     for (const layer of LAYER_STYLES) {
       const y = layer.id === 'mainGameplay' ? floorBounds.minY : layer.y;
-      const height = layer.id === 'mainGameplay' ? floorBounds.maxY - floorBounds.minY : layer.height;
-      const rect = this.scene.add
-        .rectangle(segment.x + segment.width / 2, y + height / 2, segment.width, height, layer.color, layer.alpha)
-        .setDepth(layer.depth)
-        .setScrollFactor(layer.scrollFactor, 1);
-      this.root?.add(rect);
-
       const label = this.scene.add
         .text(segment.x + 34, y + 20, `${segment.id} / ${layer.label} / sf ${layer.scrollFactor}`, {
           color: '#b8d79a',
@@ -133,6 +127,20 @@ export class ParallaxSystem {
     this.renderSearchNodes(segment);
     this.renderEnemyAnchors(segment);
     this.renderBlockers(segment);
+  }
+
+  private renderLayerBands(room: RuntimeRoom): void {
+    for (const layer of LAYER_STYLES) {
+      const y = layer.id === 'mainGameplay' ? room.floorBounds.minY : layer.y;
+      const height =
+        layer.id === 'mainGameplay' ? room.floorBounds.maxY - room.floorBounds.minY : layer.height;
+      const width = room.width + DESIGN_HEIGHT * 8;
+      const rect = this.scene.add
+        .rectangle(room.width / 2, y + height / 2, width, height, layer.color, layer.alpha)
+        .setDepth(layer.depth)
+        .setScrollFactor(layer.scrollFactor, 1);
+      this.root?.add(rect);
+    }
   }
 
   private renderBackgroundSets(segment: RuntimeRoomSegment): void {
@@ -258,7 +266,7 @@ export class ParallaxSystem {
           backgroundColor: 'rgba(7, 6, 8, 0.45)',
           padding: { x: 10, y: 5 },
         })
-        .setDepth(26)
+        .setDepth(2_050)
         .setScrollFactor(1, 1);
       const exitLine = this.scene.add
         .rectangle(transition.x + transition.width - 8, 705, 8, 288, 0xd2c276, 0.18)

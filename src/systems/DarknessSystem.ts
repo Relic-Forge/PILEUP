@@ -96,9 +96,9 @@ const LAYER_LIGHT_PROFILES: Record<DepthLayer, LayerLightProfile> = {
 const RAY_COUNT = 9;
 const RAY_STEP_PX = 24;
 const PLAYER_SPILL_RADIUS = 118;
-const DARKNESS_DEPTH = 1_900;
-const LIGHT_FX_DEPTH = 1_910;
-const VIGNETTE_DEPTH = 1_920;
+const DARKNESS_DEPTH = 1_390;
+const VIGNETTE_DEPTH = 1_392;
+const LIGHT_FX_DEPTH = 1_450;
 
 export class DarknessSystem {
   private readonly darkness: Phaser.GameObjects.RenderTexture;
@@ -287,8 +287,8 @@ export class DarknessSystem {
     }
 
     const inverseZoom = 1 / zoom;
-    this.darkness.setPosition(0, 0).setScale(inverseZoom);
-    this.vignette.setPosition(0, 0).setScale(inverseZoom);
+    this.darkness.setPosition(-this.projection.scrollX, -this.projection.scrollY).setScale(inverseZoom);
+    this.vignette.setPosition(-this.projection.scrollX, -this.projection.scrollY).setScale(inverseZoom);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
