@@ -287,8 +287,8 @@ export class DarknessSystem {
     }
 
     const inverseZoom = 1 / zoom;
-    this.darkness.setPosition(-this.projection.scrollX, -this.projection.scrollY).setScale(inverseZoom);
-    this.vignette.setPosition(-this.projection.scrollX, -this.projection.scrollY).setScale(inverseZoom);
+    this.darkness.setPosition(0, 0).setScale(inverseZoom);
+    this.vignette.setPosition(0, 0).setScale(inverseZoom);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
