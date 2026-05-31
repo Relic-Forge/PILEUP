@@ -258,7 +258,7 @@ export class ParallaxSystem {
           backgroundColor: 'rgba(7, 6, 8, 0.45)',
           padding: { x: 10, y: 5 },
         })
-        .setDepth(2_050)
+        .setDepth(26)
         .setScrollFactor(1, 1);
       const exitLine = this.scene.add
         .rectangle(transition.x + transition.width - 8, 705, 8, 288, 0xd2c276, 0.18)

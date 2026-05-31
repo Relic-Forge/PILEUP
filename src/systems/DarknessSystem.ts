@@ -49,6 +49,14 @@ interface LightRayHit {
   blockerId?: string;
 }
 
+interface ScreenProjection {
+  scrollX: number;
+  scrollY: number;
+  width: number;
+  height: number;
+  zoom: number;
+}
+
 const LAYER_LIGHT_PROFILES: Record<DepthLayer, LayerLightProfile> = {
   background: {
     color: 0x86a9d8,
@@ -88,6 +96,9 @@ const LAYER_LIGHT_PROFILES: Record<DepthLayer, LayerLightProfile> = {
 const RAY_COUNT = 9;
 const RAY_STEP_PX = 24;
 const PLAYER_SPILL_RADIUS = 118;
+const DARKNESS_DEPTH = 1_900;
+const LIGHT_FX_DEPTH = 1_910;
+const VIGNETTE_DEPTH = 1_920;
 
 export class DarknessSystem {
   private readonly darkness: Phaser.GameObjects.RenderTexture;
@@ -100,7 +111,7 @@ export class DarknessSystem {
   private worldHeight: number;
   private blockers: LightBlocker[] = [];
   private readonly debug: boolean;
-  private screenTextureScale = 1;
+  private projection: ScreenProjection = { scrollX: 0, scrollY: 0, width: 1, height: 1, zoom: 1 };
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -113,18 +124,18 @@ export class DarknessSystem {
       .renderTexture(0, 0, this.scene.scale.width, this.scene.scale.height)
       .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(1_390);
+      .setDepth(DARKNESS_DEPTH);
     this.lightMask = scene.make.graphics({}, false);
-    this.beamFx = scene.add.graphics().setDepth(1_450);
-    this.vignette = scene.add.graphics().setDepth(1_460).setScrollFactor(0);
+    this.beamFx = scene.add.graphics().setDepth(LIGHT_FX_DEPTH);
+    this.vignette = scene.add.graphics().setDepth(VIGNETTE_DEPTH).setScrollFactor(0);
     this.debugGraphics = scene.add.graphics().setDepth(2_350);
-    this.scene.scale.on(Phaser.Scale.Events.RESIZE, this.syncScreenSpaceSurfaces, this);
+    this.scene.scale.on(Phaser.Scale.Events.RESIZE, this.syncScreenSurfaces, this);
   }
 
   setWorldBounds(width: number, height: number): void {
     this.worldWidth = width;
     this.worldHeight = height;
-    this.syncScreenSpaceSurfaces();
+    this.syncScreenSurfaces();
   }
 
   setBlockers(blockers: LightBlocker[]): void {
@@ -148,12 +159,14 @@ export class DarknessSystem {
       document.body.dataset.pileupLightingDebug = String(this.debug);
       document.body.dataset.pileupDarknessTextureSize = `${this.darkness.width}x${this.darkness.height}`;
       document.body.dataset.pileupDarknessDisplaySize = `${Math.round(this.darkness.displayWidth)}x${Math.round(this.darkness.displayHeight)}`;
-      document.body.dataset.pileupDarknessTextureScale = this.screenTextureScale.toFixed(3);
+      document.body.dataset.pileupDarknessScreenProjection = `${Math.round(this.projection.scrollX)},${Math.round(
+        this.projection.scrollY,
+      )},${Math.round(this.projection.width)}x${Math.round(this.projection.height)}@${this.projection.zoom.toFixed(3)}`;
     }
   }
 
   destroy(): void {
-    this.scene.scale.off(Phaser.Scale.Events.RESIZE, this.syncScreenSpaceSurfaces, this);
+    this.scene.scale.off(Phaser.Scale.Events.RESIZE, this.syncScreenSurfaces, this);
     this.darkness.destroy();
     this.lightMask.destroy();
     this.beamFx.destroy();
@@ -230,7 +243,7 @@ export class DarknessSystem {
   }
 
   private renderDarkness(light: FlashlightState | undefined, playerCenter?: Vec2): void {
-    this.syncScreenSpaceSurfaces();
+    this.syncScreenSurfaces();
     const activeLayer = light?.layer ?? 'main';
     const profile = LAYER_LIGHT_PROFILES[activeLayer];
     const instability = light?.batteryInstability01 ?? 0;
@@ -257,22 +270,31 @@ export class DarknessSystem {
     this.darkness.render();
   }
 
-  private syncScreenSpaceSurfaces(): void {
-    const cameraZoom = Math.max(0.001, this.scene.cameras.main.zoom);
-    const width = Math.max(1, Math.ceil(this.scene.scale.width / cameraZoom));
-    const height = Math.max(1, Math.ceil(this.scene.scale.height / cameraZoom));
-    this.screenTextureScale = 1 / cameraZoom;
+  private syncScreenSurfaces(): void {
+    const camera = this.scene.cameras.main;
+    const zoom = Math.max(0.001, camera.zoom);
+    const width = Math.max(1, Math.ceil(camera.width));
+    const height = Math.max(1, Math.ceil(camera.height));
+    this.projection = {
+      scrollX: camera.scrollX,
+      scrollY: camera.scrollY,
+      width,
+      height,
+      zoom,
+    };
     if (this.darkness.width !== width || this.darkness.height !== height) {
       this.darkness.resize(width, height);
     }
 
-    this.darkness.setPosition(0, 0).setScale(1);
-    this.vignette.setPosition(0, 0).setScale(this.screenTextureScale);
+    const inverseZoom = 1 / zoom;
+    this.darkness.setPosition(0, 0).setScale(inverseZoom);
+    this.vignette.setPosition(0, 0).setScale(inverseZoom);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
-    const camera = this.scene.cameras.main;
-    this.drawSoftEraseCircle(x - camera.scrollX, y - camera.scrollY, radius, strength);
+    const screenX = (x - this.projection.scrollX) * this.projection.zoom;
+    const screenY = (y - this.projection.scrollY) * this.projection.zoom;
+    this.drawSoftEraseCircle(screenX, screenY, radius * this.projection.zoom, strength);
   }
 
   private drawIrregularPlayerSpill(playerCenter: Vec2): void {
@@ -357,16 +379,18 @@ export class DarknessSystem {
 
   private renderVignette(light: FlashlightState | undefined): void {
     const profile = LAYER_LIGHT_PROFILES[light?.layer ?? 'main'];
-    const width = this.scene.scale.width;
-    const height = this.scene.scale.height;
+    const view = this.projection;
+    const topHeight = 72;
+    const bottomHeight = 96;
+    const sideWidth = 78;
     const alpha = profile.vignetteAlpha + (light?.batteryInstability01 ?? 0) * 0.12;
     this.vignette.clear();
     this.vignette.fillStyle(0x000000, alpha * 0.62);
-    this.vignette.fillRect(0, 0, width, 72);
-    this.vignette.fillRect(0, height - 96, width, 96);
+    this.vignette.fillRect(0, 0, view.width, topHeight);
+    this.vignette.fillRect(0, view.height - bottomHeight, view.width, bottomHeight);
     this.vignette.fillStyle(0x000000, alpha * 0.42);
-    this.vignette.fillRect(0, 0, 78, height);
-    this.vignette.fillRect(width - 78, 0, 78, height);
+    this.vignette.fillRect(0, 0, sideWidth, view.height);
+    this.vignette.fillRect(view.width - sideWidth, 0, sideWidth, view.height);
   }
 
   private renderDebug(light: FlashlightState | undefined): void {
