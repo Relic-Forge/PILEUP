@@ -61,7 +61,7 @@ const SEARCH_INTENSITY_SCALE = 0.48;
 const LOCK_CURSOR_RADIUS = 260;
 const LOCK_BEAM_HALF_ANGLE = Phaser.Math.DegToRad(32);
 const LOCK_RELEASE_DISTANCE = 920;
-const POINTER_FACING_DEAD_ZONE = 56;
+const POINTER_FACING_HAND_BUFFER = 44;
 
 export class FlashlightSystem {
   private readonly beam: Phaser.GameObjects.Graphics;
@@ -135,7 +135,7 @@ export class FlashlightSystem {
     const flicker = debugLowBattery || this.battery <= 12;
     const aim = this.resolveAim(input);
     this.aimAngle = Math.atan2(aim.y, aim.x);
-    this.updatePlayerFacing(aim);
+    this.updatePlayerFacing(input);
     this.updateFocus(focus, deltaSeconds);
     this.updateSearchPenalty(isSearching, deltaSeconds);
     const visualState = this.updateVisualState(input, flicker, deltaMs);
@@ -225,7 +225,7 @@ export class FlashlightSystem {
     return this.lastAim.clone();
   }
 
-  private updatePlayerFacing(aim: Phaser.Math.Vector2): void {
+  private updatePlayerFacing(input: PlayerInputState): void {
     const lockedTarget = this.targets.find((target) => target.id === this.lockedTargetId);
     if (lockedTarget) {
       this.player.setFacing(lockedTarget.x - this.player.x);
@@ -233,15 +233,18 @@ export class FlashlightSystem {
     }
 
     const pointerWorld = this.getPointerWorld();
-    const pointerDeltaX = pointerWorld.x - this.player.x;
-    if (Math.abs(pointerDeltaX) > POINTER_FACING_DEAD_ZONE) {
-      this.player.setFacing(pointerDeltaX);
+    const currentTipX = this.player.getFlashlightTipWorld().x;
+    const mirroredTipX = this.player.x - (currentTipX - this.player.x);
+    const stableMinX = Math.min(currentTipX, mirroredTipX) - POINTER_FACING_HAND_BUFFER;
+    const stableMaxX = Math.max(currentTipX, mirroredTipX) + POINTER_FACING_HAND_BUFFER;
+    if (pointerWorld.x >= stableMinX && pointerWorld.x <= stableMaxX) {
+      if (input.x !== 0) {
+        this.player.setFacing(input.x);
+      }
       return;
     }
 
-    if (Math.abs(aim.x) > 0.65) {
-      this.player.setFacing(aim.x);
-    }
+    this.player.setFacing(pointerWorld.x - this.player.x);
   }
 
   private getPointerWorld(): Phaser.Math.Vector2 {

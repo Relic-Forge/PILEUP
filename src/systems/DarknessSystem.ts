@@ -100,6 +100,7 @@ export class DarknessSystem {
   private worldHeight: number;
   private blockers: LightBlocker[] = [];
   private readonly debug: boolean;
+  private screenTextureScale = 1;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -117,6 +118,7 @@ export class DarknessSystem {
     this.beamFx = scene.add.graphics().setDepth(1_450);
     this.vignette = scene.add.graphics().setDepth(1_460).setScrollFactor(0);
     this.debugGraphics = scene.add.graphics().setDepth(2_350);
+    this.scene.scale.on(Phaser.Scale.Events.RESIZE, this.syncScreenSpaceSurfaces, this);
   }
 
   setWorldBounds(width: number, height: number): void {
@@ -145,13 +147,13 @@ export class DarknessSystem {
       document.body.dataset.pileupLightingStamps = String(this.revealStamps.length);
       document.body.dataset.pileupLightingDebug = String(this.debug);
       document.body.dataset.pileupDarknessTextureSize = `${this.darkness.width}x${this.darkness.height}`;
-      document.body.dataset.pileupDarknessDisplaySize = `${Math.round(this.darkness.displayWidth)}x${Math.round(
-        this.darkness.displayHeight,
-      )}`;
+      document.body.dataset.pileupDarknessDisplaySize = `${Math.round(this.darkness.displayWidth)}x${Math.round(this.darkness.displayHeight)}`;
+      document.body.dataset.pileupDarknessTextureScale = this.screenTextureScale.toFixed(3);
     }
   }
 
   destroy(): void {
+    this.scene.scale.off(Phaser.Scale.Events.RESIZE, this.syncScreenSpaceSurfaces, this);
     this.darkness.destroy();
     this.lightMask.destroy();
     this.beamFx.destroy();
@@ -256,20 +258,21 @@ export class DarknessSystem {
   }
 
   private syncScreenSpaceSurfaces(): void {
-    const width = Math.max(1, Math.ceil(this.scene.scale.width));
-    const height = Math.max(1, Math.ceil(this.scene.scale.height));
-    const inverseCameraZoom = 1 / Math.max(0.001, this.scene.cameras.main.zoom);
+    const cameraZoom = Math.max(0.001, this.scene.cameras.main.zoom);
+    const width = Math.max(1, Math.ceil(this.scene.scale.width / cameraZoom));
+    const height = Math.max(1, Math.ceil(this.scene.scale.height / cameraZoom));
+    this.screenTextureScale = 1 / cameraZoom;
     if (this.darkness.width !== width || this.darkness.height !== height) {
       this.darkness.resize(width, height);
     }
 
-    this.darkness.setPosition(0, 0).setScale(inverseCameraZoom);
-    this.vignette.setPosition(0, 0).setScale(inverseCameraZoom);
+    this.darkness.setPosition(0, 0).setScale(1);
+    this.vignette.setPosition(0, 0).setScale(this.screenTextureScale);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
     const camera = this.scene.cameras.main;
-    this.drawSoftEraseCircle((x - camera.scrollX) * camera.zoom, (y - camera.scrollY) * camera.zoom, radius * camera.zoom, strength);
+    this.drawSoftEraseCircle(x - camera.scrollX, y - camera.scrollY, radius, strength);
   }
 
   private drawIrregularPlayerSpill(playerCenter: Vec2): void {
