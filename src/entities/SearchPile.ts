@@ -77,7 +77,7 @@ export class SearchPile {
     }
 
     this.ring.setStrokeStyle(3, 0xe3d36f, isNearby ? 0.9 : 0.28);
-    this.prompt.setText(isNearby ? `Hold E to search ${this.config.label}` : '').setVisible(isNearby);
+    this.prompt.setText(isNearby ? `Hold Space to search ${this.config.label}` : '').setVisible(isNearby);
   }
 
   setProgress(progress01: number): void {

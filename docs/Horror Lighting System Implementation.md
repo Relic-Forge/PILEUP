@@ -589,8 +589,8 @@ Battery drain can still treat focus as boolean for now. Later, drain can scale b
 
 Validation:
 
-- Pressing Space should visibly tighten the light over a fraction of a second.
-- Releasing Space should relax more slowly than it tightens.
+- Holding left mouse should visibly tighten the light over a fraction of a second.
+- Releasing left mouse should relax more slowly than it tightens.
 - Enemy hit behavior should remain close to the current feel.
 
 ---
@@ -1118,7 +1118,7 @@ Open the level and verify:
 - Player is still readable.
 - Mouse aim moves the reveal field.
 - WASD/arrow fallback aim still works when pointer is near the player.
-- Space focus tightens the light.
+- Left mouse focus tightens the light.
 - 1/2/3 switch depth profiles.
 - F debug flicker still works.
 - Enemies still receive light exposure.
@@ -1277,7 +1277,7 @@ Status after the initial Phase 11 darkness groundwork:
 - The normal flashlight view uses a darkness render texture with erase-mask reveal stamps instead of the old hard triangle.
 - Depth profiles control darkness alpha, reveal behavior, creep timing, haze, and vignette.
 - Player readability, broad reveal, focus reveal, beam edge shimmer, origin glow, endpoint bloom, and low-battery instability are implemented.
-- Focus reveal and endpoint bloom follow the current cursor/lock target distance instead of always landing at a static far point.
+- Focus reveal follows the current cursor/lock target distance instead of always landing at a static far point, and normal beam presentation uses layered haze instead of visible guide lines or circular focus markers.
 - Blocker data is accepted and debug ray sampling can show blocked rays.
 - The darkness and vignette surfaces use viewport overscan so camera-follow movement and scaling do not expose bright edge strips.
 

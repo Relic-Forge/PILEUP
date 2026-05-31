@@ -232,15 +232,23 @@ export class DarknessSystem {
         Phaser.Math.Clamp(light.visualTargetDistance, 96, range),
         light.focus01,
       );
-      this.revealStamps.push({
-        x: light.origin.x + directionX * focusDistance,
-        y: light.origin.y + directionY * focusDistance,
-        radius: Phaser.Math.Linear(88, 148, light.focus01),
-        strength: Phaser.Math.Linear(0.22, 0.46, light.focus01) * profile.focusStrengthMultiplier * light.intensity,
-        ageMs: 0,
-        durationMs: profile.creepMs + 150,
-        layer: light.layer,
-      });
+      for (let index = 0; index < 3; index += 1) {
+        const t = index / 2;
+        const distance = Phaser.Math.Linear(focusDistance * 0.72, focusDistance, t);
+        this.revealStamps.push({
+          x: light.origin.x + directionX * distance,
+          y: light.origin.y + directionY * distance,
+          radius: Phaser.Math.Linear(118, 78, t) + light.focus01 * Phaser.Math.Linear(18, 34, t),
+          strength:
+            Phaser.Math.Linear(0.12, 0.22, t) *
+            Phaser.Math.Linear(0.55, 1, light.focus01) *
+            profile.focusStrengthMultiplier *
+            light.intensity,
+          ageMs: 0,
+          durationMs: profile.creepMs + 150,
+          layer: light.layer,
+        });
+      }
     }
 
     if (this.revealStamps.length > 96) {
@@ -352,39 +360,49 @@ export class DarknessSystem {
     const alphaBase = light.intensity * flickerScale * Phaser.Math.Linear(0.42, 1, battery01);
     const range = light.visualRange * profile.broadRangeMultiplier;
     const bloomDistance = Phaser.Math.Linear(range, Phaser.Math.Clamp(light.visualTargetDistance, 96, range), light.focus01);
-    const outerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(1.55, 1.08, light.focus01);
-    const innerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(0.62, 0.34, light.focus01);
-    const bloom = {
-      x: light.origin.x + Math.cos(light.visualAimAngle) * bloomDistance,
-      y: light.origin.y + Math.sin(light.visualAimAngle) * bloomDistance,
-    };
+    const outerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(1.8, 1.15, light.focus01);
+    const middleHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(1.18, 0.72, light.focus01);
+    const innerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(0.72, 0.36, light.focus01);
     const shimmer = Math.sin(this.scene.time.now * 0.018) * (6 + light.batteryInstability01 * 12);
-    const outerLeft = {
-      x: light.origin.x + Math.cos(light.visualAimAngle - outerHalfAngle) * range * 0.9,
-      y: light.origin.y + Math.sin(light.visualAimAngle - outerHalfAngle) * range * 0.9,
+    this.drawBeamHaze(light.origin, bloomDistance, outerHalfAngle, light.visualAimAngle, profile.color, alphaBase * 0.035);
+    this.drawBeamHaze(light.origin, bloomDistance * 0.92, middleHalfAngle, light.visualAimAngle, profile.color, alphaBase * 0.05);
+    this.drawBeamHaze(light.origin, bloomDistance * Phaser.Math.Linear(0.72, 0.98, light.focus01), innerHalfAngle, light.visualAimAngle, 0xfff1c8, alphaBase * Phaser.Math.Linear(0.035, 0.075, light.focus01));
+
+    if (this.debug) {
+      const outerPoints = this.beamPoints(light.origin, range * 0.9, outerHalfAngle, light.visualAimAngle);
+      const innerPoints = this.beamPoints(light.origin, range * 0.82, innerHalfAngle, light.visualAimAngle);
+      const bloom = {
+        x: light.origin.x + Math.cos(light.visualAimAngle) * bloomDistance,
+        y: light.origin.y + Math.sin(light.visualAimAngle) * bloomDistance,
+      };
+      this.beamFx.lineStyle(2, profile.color, alphaBase * 0.22);
+      this.beamFx.lineBetween(light.origin.x, light.origin.y, outerPoints.left.x, outerPoints.left.y + shimmer);
+      this.beamFx.lineBetween(light.origin.x, light.origin.y, outerPoints.right.x, outerPoints.right.y - shimmer);
+      this.beamFx.lineStyle(1, 0xfff4c6, alphaBase * Phaser.Math.Linear(0.08, 0.18, light.focus01));
+      this.beamFx.lineBetween(light.origin.x, light.origin.y, innerPoints.left.x, innerPoints.left.y + shimmer * 0.4);
+      this.beamFx.lineBetween(light.origin.x, light.origin.y, innerPoints.right.x, innerPoints.right.y - shimmer * 0.4);
+      this.beamFx.strokeEllipse(bloom.x, bloom.y, 58 + light.focus01 * 34, 18 + light.batteryInstability01 * 14);
+      this.beamFx.strokeCircle(light.origin.x, light.origin.y, 8 + light.focus01 * 4);
+    }
+  }
+
+  private drawBeamHaze(origin: Vec2, range: number, halfAngle: number, angle: number, color: number, alpha: number): void {
+    const points = this.beamPoints(origin, range, halfAngle, angle);
+    this.beamFx.fillStyle(color, alpha);
+    this.beamFx.fillTriangle(origin.x, origin.y, points.left.x, points.left.y, points.right.x, points.right.y);
+  }
+
+  private beamPoints(origin: Vec2, range: number, halfAngle: number, angle: number): { left: Vec2; right: Vec2 } {
+    return {
+      left: {
+        x: origin.x + Math.cos(angle - halfAngle) * range,
+        y: origin.y + Math.sin(angle - halfAngle) * range,
+      },
+      right: {
+        x: origin.x + Math.cos(angle + halfAngle) * range,
+        y: origin.y + Math.sin(angle + halfAngle) * range,
+      },
     };
-    const outerRight = {
-      x: light.origin.x + Math.cos(light.visualAimAngle + outerHalfAngle) * range * 0.9,
-      y: light.origin.y + Math.sin(light.visualAimAngle + outerHalfAngle) * range * 0.9,
-    };
-    const innerLeft = {
-      x: light.origin.x + Math.cos(light.visualAimAngle - innerHalfAngle) * range * 0.82,
-      y: light.origin.y + Math.sin(light.visualAimAngle - innerHalfAngle) * range * 0.82,
-    };
-    const innerRight = {
-      x: light.origin.x + Math.cos(light.visualAimAngle + innerHalfAngle) * range * 0.82,
-      y: light.origin.y + Math.sin(light.visualAimAngle + innerHalfAngle) * range * 0.82,
-    };
-    this.beamFx.lineStyle(2, profile.color, alphaBase * 0.14);
-    this.beamFx.lineBetween(light.origin.x, light.origin.y, outerLeft.x, outerLeft.y + shimmer);
-    this.beamFx.lineBetween(light.origin.x, light.origin.y, outerRight.x, outerRight.y - shimmer);
-    this.beamFx.lineStyle(1, 0xfff4c6, alphaBase * Phaser.Math.Linear(0.04, 0.12, light.focus01));
-    this.beamFx.lineBetween(light.origin.x, light.origin.y, innerLeft.x, innerLeft.y + shimmer * 0.4);
-    this.beamFx.lineBetween(light.origin.x, light.origin.y, innerRight.x, innerRight.y - shimmer * 0.4);
-    this.beamFx.fillStyle(profile.color, alphaBase * (0.035 + light.focus01 * 0.045));
-    this.beamFx.fillEllipse(bloom.x, bloom.y, 58 + light.focus01 * 34, 18 + light.batteryInstability01 * 14);
-    this.beamFx.fillStyle(0xfff0bd, alphaBase * (0.1 + light.focus01 * 0.08));
-    this.beamFx.fillCircle(light.origin.x, light.origin.y, 8 + light.focus01 * 4);
   }
 
   private renderVignette(light: FlashlightState | undefined): void {

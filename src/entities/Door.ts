@@ -82,7 +82,7 @@ export class Door {
       return;
     }
 
-    const prompt = hasKey ? (isUnlocking ? 'Unlocking front door' : 'Hold E to unlock front door') : 'Front door needs a key';
+    const prompt = hasKey ? (isUnlocking ? 'Unlocking front door' : 'Hold Space to unlock front door') : 'Front door needs a key';
     this.prompt.setText(prompt).setVisible(true);
   }
 

@@ -48,8 +48,8 @@ Controls:
 - `C`: crouch.
 - Mouse: aim flashlight.
 - `1` / `2` / `3`: target background, main, or foreground depth.
-- `Space` or left mouse: focus flashlight beam.
-- `E`: hold to search nearby clutter or unlock the exit door after finding the key.
+- Left mouse: focus flashlight beam.
+- `Space`: hold to search nearby clutter or unlock the exit door after finding the key.
 - `F3`: debug overlay.
 - `F4`: world layer/collision labels.
 - `F`: trigger flashlight flicker/low-battery debug state.
