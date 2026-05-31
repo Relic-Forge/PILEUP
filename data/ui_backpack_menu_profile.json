@@ -1,0 +1,223 @@
+{
+  "schema": "pileup_ui_backpack_menu_profile_v1",
+  "updated_utc": "2026-05-31T00:00:00Z",
+  "purpose": "Tokenized design, animation, scaling, and asset requirements for the PILEUP backpack inventory and lost-items menu overhaul.",
+  "uiMode": {
+    "normalHud": "minimal_survival_hud",
+    "backpackMenu": "hidden_until_opened",
+    "lostItemsPage": "inside_backpack_only",
+    "debugUi": "dev_only"
+  },
+  "theme": {
+    "mood": [
+      "dark",
+      "cold",
+      "domestic horror",
+      "hand-drawn",
+      "slightly worn",
+      "not glossy"
+    ],
+    "palette": {
+      "voidBlack": "#07080d",
+      "coldNavy": "#101622",
+      "deepViolet": "#17111d",
+      "panelBlueGray": "#202936",
+      "dirtyPaper": "#d8c7a2",
+      "paperShadow": "#8a7658",
+      "inkOffWhite": "#e8e1d3",
+      "mutedText": "#9d958b",
+      "flashlightAmber": "#e3d36f",
+      "sickWarning": "#d86a57",
+      "foundGreenGray": "#7f916d",
+      "disabledGray": "#58535b"
+    },
+    "shapeLanguage": {
+      "panels": "crooked fabric/paper panels with uneven hand-inked borders",
+      "slots": "worn square pockets with imperfect outlines and grime at the corners",
+      "selection": "jittery chalk/ink outline, never neon",
+      "lostItems": "crumpled notebook page inside backpack, not a floating HUD sheet",
+      "toast": "small torn scrap that fades quickly"
+    },
+    "forbiddenStyles": [
+      "glossy RPG menu",
+      "sci-fi hologram",
+      "clean flat vector mobile game UI",
+      "bright paper permanently on gameplay HUD",
+      "baked text in images",
+      "photorealistic backpack render"
+    ]
+  },
+  "layout": {
+    "designResolution": [1920, 1080],
+    "safeArea": {
+      "desktopMarginPx": 32,
+      "phoneLandscapeMarginPx": 20,
+      "touchTargetMinimumCssPx": 44,
+      "touchTargetPreferredCssPx": 56
+    },
+    "normalHud": {
+      "visibleElements": [
+        "compactHealthStamina",
+        "flashlightDepthBattery",
+        "currentItemChip",
+        "contextualSearchProgress",
+        "contextualDoorProgress",
+        "temporaryObjectiveChip",
+        "toastStack"
+      ],
+      "hiddenElements": [
+        "fullLostItemsList",
+        "fullInventoryList",
+        "phaseDebugText",
+        "viewportDebugText",
+        "staticDoorProgressWhenInactive"
+      ]
+    },
+    "backpackMenu": {
+      "desktopMaxWidthDesignPx": 1320,
+      "desktopPreferredWidthDesignPx": 1180,
+      "desktopMaxHeightPercent": 0.86,
+      "ultrawideContentClamp": "central_safe_zone",
+      "phoneLandscapeMode": "full_screen_safe_area",
+      "tabs": [
+        "inventory",
+        "lostItems",
+        "notes"
+      ],
+      "inventoryColumnsDesktop": 5,
+      "inventoryColumnsPhoneLandscape": 4,
+      "detailsPanelDesktop": "right",
+      "detailsPanelPhoneLandscape": "below_or_right_if_space"
+    }
+  },
+  "animation": {
+    "open": {
+      "durationMs": 280,
+      "steps": [
+        "fade_gameplay_hud_to_55_percent",
+        "fade_in_cold_shadow_wash",
+        "slide_backpack_shell_from_lower_safe_area",
+        "settle_with_small_overshoot",
+        "focus_selected_slot"
+      ],
+      "easing": "cubic_out_with_small_back_overshoot"
+    },
+    "close": {
+      "durationMs": 190,
+      "steps": [
+        "collapse_detail_panel",
+        "drop_or_fold_backpack_shell",
+        "fade_out_shadow_wash",
+        "restore_gameplay_hud_opacity"
+      ],
+      "easing": "cubic_in"
+    },
+    "selection": {
+      "pulseDurationMs": 950,
+      "jitterPx": 2,
+      "iconNudgePx": 1.5,
+      "style": "subtle_hand_drawn_wobble"
+    },
+    "lostItems": {
+      "pageFlipDurationMs": 220,
+      "strikeThroughDurationMs": 160,
+      "idlePaperSwayPx": 1.5
+    },
+    "reducedMotion": {
+      "panelOpenMs": 0,
+      "panelCloseMs": 0,
+      "selectionPulse": false,
+      "pageFlip": false,
+      "idleSway": false
+    }
+  },
+  "assetRequirements": {
+    "sourceTargets": {
+      "backpackMenuMaster": [4096, 2304],
+      "nineSlicePanelMinimum": [2048, 2048],
+      "inventorySlot": [1024, 1024],
+      "itemIconPreferred": [1024, 1024],
+      "lostItemsNotebookMinimum": [2048, 2048],
+      "checkmarkSheet": [1024, 1024]
+    },
+    "runtimeTiers": {
+      "itemIcons": [128, 256, 512],
+      "panelPieces": [512, 1024, 2048],
+      "backpackShell": [1024, 2048, 4096],
+      "notebookPage": [1024, 2048],
+      "overlayMasks": [1920, 2560, 3840]
+    },
+    "technicalRules": [
+      "true_rgba_transparency_for_icons_and_panel_pieces",
+      "no_baked_text",
+      "no_watermarks",
+      "no_random_symbols_or_fake_glyphs",
+      "all_scalable_panels_support_9slice_or_procedural_drawing",
+      "icons_read_at_32_64_128_px",
+      "runtime_code_references_stable_asset_ids_or_manifest_keys",
+      "candidate_art_stays_outside_runtime_folders_until_approved"
+    ],
+    "assetIds": {
+      "systems": [
+        "ui.backpack_menu_system",
+        "ui.backpack_shell",
+        "ui.backpack_panel_9slice",
+        "ui.inventory_slot_frame",
+        "ui.inventory_selected_outline",
+        "ui.lost_items_notebook",
+        "ui.lost_items_checkmarks",
+        "ui.hud_compact_survival",
+        "ui.toast_scrap",
+        "vfx.ui_cold_shadow_wash"
+      ],
+      "itemIcons": [
+        "ui.item_icon.front_door_key",
+        "ui.item_icon.spare_batteries",
+        "ui.item_icon.cleaning_spray",
+        "ui.item_icon.duct_tape",
+        "ui.item_icon.family_photo",
+        "ui.item_icon.phone_charger",
+        "ui.item_icon.toy_decoy",
+        "ui.item_icon.junk_stack"
+      ]
+    }
+  },
+  "input": {
+    "keyboardMouse": {
+      "toggleBackpack": ["Tab", "I"],
+      "close": ["Esc"],
+      "selectHotbar": ["1", "2", "3", "4", "5"],
+      "cycleSelectedItem": ["MouseWheel"],
+      "confirm": ["Space", "Enter", "LeftClick"],
+      "tabs": ["Q", "E"],
+      "navigate": ["WASD", "ArrowKeys"],
+      "dropFuture": ["Backspace", "X"]
+    },
+    "controller": {
+      "toggleBackpack": "View/Select",
+      "close": "B/Circle",
+      "tabs": "LB/RB",
+      "navigate": "Dpad/LeftStick",
+      "confirm": "A/Cross",
+      "dropFuture": "X/Square"
+    },
+    "touch": {
+      "toggleBackpack": "backpack_icon",
+      "selectItem": "tap_item",
+      "useItem": "large_use_button",
+      "tabs": "swipe_or_tab_buttons",
+      "close": "large_close_button"
+    }
+  },
+  "acceptance": [
+    "lost_items_not_visible_on_normal_gameplay_hud",
+    "backpack_opens_and_closes_from_keyboard_mouse_controller_style_and_touch",
+    "inventory_shows_picked_up_items_with_icon_count_burden_and_key_state",
+    "usable_items_have_enabled_or_disabled_use_action_with_reason",
+    "spare_batteries_can_restore_flashlight_battery_once_wired",
+    "front_door_key_is_not_consumed",
+    "ui_stays_inside_safe_area_on_desktop_ultrawide_4k_tablet_and_phone_landscape",
+    "menu_feels_dark_cold_horror_adjacent_and_hand_drawn",
+    "npm_run_typecheck_and_build_pass"
+  ]
+}
