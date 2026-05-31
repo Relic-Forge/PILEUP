@@ -1269,6 +1269,27 @@ The implementation is ready for the next shadow-system pass when:
 - Occlusion polygon generation is either implemented or stubbed behind a method boundary.
 - Lighting code does not hard-code room geometry assumptions that would block future shadow casters.
 
+## Current Implementation Snapshot
+
+Status after the initial Phase 11 darkness groundwork:
+
+- `DarknessSystem` exists and is wired into `LevelScene`.
+- The normal flashlight view uses a darkness render texture with erase-mask reveal stamps instead of the old hard triangle.
+- Depth profiles control darkness alpha, reveal behavior, creep timing, haze, and vignette.
+- Player readability, broad reveal, focus reveal, beam edge shimmer, origin glow, endpoint bloom, and low-battery instability are implemented.
+- Focus reveal and endpoint bloom follow the current cursor/lock target distance instead of always landing at a static far point.
+- Blocker data is accepted and debug ray sampling can show blocked rays.
+- The darkness and vignette surfaces use viewport overscan so camera-follow movement and scaling do not expose bright edge strips.
+
+Remaining darkness work:
+
+- Convert blocker ray hits into an occluded reveal polygon so light visibly stops at walls, furniture, and foreground/background occluders.
+- Split reusable shadow-caster data into a future `ShadowSystem` instead of growing permanent room-geometry assumptions inside `DarknessSystem`.
+- Add richer debug controls for reveal stamps, occlusion polygons, and lighting quality/tuning.
+- Add a `?lighting=off` or `?darkness=0` development escape hatch if darkness tuning blocks QA.
+- Tune darkness readability across desktop, ultrawide, and phone landscape once production room art replaces graybox shapes.
+- Consider a reveal-memory texture if reveal stamps become visually choppy or too expensive.
+
 ---
 
 ## Recommended First PR Scope

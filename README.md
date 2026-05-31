@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 10. The full-house graybox now includes the final boss-door sequence plus a flashlight feedback pass: visual aim has weight, focus narrows smoothly, depth modes have distinct beam profiles, low battery destabilizes the beam, and flashlight focus/depth/flicker events drive subtle audio and HUD feedback.
+Current prototype status: Phase 10 plus an initial darkness-atmosphere pass. The full-house graybox now includes the final boss-door sequence, flashlight feedback, and a screen-space darkness overlay with soft reveal stamps, depth-specific lighting profiles, vignette, beam FX, and viewport overscan so darkness coverage holds while the camera follows across the full level. Visual aim has weight, focus narrows smoothly, depth modes have distinct beam profiles, low battery destabilizes the beam, and flashlight focus/depth/flicker events drive subtle audio and HUD feedback.
 
 Controls:
 
@@ -48,7 +48,7 @@ Controls:
 - `C`: crouch.
 - Mouse: aim flashlight.
 - `1` / `2` / `3`: target background, main, or foreground depth.
-- `Space`: focus flashlight beam.
+- `Space` or left mouse: focus flashlight beam.
 - `E`: hold to search nearby clutter or unlock the exit door after finding the key.
 - `F3`: debug overlay.
 - `F4`: world layer/collision labels.

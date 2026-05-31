@@ -342,6 +342,7 @@ export class LevelScene extends Phaser.Scene {
             batteryInstability01: flashlightState.batteryInstability01,
             effectiveRange: flashlightState.effectiveRange,
             visualRange: flashlightState.visualRange,
+            visualTargetDistance: flashlightState.visualTargetDistance,
             origin: flashlightState.origin,
             hitIds: flashlightState.hitIds,
             lockOn: flashlightState.lockOn,
@@ -383,6 +384,7 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupFlashlightEffectiveRange = String(flashlightState.effectiveRange);
       document.body.dataset.pileupFlashlightFocus01 = String(flashlightState.focus01);
       document.body.dataset.pileupFlashlightVisualRange = String(flashlightState.visualRange);
+      document.body.dataset.pileupFlashlightVisualTargetDistance = String(flashlightState.visualTargetDistance);
       document.body.dataset.pileupFlashlightInstability = String(flashlightState.batteryInstability01);
       document.body.dataset.pileupFlashlightOriginX = String(flashlightState.origin.x);
       document.body.dataset.pileupFlashlightOriginY = String(flashlightState.origin.y);

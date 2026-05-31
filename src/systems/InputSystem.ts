@@ -33,7 +33,7 @@ export class InputSystem {
   private debugFlickerUntil = 0;
   private lockOnPressed = false;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(private readonly scene: Phaser.Scene) {
     scene.input.mouse?.disableContextMenu();
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard
@@ -83,7 +83,7 @@ export class InputSystem {
       crouch: Boolean(this.keys?.c.isDown || now < this.crouchTapUntil),
       interact: Boolean(this.keys?.e.isDown || now < this.interactTapUntil),
       aim: new Phaser.Math.Vector2(),
-      focus: Boolean(this.keys?.space.isDown || now < this.focusTapUntil),
+      focus: Boolean(this.keys?.space.isDown || this.scene.input.activePointer.leftButtonDown() || now < this.focusTapUntil),
       lockOnPressed: this.lockOnPressed,
       depthCycle: this.depthCycle,
       depthDirect: this.depthDirect,

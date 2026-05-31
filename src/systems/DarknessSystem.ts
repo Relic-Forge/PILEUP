@@ -197,13 +197,13 @@ export class DarknessSystem {
     const directionX = Math.cos(light.visualAimAngle);
     const directionY = Math.sin(light.visualAimAngle);
     const range = light.visualRange * profile.broadRangeMultiplier;
-    const broadWidth = 150 * profile.broadWidthMultiplier;
+    const broadWidth = 178 * profile.broadWidthMultiplier;
 
     this.revealStamps.push({
       x: light.origin.x,
       y: light.origin.y,
       radius: Phaser.Math.Linear(72, 122, battery01) * instabilityShrink,
-      strength: 0.18 * profile.revealMultiplier * light.intensity,
+      strength: 0.2 * profile.revealMultiplier * light.intensity,
       ageMs: 0,
       durationMs: profile.creepMs,
       layer: light.layer,
@@ -213,13 +213,13 @@ export class DarknessSystem {
       const t = index / 4;
       const distance = Phaser.Math.Linear(90, range * 0.82, t);
       const widthCurve = 1 - Math.abs(t - 0.45);
-      const radius = Phaser.Math.Linear(82, broadWidth, widthCurve);
+      const radius = Phaser.Math.Linear(96, broadWidth, widthCurve);
       const falloff = Phaser.Math.Linear(1, 0.42, t);
       this.revealStamps.push({
         x: light.origin.x + directionX * distance,
         y: light.origin.y + directionY * distance,
         radius,
-        strength: 0.16 * profile.revealMultiplier * light.intensity * falloff,
+        strength: 0.19 * profile.revealMultiplier * light.intensity * falloff,
         ageMs: 0,
         durationMs: profile.creepMs,
         layer: light.layer,
@@ -227,11 +227,16 @@ export class DarknessSystem {
     }
 
     if (light.focus01 > 0.05) {
+      const focusDistance = Phaser.Math.Linear(
+        range * 0.58,
+        Phaser.Math.Clamp(light.visualTargetDistance, 96, range),
+        light.focus01,
+      );
       this.revealStamps.push({
-        x: light.origin.x + directionX * range * 0.58,
-        y: light.origin.y + directionY * range * 0.58,
+        x: light.origin.x + directionX * focusDistance,
+        y: light.origin.y + directionY * focusDistance,
         radius: Phaser.Math.Linear(88, 148, light.focus01),
-        strength: Phaser.Math.Linear(0.18, 0.38, light.focus01) * profile.focusStrengthMultiplier * light.intensity,
+        strength: Phaser.Math.Linear(0.22, 0.46, light.focus01) * profile.focusStrengthMultiplier * light.intensity,
         ageMs: 0,
         durationMs: profile.creepMs + 150,
         layer: light.layer,
@@ -346,11 +351,12 @@ export class DarknessSystem {
     const flickerScale = light.flicker ? 0.62 + Math.sin(this.scene.time.now * 0.037) * 0.2 : 1;
     const alphaBase = light.intensity * flickerScale * Phaser.Math.Linear(0.42, 1, battery01);
     const range = light.visualRange * profile.broadRangeMultiplier;
+    const bloomDistance = Phaser.Math.Linear(range, Phaser.Math.Clamp(light.visualTargetDistance, 96, range), light.focus01);
     const outerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(1.55, 1.08, light.focus01);
     const innerHalfAngle = light.visualHalfAngle * Phaser.Math.Linear(0.62, 0.34, light.focus01);
     const bloom = {
-      x: light.origin.x + Math.cos(light.visualAimAngle) * range,
-      y: light.origin.y + Math.sin(light.visualAimAngle) * range,
+      x: light.origin.x + Math.cos(light.visualAimAngle) * bloomDistance,
+      y: light.origin.y + Math.sin(light.visualAimAngle) * bloomDistance,
     };
     const shimmer = Math.sin(this.scene.time.now * 0.018) * (6 + light.batteryInstability01 * 12);
     const outerLeft = {

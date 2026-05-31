@@ -25,6 +25,7 @@ export interface FlashlightState {
   batteryInstability01: number;
   effectiveRange: number;
   visualRange: number;
+  visualTargetDistance: number;
   visualHalfAngle: number;
   origin: Vec2;
   hitIds: string[];
@@ -37,6 +38,7 @@ interface FlashlightVisualState {
   origin: Vec2;
   visualAimAngle: number;
   visualRange: number;
+  visualTargetDistance: number;
   visualHalfAngle: number;
   focus01: number;
   batteryInstability01: number;
@@ -172,6 +174,7 @@ export class FlashlightSystem {
       batteryInstability01: Number(visualState.batteryInstability01.toFixed(2)),
       effectiveRange: Math.round(range),
       visualRange: Math.round(visualState.visualRange),
+      visualTargetDistance: Math.round(visualState.visualTargetDistance),
       visualHalfAngle: Number(visualState.visualHalfAngle.toFixed(3)),
       origin: { x: Math.round(visualState.origin.x), y: Math.round(visualState.origin.y) },
       hitIds,
@@ -362,17 +365,27 @@ export class FlashlightSystem {
       Phaser.Math.Linear(CONE_HALF_ANGLE, FOCUS_HALF_ANGLE, this.focus01) * layerProfile.angleScale * searchHalfAngleScale;
     const visualAimAngle = this.visualAimAngle + jitter;
     const origin = this.player.getFlashlightTipWorld();
+    const visualTargetDistance = this.resolveVisualTargetDistance(origin, visualRange);
 
     return {
       origin,
       visualAimAngle,
       visualRange,
+      visualTargetDistance,
       visualHalfAngle,
       focus01: this.focus01,
       batteryInstability01,
       alphaScale,
       layerPulse01: this.layerPulse,
     };
+  }
+
+  private resolveVisualTargetDistance(origin: Phaser.Math.Vector2, visualRange: number): number {
+    const lockedTarget = this.targets.find((target) => target.id === this.lockedTargetId);
+    const distance = lockedTarget
+      ? Phaser.Math.Distance.Between(origin.x, origin.y, lockedTarget.x, lockedTarget.y)
+      : Phaser.Math.Distance.Between(origin.x, origin.y, this.getPointerWorld().x, this.getPointerWorld().y);
+    return Phaser.Math.Clamp(distance, 96, visualRange);
   }
 
   private getLayerProfile(): { rangeScale: number; angleScale: number; haze: number } {
@@ -403,13 +416,17 @@ export class FlashlightSystem {
     const outerHalfAngle = visual.visualHalfAngle * 1.32;
     const coreHalfAngle = Phaser.Math.Linear(visual.visualHalfAngle * 0.42, visual.visualHalfAngle * 0.28, visual.focus01);
     const outerRange = visual.visualRange * (1 + pulseBoost * 0.18);
-    const coreRange = visual.visualRange * Phaser.Math.Linear(0.78, 0.94, visual.focus01);
+    const coreRange = Phaser.Math.Linear(
+      visual.visualRange * 0.78,
+      visual.visualTargetDistance,
+      visual.focus01,
+    );
     const outerPoints = this.conePoints(visual.origin, outerRange, outerHalfAngle, visual.visualAimAngle);
     const mainPoints = this.conePoints(visual.origin, visual.visualRange, visual.visualHalfAngle, visual.visualAimAngle);
     const corePoints = this.conePoints(visual.origin, coreRange, coreHalfAngle, visual.visualAimAngle);
     const bloom = {
-      x: visual.origin.x + Math.cos(visual.visualAimAngle) * visual.visualRange,
-      y: visual.origin.y + Math.sin(visual.visualAimAngle) * visual.visualRange,
+      x: visual.origin.x + Math.cos(visual.visualAimAngle) * Phaser.Math.Linear(visual.visualRange, visual.visualTargetDistance, visual.focus01),
+      y: visual.origin.y + Math.sin(visual.visualAimAngle) * Phaser.Math.Linear(visual.visualRange, visual.visualTargetDistance, visual.focus01),
     };
     const edgeShimmer = Math.sin(this.scene.time.now * 0.018) * (5 + visual.batteryInstability01 * 10);
 
