@@ -36,8 +36,8 @@ export class InventorySystem {
     gameEvents.emit({ type: 'hotbar.changed', slots: this.hotbarItems() });
     gameEvents.emit({ type: 'player.burdenChanged', state: this.burdenState(), value: this.burden() });
 
-    if (this.hasKey) {
-      gameEvents.emit({ type: 'objective.changed', text: 'Key found. Reach the front door.' });
+    if (item.id === 'front_door_key') {
+      gameEvents.emit({ type: 'objective.changed', text: 'Key found. Survive the hoard and reach the front door.' });
     }
 
     return item.label;

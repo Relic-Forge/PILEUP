@@ -44,5 +44,13 @@ interface Window {
       unlocked: boolean;
       progress01: number;
     };
+    bossDoor?: {
+      active: boolean;
+      phase: string;
+      pressure01: number;
+      telegraph01: number;
+      defensiveReady: boolean;
+      lastPattern?: string;
+    };
   };
 }

@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 8. The level scene now supports the full Level 01 graybox house sequence: Bedroom, Hallway, Bathroom, Kitchen, and Living Room/Front Door are stitched into one traversable level with seeded objective placement, room-specific search nodes, multiple enemy archetype anchors, and the Phase 7 win/loss loop preserved at the final door.
+Current prototype status: Phase 9. The full-house graybox now includes the final boss-door sequence: key pickup triggers door-hoard pressure, the front-door unlock remains a timed hold that can be interrupted, attacks are visibly telegraphed, and a porch-light spill near the door gives the player a defensive option before escaping.
 
 Controls:
 

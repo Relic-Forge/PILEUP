@@ -18,6 +18,7 @@ import { SearchSystem, type SearchState } from '../systems/SearchSystem';
 import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
 import { DoorSystem, type DoorSystemState } from '../systems/DoorSystem';
 import { AudioSystem } from '../systems/AudioSystem';
+import { BossDoorSequenceSystem, type BossDoorSequenceState } from '../systems/BossDoorSequenceSystem';
 
 export class LevelScene extends Phaser.Scene {
   private state?: GameState;
@@ -32,6 +33,7 @@ export class LevelScene extends Phaser.Scene {
   private searchSystem?: SearchSystem;
   private enemySystem?: EnemySystem;
   private doorSystem?: DoorSystem;
+  private bossDoorSequence?: BossDoorSequenceSystem;
   private audioSystem?: AudioSystem;
   private player?: Player;
   private room?: RuntimeRoom;
@@ -90,6 +92,7 @@ export class LevelScene extends Phaser.Scene {
       this.searchSystem?.destroy();
       this.enemySystem?.destroy();
       this.doorSystem?.destroy();
+      this.bossDoorSequence?.destroy();
       this.audioSystem?.destroy();
     });
   }
@@ -105,7 +108,8 @@ export class LevelScene extends Phaser.Scene {
       const flashlightState = this.flashlightSystem?.update(input, delta);
       const searchState = this.searchSystem?.update(input, delta);
       const doorState = this.doorSystem?.update(input, delta);
-      this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState);
+      const bossState = this.bossDoorSequence?.update(input, flashlightState, doorState, delta);
+      this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState, bossState);
       this.updateActiveRoomObjective();
     } else {
       this.publishDebugState(movementState);
@@ -127,10 +131,12 @@ export class LevelScene extends Phaser.Scene {
     this.searchSystem?.destroy();
     this.enemySystem?.destroy();
     this.doorSystem?.destroy();
+    this.bossDoorSequence?.destroy();
     this.searchSystem = this.inventorySystem ? new SearchSystem(this, room, player, this.inventorySystem) : undefined;
     this.enemySystem = new EnemySystem(this, room, player, (amount, source) => this.applyPlayerDamage(amount, source));
     this.doorSystem =
       this.inventorySystem ? new DoorSystem(this, room, player, this.inventorySystem, () => this.completeEscape()) : undefined;
+    this.bossDoorSequence = new BossDoorSequenceSystem(this, room, player, this.inventorySystem?.keyFound() ?? false);
     this.refreshFlashlightTargets();
     this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
@@ -144,7 +150,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 8 full house sequence', {
+      .text(64, 96, 'Phase 9 boss door sequence', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -236,8 +242,13 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private completeEscape(): void {
-    this.scene.stop('UIScene');
-    this.scene.start('VictoryScene');
+    this.bossDoorSequence?.markEscaped();
+    gameEvents.emit({ type: 'objective.changed', text: 'Escaping.' });
+    this.cameras.main.fadeOut(320, 244, 239, 224);
+    this.time.delayedCall(340, () => {
+      this.scene.stop('UIScene');
+      this.scene.start('VictoryScene');
+    });
   }
 
   private publishRunSeedDebug(): void {
@@ -255,13 +266,14 @@ export class LevelScene extends Phaser.Scene {
     searchState?: SearchState,
     enemyState?: EnemySystemState,
     doorState?: DoorSystemState,
+    bossState?: BossDoorSequenceState,
   ): void {
     if (!import.meta.env.DEV || !this.player || !movementState) {
       return;
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 8',
+      phase: 'Phase 9',
       seed: this.room?.seed,
       activeRoomId: this.activeRoomId,
       keyNode: this.room?.searchPlacements.find((placement) => placement.itemId === 'front_door_key')?.nodeId,
@@ -294,8 +306,9 @@ export class LevelScene extends Phaser.Scene {
         : undefined,
       enemies: enemyState?.enemies,
       door: doorState,
+      bossDoor: bossState,
     };
-    document.body.dataset.pileupPhase = 'Phase 8';
+    document.body.dataset.pileupPhase = 'Phase 9';
     document.body.dataset.pileupSeed = this.room?.seed ?? '';
     document.body.dataset.pileupActiveRoom = this.activeRoomId;
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
@@ -330,6 +343,14 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupDoorUnlocking = String(doorState.unlocking);
       document.body.dataset.pileupDoorUnlocked = String(doorState.unlocked);
       document.body.dataset.pileupDoorProgress = String(doorState.progress01);
+    }
+    if (bossState) {
+      document.body.dataset.pileupBossActive = String(bossState.active);
+      document.body.dataset.pileupBossPhase = bossState.phase;
+      document.body.dataset.pileupBossPressure = String(bossState.pressure01);
+      document.body.dataset.pileupBossTelegraph = String(bossState.telegraph01);
+      document.body.dataset.pileupBossDefense = String(bossState.defensiveReady);
+      document.body.dataset.pileupBossPattern = bossState.lastPattern ?? '';
     }
   }
 

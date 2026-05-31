@@ -1,4 +1,4 @@
 export const buildFlags = {
   debugOverlayDefault: false,
-  phase: '0-project-scaffold',
+  phase: '9-boss-door-sequence',
 } as const;
