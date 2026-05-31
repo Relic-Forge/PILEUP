@@ -192,7 +192,7 @@ export class LevelScene extends Phaser.Scene {
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
           `seed: ${room.seed}`,
-          'WASD/arrows move. E searches/unlocks. Mouse aims light. Right mouse or L toggles lock-on. 1/2/3 switch depth. Space focuses. F3 debug.',
+          'WASD/arrows move. E searches/unlocks. Mouse aims light. Right mouse or L toggles lock-on. 1/2/3 switch depth. R resets to main. Space focuses. F3 debug.',
         ],
         {
           color: '#aaa196',

@@ -61,6 +61,7 @@ const SEARCH_INTENSITY_SCALE = 0.48;
 const LOCK_CURSOR_RADIUS = 260;
 const LOCK_BEAM_HALF_ANGLE = Phaser.Math.DegToRad(32);
 const LOCK_RELEASE_DISTANCE = 920;
+const POINTER_FACING_DEAD_ZONE = 56;
 
 export class FlashlightSystem {
   private readonly beam: Phaser.GameObjects.Graphics;
@@ -134,7 +135,7 @@ export class FlashlightSystem {
     const flicker = debugLowBattery || this.battery <= 12;
     const aim = this.resolveAim(input);
     this.aimAngle = Math.atan2(aim.y, aim.x);
-    this.player.setFacing(aim.x);
+    this.updatePlayerFacing(aim);
     this.updateFocus(focus, deltaSeconds);
     this.updateSearchPenalty(isSearching, deltaSeconds);
     const visualState = this.updateVisualState(input, flicker, deltaMs);
@@ -222,6 +223,25 @@ export class FlashlightSystem {
     }
 
     return this.lastAim.clone();
+  }
+
+  private updatePlayerFacing(aim: Phaser.Math.Vector2): void {
+    const lockedTarget = this.targets.find((target) => target.id === this.lockedTargetId);
+    if (lockedTarget) {
+      this.player.setFacing(lockedTarget.x - this.player.x);
+      return;
+    }
+
+    const pointerWorld = this.getPointerWorld();
+    const pointerDeltaX = pointerWorld.x - this.player.x;
+    if (Math.abs(pointerDeltaX) > POINTER_FACING_DEAD_ZONE) {
+      this.player.setFacing(pointerDeltaX);
+      return;
+    }
+
+    if (Math.abs(aim.x) > 0.65) {
+      this.player.setFacing(aim.x);
+    }
   }
 
   private getPointerWorld(): Phaser.Math.Vector2 {

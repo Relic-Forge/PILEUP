@@ -18,7 +18,7 @@ export interface PlayerInputState {
 export class InputSystem {
   private readonly cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys?: Record<
-    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f' | 'l',
+    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f' | 'l' | 'r',
     Phaser.Input.Keyboard.Key
   >;
   private tapX = 0;
@@ -52,6 +52,7 @@ export class InputSystem {
           three: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
           f: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
           l: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L),
+          r: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
         }
       : undefined;
 
@@ -59,7 +60,8 @@ export class InputSystem {
       this.captureTap(event);
     });
     scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.rightButtonDown() || pointer.middleButtonDown()) {
+      const eventButton = 'button' in pointer.event ? pointer.event.button : undefined;
+      if (pointer.rightButtonDown() || pointer.middleButtonDown() || eventButton === 2) {
         this.lockOnPressed = true;
       }
     });
@@ -129,6 +131,8 @@ export class InputSystem {
       this.depthDirect = 'main';
     } else if (key === '3') {
       this.depthDirect = 'foreground';
+    } else if (key === 'r') {
+      this.depthDirect = 'main';
     } else if (key === 'f') {
       this.debugFlickerUntil = performance.now() + 2200;
     } else if (key === 'l') {

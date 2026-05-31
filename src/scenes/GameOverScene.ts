@@ -18,7 +18,7 @@ export class GameOverScene extends Phaser.Scene {
       .setStrokeStyle(2, 0x81796f, 0.9)
       .setInteractive({ useHandCursor: true });
     const retry = this.add
-      .text(width / 2, height / 2 + 46, 'Press Enter to retry the room', {
+      .text(width / 2, height / 2 + 46, 'Press Enter or R to retry the room', {
         color: '#b9b0a3',
         fontSize: '22px',
       })
@@ -42,7 +42,7 @@ export class GameOverScene extends Phaser.Scene {
       window.location.assign(nextUrl.toString());
     };
     const handleDocumentKey = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || event.key.toLowerCase() === 'r') {
         restart();
       }
     };
@@ -52,39 +52,14 @@ export class GameOverScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       document.removeEventListener('keydown', handleDocumentKey);
       document.removeEventListener('pointerdown', handleDocumentPointer);
-      retryButton.remove();
     });
-    const retryButton = this.createRetryButton('Press Enter to retry the room', restart);
     this.input.keyboard?.once('keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || event.key.toLowerCase() === 'r') {
         restart();
       }
     });
     this.input.once(Phaser.Input.Events.POINTER_DOWN, restart);
     retryBack.on('pointerdown', restart);
     retry.on('pointerup', restart);
-  }
-
-  private createRetryButton(label: string, onRetry: () => void): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    button.style.cssText = [
-      'position:fixed',
-      'left:50%',
-      'top:58%',
-      'transform:translate(-50%, -50%)',
-      'z-index:20',
-      'min-width:390px',
-      'height:54px',
-      'border:2px solid rgba(129,121,111,0.9)',
-      'background:rgba(26,23,21,0.88)',
-      'color:#b9b0a3',
-      'font:22px monospace',
-      'cursor:pointer',
-    ].join(';');
-    button.addEventListener('click', onRetry);
-    document.body.append(button);
-    return button;
   }
 }

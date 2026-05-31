@@ -122,7 +122,7 @@ export class DarknessSystem {
   setWorldBounds(width: number, height: number): void {
     this.worldWidth = width;
     this.worldHeight = height;
-    this.resizeToViewport();
+    this.syncScreenSpaceSurfaces();
   }
 
   setBlockers(blockers: LightBlocker[]): void {
@@ -144,6 +144,10 @@ export class DarknessSystem {
     if (import.meta.env.DEV) {
       document.body.dataset.pileupLightingStamps = String(this.revealStamps.length);
       document.body.dataset.pileupLightingDebug = String(this.debug);
+      document.body.dataset.pileupDarknessTextureSize = `${this.darkness.width}x${this.darkness.height}`;
+      document.body.dataset.pileupDarknessDisplaySize = `${Math.round(this.darkness.displayWidth)}x${Math.round(
+        this.darkness.displayHeight,
+      )}`;
     }
   }
 
@@ -224,25 +228,26 @@ export class DarknessSystem {
   }
 
   private renderDarkness(light: FlashlightState | undefined, playerCenter?: Vec2): void {
-    this.resizeToViewport();
-    const profile = LAYER_LIGHT_PROFILES[light?.layer ?? 'main'];
+    this.syncScreenSpaceSurfaces();
+    const activeLayer = light?.layer ?? 'main';
+    const profile = LAYER_LIGHT_PROFILES[activeLayer];
     const instability = light?.batteryInstability01 ?? 0;
     const darknessAlpha = Phaser.Math.Clamp(profile.darknessAlpha + instability * 0.08, 0.72, 0.94);
     this.darkness.clear();
     this.darkness.fill(0x050507, darknessAlpha, 0, 0, this.darkness.width, this.darkness.height);
     this.lightMask.clear();
 
-    this.revealStamps.forEach((stamp) => {
+    this.revealStamps.filter((stamp) => stamp.layer === activeLayer).forEach((stamp) => {
       const life01 = Phaser.Math.Clamp(stamp.ageMs / stamp.durationMs, 0, 1);
       const fade = 1 - Phaser.Math.SmoothStep(life01, 0, 1);
       this.drawSoftEraseCircleWorld(stamp.x, stamp.y, stamp.radius, stamp.strength * fade);
     });
 
-    if (playerCenter) {
+    if (playerCenter && activeLayer === 'main') {
       this.drawIrregularPlayerSpill(playerCenter);
     }
 
-    if (light && light.battery > 0) {
+    if (light && light.battery > 0 && activeLayer === 'main') {
       this.drawSoftEraseCircleWorld(light.origin.x, light.origin.y, 86, 0.72);
     }
 
@@ -250,12 +255,16 @@ export class DarknessSystem {
     this.darkness.render();
   }
 
-  private resizeToViewport(): void {
+  private syncScreenSpaceSurfaces(): void {
     const width = Math.max(1, Math.ceil(this.scene.scale.width));
     const height = Math.max(1, Math.ceil(this.scene.scale.height));
+    const inverseCameraZoom = 1 / Math.max(0.001, this.scene.cameras.main.zoom);
     if (this.darkness.width !== width || this.darkness.height !== height) {
       this.darkness.resize(width, height);
     }
+
+    this.darkness.setPosition(0, 0).setScale(inverseCameraZoom);
+    this.vignette.setPosition(0, 0).setScale(inverseCameraZoom);
   }
 
   private drawSoftEraseCircleWorld(x: number, y: number, radius: number, strength: number): void {
