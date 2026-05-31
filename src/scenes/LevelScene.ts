@@ -103,10 +103,10 @@ export class LevelScene extends Phaser.Scene {
     if (input) {
       movementState = this.playerController?.update(input, delta);
       const enemyState = this.enemySystem?.update(delta);
+      const searchState = this.searchSystem?.update(input, delta);
       this.refreshFlashlightTargets();
       this.flashlightSystem?.setTargets(this.flashlightTargets);
-      const flashlightState = this.flashlightSystem?.update(input, delta);
-      const searchState = this.searchSystem?.update(input, delta);
+      const flashlightState = this.flashlightSystem?.update(input, delta, Boolean(searchState?.activeId));
       const doorState = this.doorSystem?.update(input, delta);
       const bossState = this.bossDoorSequence?.update(input, flashlightState, doorState, delta);
       this.updatePlayerActionAnimation(searchState, doorState);
@@ -151,7 +151,7 @@ export class LevelScene extends Phaser.Scene {
     this.phaseLabels = [];
 
     const title = this.add
-      .text(64, 96, 'Phase 9 boss door sequence', {
+      .text(64, 96, 'Phase 10 flashlight feedback', {
         color: '#f4efe0',
         fontSize: '32px',
       })
@@ -286,7 +286,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     window.__PILEUP_DEBUG__ = {
-      phase: 'Phase 9',
+      phase: 'Phase 10',
       seed: this.room?.seed,
       activeRoomId: this.activeRoomId,
       keyNode: this.room?.searchPlacements.find((placement) => placement.itemId === 'front_door_key')?.nodeId,
@@ -299,6 +299,7 @@ export class LevelScene extends Phaser.Scene {
         isCrouching: movementState.isCrouching,
         noise: movementState.noise,
         hasProductionSprite: this.player.hasProductionSprite(),
+        facing: this.player.getFacing(),
       },
       flashlight: flashlightState
         ? {
@@ -306,6 +307,14 @@ export class LevelScene extends Phaser.Scene {
             focus: flashlightState.focus,
             flicker: flashlightState.flicker,
             battery: flashlightState.battery,
+            searchPenalty01: flashlightState.searchPenalty01,
+            aimAngle: Number(flashlightState.aimAngle.toFixed(3)),
+            visualAimAngle: Number(flashlightState.visualAimAngle.toFixed(3)),
+            focus01: flashlightState.focus01,
+            batteryInstability01: flashlightState.batteryInstability01,
+            effectiveRange: flashlightState.effectiveRange,
+            visualRange: flashlightState.visualRange,
+            origin: flashlightState.origin,
             hitIds: flashlightState.hitIds,
           }
         : undefined,
@@ -322,7 +331,7 @@ export class LevelScene extends Phaser.Scene {
       door: doorState,
       bossDoor: bossState,
     };
-    document.body.dataset.pileupPhase = 'Phase 9';
+    document.body.dataset.pileupPhase = 'Phase 10';
     document.body.dataset.pileupSeed = this.room?.seed ?? '';
     document.body.dataset.pileupActiveRoom = this.activeRoomId;
     document.body.dataset.pileupPlayerX = String(Math.round(this.player.x));
@@ -333,12 +342,20 @@ export class LevelScene extends Phaser.Scene {
     document.body.dataset.pileupCrouching = String(movementState.isCrouching);
     document.body.dataset.pileupNoise = movementState.noise.toFixed(2);
     document.body.dataset.pileupPlayerSprite = String(this.player.hasProductionSprite());
+    document.body.dataset.pileupPlayerFacing = String(this.player.getFacing());
     if (flashlightState) {
       document.body.dataset.pileupFlashlightLayer = flashlightState.layer;
       document.body.dataset.pileupFlashlightFocus = String(flashlightState.focus);
       document.body.dataset.pileupFlashlightFlicker = String(flashlightState.flicker);
       document.body.dataset.pileupFlashlightBattery = String(flashlightState.battery);
       document.body.dataset.pileupFlashlightHits = flashlightState.hitIds.join(',');
+      document.body.dataset.pileupFlashlightSearchPenalty = String(flashlightState.searchPenalty01);
+      document.body.dataset.pileupFlashlightEffectiveRange = String(flashlightState.effectiveRange);
+      document.body.dataset.pileupFlashlightFocus01 = String(flashlightState.focus01);
+      document.body.dataset.pileupFlashlightVisualRange = String(flashlightState.visualRange);
+      document.body.dataset.pileupFlashlightInstability = String(flashlightState.batteryInstability01);
+      document.body.dataset.pileupFlashlightOriginX = String(flashlightState.origin.x);
+      document.body.dataset.pileupFlashlightOriginY = String(flashlightState.origin.y);
     }
     if (searchState) {
       document.body.dataset.pileupSearchNearest = searchState.nearestId ?? '';

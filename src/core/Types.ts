@@ -114,6 +114,12 @@ export type GameEvent =
   | { type: 'hotbar.changed'; slots: unknown[] }
   | { type: 'flashlight.depthChanged'; layer: DepthLayer }
   | { type: 'flashlight.batteryChanged'; value: number; flicker: boolean; focus: boolean }
+  | { type: 'flashlight.focusStarted' }
+  | { type: 'flashlight.focusEnded' }
+  | { type: 'flashlight.depthSwitch'; layer: DepthLayer }
+  | { type: 'flashlight.flickerBurst'; battery: number }
+  | { type: 'flashlight.batteryCritical' }
+  | { type: 'flashlight.hitEnemyStarted'; enemyId: string }
   | {
       type: 'flashlight.hitEnemy';
       enemyId: string;

@@ -6,6 +6,7 @@ export class AudioSystem {
   private readonly unsubscribeEvents: Array<() => void> = [];
   private readonly context?: AudioContext;
   private lastDoorTickAt = 0;
+  private lastEnemyHitToneAt = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.context = this.getAudioContext();
@@ -27,6 +28,24 @@ export class AudioSystem {
       this.playTone(220 + event.progress01 * 240, 0.055, 0.03);
     }));
     this.unsubscribeEvents.push(gameEvents.on('door.unlocked', () => this.playTone(880, 0.22, 0.06)));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.depthSwitch', (event) => {
+      const frequency = event.layer === 'background' ? 380 : event.layer === 'foreground' ? 520 : 450;
+      this.playTone(frequency, 0.045, 0.018);
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.focusStarted', () => this.playTone(690, 0.13, 0.022)));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.focusEnded', () => this.playTone(360, 0.075, 0.018)));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.flickerBurst', (event) => {
+      this.playTone(170 + event.battery * 4, 0.035, 0.014);
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.batteryCritical', () => this.playTone(118, 0.28, 0.026)));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.hitEnemyStarted', () => {
+      if (this.scene.time.now - this.lastEnemyHitToneAt < 420) {
+        return;
+      }
+
+      this.lastEnemyHitToneAt = this.scene.time.now;
+      this.playTone(240, 0.11, 0.02);
+    }));
   }
 
   destroy(): void {

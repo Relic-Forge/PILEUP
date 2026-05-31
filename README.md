@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 9. The full-house graybox now includes the final boss-door sequence: key pickup triggers door-hoard pressure, the front-door unlock remains a timed hold that can be interrupted, attacks are visibly telegraphed, and a porch-light spill near the door gives the player a defensive option before escaping.
+Current prototype status: Phase 10. The full-house graybox now includes the final boss-door sequence plus a flashlight feedback pass: visual aim has weight, focus narrows smoothly, depth modes have distinct beam profiles, low battery destabilizes the beam, and flashlight focus/depth/flicker events drive subtle audio and HUD feedback.
 
 Controls:
 

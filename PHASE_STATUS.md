@@ -2,25 +2,25 @@
 
 ## Phase Completed
 
-Phase 9 - Boss door sequence
+Phase 10 - Flashlight feedback pass
 
 ## Acceptance Criteria Status
 
-- [x] Objective changes after key is found.
-- [x] Key pickup triggers a dedicated final door-hoard pressure sequence.
-- [x] Front-door unlock takes time and can be interrupted by releasing interact, leaving range, or taking damage.
-- [x] Boss attacks are telegraphed with a visible warning lane and debug telemetry.
-- [x] Player has a defensive porch-light spill near the door; focusing the main-plane flashlight there stuns the hoard and lowers pressure.
-- [x] Victory state triggers after the successful escape state and camera fade.
-- [x] Boss attacks are capped below full health on Normal and cannot instantly kill a full-health player.
+- [x] Flashlight visual aim now eases toward the deterministic gameplay aim instead of snapping.
+- [x] Focus has an animated transition with a narrowing beam, stronger core shaft, origin glow, and end bloom.
+- [x] Background, main, and foreground depth modes have distinct visual beam profiles and a switch pulse.
+- [x] Low battery affects presentation before the critical flicker state through dimming, edge shimmer, and aim instability.
+- [x] Flashlight focus, depth switch, flicker, critical battery, and first enemy-hit moments emit audio events.
+- [x] HUD keeps the debug text while adding a small lens indicator and low-battery pulse.
+- [x] Gameplay target detection still uses the existing deterministic cone math.
 
 ## Commands Run
 
 - `npm run typecheck`
 - `npm run build`
 - Browser verification:
-  - Confirmed `?scene=level&seed=phase9-a` boots into Phase 9 telemetry.
-  - Confirmed initial level load reports the expected seed, active room, inactive boss state, and no browser console errors.
+  - Confirmed `?scene=level&seed=flashlight-pass-a` boots into Phase 10 telemetry.
+  - Confirmed the HUD lens indicator renders and flashlight debug telemetry reports `focus01`, `visualRange`, and `batteryInstability01`.
 
 ## Known Issues
 
@@ -28,11 +28,11 @@ See `KNOWN_ISSUES.md`.
 
 ## Files Changed
 
-- Added `BossDoorSequenceSystem` for key-triggered final pressure, telegraphed hoard attacks, defensive porch-light stun, and boss debug telemetry.
-- Wired Phase 9 boss state into `LevelScene` update/debug flow and escape fade.
-- Updated key-found objective copy and Phase 9 menu/build-status labels.
-- Updated README prototype status.
+- Upgraded `FlashlightSystem` with visual aim smoothing, focus interpolation, layered beam rendering, depth personality, low-battery instability, hurt shake, and flashlight-specific event emission.
+- Added generated audio responses for flashlight focus, depth switch, flicker, critical battery, and first enemy contact.
+- Added HUD lens/battery feedback and expanded dev debug telemetry for flashlight presentation state.
+- Updated README and visible phase labels to Phase 10.
 
 ## Next Recommended Phase
 
-Phase 10 - Audio, feedback, and juice pass.
+Phase 11 - Target reactions, occlusion, and darkness atmosphere.

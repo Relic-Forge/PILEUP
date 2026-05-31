@@ -16,12 +16,21 @@ interface Window {
       isCrouching: boolean;
       noise: number;
       hasProductionSprite: boolean;
+      facing: -1 | 1;
     };
     flashlight?: {
       layer: string;
       focus: boolean;
       flicker: boolean;
       battery: number;
+      searchPenalty01: number;
+      aimAngle: number;
+      visualAimAngle: number;
+      focus01: number;
+      batteryInstability01: number;
+      effectiveRange: number;
+      visualRange: number;
+      origin: { x: number; y: number };
       hitIds: string[];
     };
     search?: {

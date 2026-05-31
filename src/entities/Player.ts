@@ -4,6 +4,10 @@ import { playerAnimationKey } from '../assets/playerAssetSet';
 const ACTION_VISUAL_HOLD_MS: Record<'hurt', number> = {
   hurt: 960,
 };
+const FLASHLIGHT_TIP_FRAME = { x: 0.79, y: 0.44 };
+const FALLBACK_FLASHLIGHT_TIP_LOCAL = { x: 58, y: -135 };
+const REFERENCE_FRAME_SIZE = 1024;
+const REFERENCE_SPRITE_SCALE = 0.38;
 
 export interface PlayerMovementState {
   isMoving: boolean;
@@ -37,9 +41,10 @@ export class Player {
     this.strideMarker = scene.add.rectangle(0, 36, 30, 6, 0x9d9078, 0.9);
     const eye = scene.add.rectangle(12, -52, 5, 5, 0x312d33, 1);
     const animationKey = playerAnimationKey('idle');
-    this.sprite = scene.anims.exists(animationKey)
-      ? scene.add.sprite(0, 0, 'player_child_idle_sheet').setOrigin(0.5, 0.92).setScale(0.38).play(animationKey)
-      : undefined;
+    if (scene.anims.exists(animationKey)) {
+      this.sprite = scene.add.sprite(0, 0, 'player_child_idle_sheet').setOrigin(0.5, 0.92);
+      this.sprite.setScale(this.getRuntimeSpriteScale(this.sprite)).play(animationKey);
+    }
     this.activeAnimation = this.sprite ? animationKey : '';
 
     this.container = scene.add.container(x, y, [this.shadow, this.body, this.head, this.strideMarker, eye]);
@@ -73,6 +78,24 @@ export class Player {
 
     this.facing = directionX < 0 ? -1 : 1;
     this.container.setScale(this.facing, 1);
+  }
+
+  getFacing(): -1 | 1 {
+    return this.facing;
+  }
+
+  getFlashlightTipWorld(): Phaser.Math.Vector2 {
+    if (!this.sprite) {
+      return new Phaser.Math.Vector2(
+        this.x + FALLBACK_FLASHLIGHT_TIP_LOCAL.x * this.facing,
+        this.y + FALLBACK_FLASHLIGHT_TIP_LOCAL.y,
+      );
+    }
+
+    const localTipX = this.sprite.x + (FLASHLIGHT_TIP_FRAME.x - this.sprite.originX) * this.sprite.displayWidth;
+    const localTipY = this.sprite.y + (FLASHLIGHT_TIP_FRAME.y - this.sprite.originY) * this.sprite.displayHeight;
+
+    return new Phaser.Math.Vector2(this.x + localTipX * this.container.scaleX, this.y + localTipY * this.container.scaleY);
   }
 
   playPlaceholderAnimation(deltaSeconds: number, movement: PlayerMovementState): void {
@@ -142,5 +165,9 @@ export class Player {
 
     this.activeAnimation = animationKey;
     this.sprite.play(animationKey, true);
+  }
+
+  private getRuntimeSpriteScale(sprite: Phaser.GameObjects.Sprite): number {
+    return REFERENCE_SPRITE_SCALE * (REFERENCE_FRAME_SIZE / sprite.frame.width);
   }
 }

@@ -182,6 +182,22 @@ export class UIScene extends Phaser.Scene {
         fontSize: `${fontSize}px`,
       },
     );
+    const lensX = safe.left + 462 * scale;
+    const lensY = safe.top + 34 * scale;
+    const lensSlots = (['background', 'main', 'foreground'] as DepthLayer[]).map((layer, index) => {
+      const active = this.flashlightLayer === layer;
+      const color = layer === 'main' ? 0xf4e7a8 : layer === 'foreground' ? 0xf3b28d : 0x86a9d8;
+      return this.add
+        .circle(lensX + index * 22 * scale, lensY, active ? 7 * scale : 4.5 * scale, color, active ? 0.9 : 0.28)
+        .setStrokeStyle(active ? 2 : 1, color, active ? 0.95 : 0.35)
+        .setScale(active && this.flashlightFocus ? 1.18 : 1, active && this.flashlightFocus ? 0.72 : 1)
+        .setScrollFactor(0);
+    });
+    const batteryWarn = this.flashlightBattery < 30 || this.flashlightFlicker;
+    const batteryPulse = batteryWarn ? 0.62 + Math.sin(this.time.now * 0.012) * 0.22 : 0.32;
+    const batteryDot = this.add
+      .circle(lensX + 78 * scale, lensY, 4.5 * scale, this.flashlightBattery <= 12 ? 0xe66b61 : 0xe3d36f, batteryPulse)
+      .setScrollFactor(0);
     const objective = this.add
       .text(safe.left, safe.top + 30 * scale, `OBJECTIVE ${state?.objective ?? 'Find the key.'}`, {
         color: '#cfc8bd',
@@ -249,6 +265,8 @@ export class UIScene extends Phaser.Scene {
       stamina,
       mess,
       flashlight,
+      ...lensSlots,
+      batteryDot,
       objective,
       layoutText,
       searchBack,

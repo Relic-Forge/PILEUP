@@ -67,7 +67,7 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const startText = this.add
-      .text(width / 2, height * 0.62, 'Start Phase 9 Boss Door', {
+      .text(width / 2, height * 0.62, 'Start Phase 10 Flashlight', {
         color: '#11100f',
         backgroundColor: '#e3d36f',
         fontSize: `${Math.round(22 * uiScale)}px`,
