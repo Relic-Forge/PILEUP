@@ -1,0 +1,50 @@
+{
+  "schema": "pileup_asset_lock_rules_v1",
+  "updated_utc": "2026-05-31T00:00:00Z",
+  "defaultRules": {
+    "concept": {
+      "mayGenerateNewCandidates": true,
+      "mayOverwriteRuntimeFiles": false,
+      "requiresApprovalToPromote": true
+    },
+    "candidate": {
+      "mayGenerateNewCandidates": true,
+      "mayOverwriteRuntimeFiles": false,
+      "requiresApprovalToPromote": true
+    },
+    "approved": {
+      "mayGenerateNewCandidates": false,
+      "mayOverwriteRuntimeFiles": false,
+      "requiresApprovalToPromote": false
+    },
+    "locked": {
+      "mayGenerateNewCandidates": false,
+      "mayOverwriteRuntimeFiles": false,
+      "requiresApprovalToPromote": false
+    },
+    "deprecated": {
+      "mayGenerateNewCandidates": false,
+      "mayOverwriteRuntimeFiles": false,
+      "requiresApprovalToPromote": false
+    }
+  },
+  "allowedWithoutNewDesignApproval": [
+    "alpha cleanup",
+    "sprite slicing correction",
+    "pivot correction",
+    "runtime export tier generation",
+    "minor artifact cleanup",
+    "hitbox metadata update",
+    "manifest reference update"
+  ],
+  "requiresNewDesignApproval": [
+    "new silhouette",
+    "new palette",
+    "new outfit or costume",
+    "new monster face",
+    "new body proportions",
+    "new room style direction",
+    "new UI style direction",
+    "major lighting or art-style shift"
+  ]
+}

@@ -53,6 +53,18 @@ A new AI output never outranks an approved reference.
 
 If an AI-generated result looks good but conflicts with the approved asset identity, reject it or route it as a candidate for a new version. Do not silently replace the asset.
 
+Current repo contract:
+
+```text
+data/assets/asset_registry.json              design identity registry
+data/assets/approved_assets.json             approval index
+data/assets/asset_lock_rules.json            lifecycle change rules
+data/assets/asset_generation_manifest.json   generated batch log
+data/asset_manifest.json                     existing prototype/runtime manifest
+```
+
+Use `data/assets/asset_registry.json` for art identity, prompts, lifecycle state, and approval decisions. Use `data/asset_manifest.json` only for existing prototype references and promoted runtime references until the runtime loader is migrated to the asset registry.
+
 ---
 
 ## 3. Asset Lifecycle States
@@ -75,11 +87,23 @@ concept -> candidate -> approved -> locked
 
 No asset should jump from concept directly to locked.
 
+Lifecycle promotion requires evidence:
+
+```text
+concept   -> candidate  after generated/source art exists and is stored
+candidate -> approved   after identity, technical, gameplay, and consistency review pass
+approved  -> locked     after the asset is chosen as the stable production identity
+```
+
+Do not mark prototype references as approved or locked just because they are currently useful.
+
 ---
 
 ## 4. Required Asset Registry Fields
 
 Every approved or locked asset must be represented in an asset registry file.
+
+Concept and candidate assets should also be represented when they are MVP-critical, have aliases in code/data, or will be used in generation prompts.
 
 Recommended location:
 
@@ -159,6 +183,8 @@ public/assets/
   runtime/
   spritesheets/
   atlases/
+  audio/
+  backgrounds/
   enemies/
   characters/
   rooms/
@@ -170,6 +196,7 @@ data/assets/
   asset_registry.json
   approved_assets.json
   asset_lock_rules.json
+  asset_generation_manifest.json
   export_manifest.json
 ```
 
@@ -180,6 +207,25 @@ Rules:
 - `public/assets/` contains game-ready exports consumed by Phaser.
 - Runtime exports should be replaceable without changing game logic.
 - Code should reference stable `assetId` values through manifests, not random filenames.
+- Candidate and generated source files should remain outside approved/runtime folders until review passes.
+- Approved contact sheets are references, not sprite atlases. Runtime atlases belong under `public/assets/atlases/` or the matching runtime category.
+
+Canonical IDs for new art metadata and prompts:
+
+```text
+character.player_child
+enemy.laundry_monster
+enemy.socklings
+enemy.drawer_mimic
+enemy.hanging_coat_stalker
+enemy.dish_crawler
+boss.door_hoard
+room.level01_bedroom
+ui.hud_core
+vfx.flashlight_cone
+```
+
+Existing gameplay keys such as `laundry_monster`, `laundry_pile_monster`, `sock_goblin`, `hanger_stalker`, and `door_hoard` are aliases until code/data migration. Do not introduce new aliases during asset generation.
 
 ---
 
@@ -438,6 +484,14 @@ resolution target
 background/alpha requirements
 animation frame count, if applicable
 ```
+
+Every generation batch must also be recorded in:
+
+```text
+data/assets/asset_generation_manifest.json
+```
+
+Record the prompt, negative prompt, source references, tool/model, seed when available, output files, review status, and QA notes. Generated outputs begin as `candidate` or `needs_review`; promotion happens only after review.
 
 Prompt template:
 

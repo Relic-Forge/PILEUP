@@ -446,7 +446,7 @@ All assets must be built to a consistent production standard so the game can sca
 ### Sprite sheet standard
 For standard enemies:
 - Minimum runtime frame: 512 x 512.
-- Preferred source frame: 1024 x 1024.
+- Preferred source frame: 2048 x 2048 for new production art.
 - MVP sheet layout: 4 columns x 2 rows for 8-frame animations.
 - Runtime sheet: 2048 x 1024 for 512 frames.
 - High-quality/source sheet: 4096 x 2048 for 1024 frames.
@@ -454,12 +454,12 @@ For standard enemies:
 
 For large enemies/bosses:
 - Minimum runtime frame: 1024 x 1024.
-- Preferred source frame: 2048 x 2048.
+- Preferred source frame: 4096 x 4096 where practical.
 - Sheet size depends on frame count; keep under engine texture limits.
 
 For player:
 - Minimum runtime frame: 512 x 512.
-- Preferred source frame: 768-1024 x 768-1024.
+- Preferred source frame: 2048 x 2048 for new production art.
 - More directional/aim variants needed due to flashlight depth targeting.
 
 ### Background layer standard
@@ -520,6 +520,10 @@ The system should be data-driven so future houses can reuse mechanics with diffe
 - DoorEscapeSequence
 
 ### Data files
+- data/assets/asset_registry.json
+- data/assets/approved_assets.json
+- data/assets/asset_lock_rules.json
+- data/assets/asset_generation_manifest.json
 - asset_manifest.json
 - enemy_archetypes.json
 - animation_specs.json
@@ -530,7 +534,8 @@ The system should be data-driven so future houses can reuse mechanics with diffe
 ### Example enemy configuration
 ```json
 {
-  "id": "laundry_pile_monster",
+  "assetId": "enemy.laundry_monster",
+  "runtimeAliases": ["laundry_monster", "laundry_pile_monster"],
   "nativeLayer": "main_or_background",
   "lightResponse": "freeze_then_lunge",
   "soundResponse": "attracted",

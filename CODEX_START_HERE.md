@@ -9,6 +9,12 @@ Read these files in order:
 3. `docs/PILEUP_Codex_Execution_Plan.md`
 4. `docs/PILEUP_Acceptance_Test_Checklist.md`
 
+For asset-generation tasks, read these additional files before producing or changing art:
+
+1. `docs/PILEUP_Asset_Generation_Quality_Guardrails.md`
+2. `docs/PILEUP_Asset_Generation_Runbook.md`
+3. `data/assets/asset_registry.json`
+
 Start with Phase 0 only.
 
 Do not implement full gameplay until Phase 0 acceptance criteria pass.

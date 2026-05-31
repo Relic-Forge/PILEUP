@@ -34,24 +34,24 @@ A production-quality PILEUP asset must pass all checks below:
 
 ### Standard enemy
 - Runtime frame: 512 x 512 minimum.
-- Preferred source frame: 1024 x 1024.
+- Preferred source frame: 2048 x 2048 for new production art.
 - 8-frame sheet: 2048 x 1024 runtime or 4096 x 2048 source.
 - Format: RGBA PNG.
 - Metadata: JSON with frame size, fps, loop, anchor, hitboxes.
 
 ### Boss enemy
 - Runtime frame: 1024 x 1024 minimum.
-- Preferred source frame: 2048 x 2048.
+- Preferred source frame: 4096 x 4096 where practical.
 - Split into multiple sheets if texture size becomes too large.
 
 ### Player
 - Runtime frame: 512 x 512 minimum.
-- Preferred source frame: 768-1024 square.
+- Preferred source frame: 2048 x 2048 for new production art.
 - Must support flashlight aiming forward, high/deep background, and low/foreground.
 
 ### Items
-- Source: 512 x 512.
-- Runtime: 128 or 256.
+- Source: 1024 x 1024 for inventory icons and important pickup props.
+- Runtime: 128, 256, or 512 depending UI/world tier.
 - Use strong silhouettes. Icons must be readable at 720p.
 
 ## Room layer standard
@@ -126,3 +126,14 @@ Key requirements:
 - All production assets must be reviewed at 720p, 1080p, 1440p, 4K, ultrawide, and phone landscape.
 
 Detailed requirements are in `PILEUP_Responsive_Display_and_Asset_Scaling_Spec.md`.
+
+## Asset generation readiness
+
+Before generating or promoting new production art, use:
+
+- `docs/PILEUP_Asset_Generation_Quality_Guardrails.md`
+- `docs/PILEUP_Asset_Generation_Runbook.md`
+- `data/assets/asset_registry.json`
+- `data/assets/asset_generation_manifest.json`
+
+Current prototype images are references only. The first art milestone should approve contact sheets and identity sheets before full animation sheets or room runtime layers are produced.

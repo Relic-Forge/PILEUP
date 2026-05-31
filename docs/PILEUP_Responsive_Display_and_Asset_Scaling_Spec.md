@@ -298,9 +298,9 @@ Acceptance criteria:
 For v1, build the first level with these minimum export tiers:
 
 ```text
-Desktop standard: 2560x1440 room layers, 768-1024 frame hero sprites
-Desktop high/4K: 3840x2160 room layers, 1024 frame hero sprites
-Mobile: 1920x1080 room layers, 512 frame sprites, compact HUD
+Desktop standard: 2560x1440 room layers, 768x768 hero sprite frames
+Desktop high/4K: 3840x2160 room layers, 1024x1024 hero sprite frames
+Mobile: 1920x1080 room layers, 512x512 sprite frames, compact HUD
 ```
 
 Source art should be painted at the ultra source tier where feasible so later ports, trailers, Steam page art, and high-res promotional material do not require repainting from scratch.

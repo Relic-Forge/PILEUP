@@ -140,6 +140,10 @@ Before generating, replacing, or promoting any new art asset, read:
 
 ```text
 docs/PILEUP_Asset_Generation_Quality_Guardrails.md
+docs/PILEUP_Asset_Generation_Runbook.md
+data/assets/asset_registry.json
 ```
 
 Core rule: approved assets are locked design references. Gameplay implementation phases may place, configure, animate, export, or reference approved assets, but they must not redesign or replace approved art unless a new asset version is explicitly requested and approved.
+
+Generated assets start as candidates. Record generation batches in `data/assets/asset_generation_manifest.json`, keep source/candidate art out of approved/runtime folders until review passes, and promote only after the checklist in the guardrails is satisfied.

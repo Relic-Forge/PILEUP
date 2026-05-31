@@ -1,0 +1,454 @@
+{
+  "schema": "pileup_asset_registry_v1",
+  "project": "PILEUP",
+  "updated_utc": "2026-05-31T00:00:00Z",
+  "id_policy": {
+    "canonical_format": "category.slug",
+    "runtime_alias_policy": "Existing gameplay keys may remain as aliases until code and data are migrated.",
+    "version_policy": "1.0.0 means approved locked identity; pre-approval assets use 0.x candidate versions."
+  },
+  "assets": [
+    {
+      "assetId": "character.player_child",
+      "aliases": [
+        "player_child"
+      ],
+      "displayName": "Player Child",
+      "category": "character",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "small child survivor silhouette with readable flashlight and carried item poses",
+        "palette": "muted home-at-night colors with warm practical-light accents",
+        "motionLanguage": "careful, tense, quick when panicked, never superheroic"
+      },
+      "doNotChange": [
+        "child scale relative to room threats",
+        "domestic survival tone",
+        "readable flashlight direction"
+      ],
+      "allowedVariations": [
+        "pose",
+        "search posture",
+        "flashlight aim direction",
+        "minor clothing folds that preserve silhouette"
+      ],
+      "notes": "Needs approved contact sheet before animation production."
+    },
+    {
+      "assetId": "enemy.laundry_monster",
+      "aliases": [
+        "laundry_monster",
+        "laundry_pile_monster"
+      ],
+      "displayName": "Laundry Monster",
+      "category": "enemy",
+      "status": "candidate",
+      "artVersion": "0.9.0",
+      "owner": "art-direction",
+      "sourceReference": "assets/reference/prototype_sprites/laundry_monster_idle_sheet_proto_1774x887_rgb.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "bulky low crawling laundry mound",
+        "face": "dark hooded void under stained off-white sheet",
+        "eyes": "orange-yellow glow",
+        "palette": "dirty off-white, gray, muted blue, brown, purple, faded green",
+        "limbs": "gray-purple clawed arms with dark talons",
+        "motionLanguage": "heavy, twitchy, dragging, lurching"
+      },
+      "doNotChange": [
+        "core low crawling silhouette",
+        "orange-yellow eye glow",
+        "hooded sheet face",
+        "dirty mixed-laundry material identity",
+        "domestic clutter origin"
+      ],
+      "allowedVariations": [
+        "pose",
+        "cloth twitching",
+        "attack extension",
+        "damage state",
+        "lighting intensity",
+        "minor cloth arrangement changes that preserve silhouette"
+      ],
+      "notes": "Prototype art is strong direction but not approved production art because it is RGB, non-standard size, and lacks alpha/pivot metadata."
+    },
+    {
+      "assetId": "enemy.socklings",
+      "aliases": [
+        "socklings",
+        "sock_goblin"
+      ],
+      "displayName": "Socklings",
+      "category": "enemy",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "small clustered sock creatures that read as household clutter until they scatter",
+        "palette": "muted socks, lint, faded fabric, small eye glints",
+        "motionLanguage": "skittering, swarm-like, evasive"
+      },
+      "doNotChange": [
+        "sock/fabric origin",
+        "small swarm identity",
+        "domestic scale"
+      ],
+      "allowedVariations": [
+        "sock colors within palette",
+        "cluster arrangement",
+        "scatter poses"
+      ],
+      "notes": "Needs concept sheet before production sprite work."
+    },
+    {
+      "assetId": "enemy.drawer_mimic",
+      "aliases": [
+        "drawer_mimic"
+      ],
+      "displayName": "Drawer Mimic",
+      "category": "enemy",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "ordinary drawer or cabinet that reveals a hidden bite/grab threat",
+        "palette": "room-matched wood, metal pulls, shadowed interior",
+        "motionLanguage": "still, suspicious twitch, sudden snap"
+      },
+      "doNotChange": [
+        "furniture origin",
+        "search-pile paranoia role",
+        "room-matched material"
+      ],
+      "allowedVariations": [
+        "drawer style by room",
+        "handle twitch pose",
+        "interior shadow shape"
+      ],
+      "notes": "Generate as room-specific variants only after base identity is approved."
+    },
+    {
+      "assetId": "enemy.hanging_coat_stalker",
+      "aliases": [
+        "hanging_coat_stalker",
+        "hanger_stalker"
+      ],
+      "displayName": "Hanging Coat Stalker",
+      "category": "enemy",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "hanging coat cluster that becomes a tall stalking shape",
+        "palette": "dark coats, hallway shadows, muted fabric highlights",
+        "motionLanguage": "subtle shift, watched/unwatched stalking, sudden foreground drop"
+      },
+      "doNotChange": [
+        "coat-rack origin",
+        "tall hanging silhouette",
+        "depth-threat role"
+      ],
+      "allowedVariations": [
+        "coat arrangement",
+        "background or foreground pose",
+        "shadow intensity"
+      ],
+      "notes": "Needs hallway contact sheet before animation production."
+    },
+    {
+      "assetId": "enemy.dish_crawler",
+      "aliases": [
+        "dish_crawler",
+        "dish_stack_crawler"
+      ],
+      "displayName": "Dish Crawler",
+      "category": "enemy",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "unstable stack of dishes and utensils crawling from kitchen clutter",
+        "palette": "ceramic white, dull metal, food stains, cold kitchen shadows",
+        "motionLanguage": "rattling, clattering, low crawl"
+      },
+      "doNotChange": [
+        "dish/utensil origin",
+        "kitchen-clutter identity",
+        "readable unstable-stack silhouette"
+      ],
+      "allowedVariations": [
+        "dish mix",
+        "utensil positions",
+        "food-stain placement"
+      ],
+      "notes": "Needs concept sheet before production sprite work."
+    },
+    {
+      "assetId": "boss.door_hoard",
+      "aliases": [
+        "door_hoard",
+        "hoard_at_the_door"
+      ],
+      "displayName": "Hoard at the Door",
+      "category": "boss",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "silhouette": "front-door clutter mass that blocks escape across foreground, main, and background lanes",
+        "palette": "entryway shadows, coats, shoes, bags, mail, porch-light spill",
+        "motionLanguage": "surging, grabbing, collapsing, recoiling from light"
+      },
+      "doNotChange": [
+        "domestic entryway clutter origin",
+        "front-door escape role",
+        "multi-lane pressure silhouette"
+      ],
+      "allowedVariations": [
+        "clutter composition",
+        "surge lane",
+        "porch-light intensity",
+        "collapse pose"
+      ],
+      "notes": "Boss source frames should use boss-size targets and split sheets by animation."
+    },
+    {
+      "assetId": "room.level01_bedroom",
+      "aliases": [
+        "level01_bedroom_layers"
+      ],
+      "displayName": "Level 01 Bedroom",
+      "category": "room",
+      "status": "candidate",
+      "artVersion": "0.9.0",
+      "owner": "art-direction",
+      "sourceReference": "assets/reference/concept_drawings/parallax_room_mockup_proto_1672x941_rgb.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "camera": "layered side-view house diorama with limited floor depth",
+        "palette": "warm domestic pockets corrupted by cold night lighting",
+        "materialLanguage": "lived-in family clutter, laundry, toys, bedding, shelves"
+      },
+      "doNotChange": [
+        "domestic bedroom grounding",
+        "layered parallax structure",
+        "readable search clutter"
+      ],
+      "allowedVariations": [
+        "specific household clutter",
+        "wall decoration",
+        "light and shadow intensity",
+        "segment extension that does not stretch art"
+      ],
+      "notes": "Prototype room concept is directional only; final room requires layered source and tiered runtime exports."
+    },
+    {
+      "assetId": "room.level01_hallway",
+      "aliases": [
+        "level01_hallway_layers"
+      ],
+      "displayName": "Level 01 Hallway",
+      "category": "room",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "camera": "layered side-view hallway with narrow domestic pressure and depth threats",
+        "palette": "cold night shadows, dim family-photo highlights, coat-rack darkness",
+        "materialLanguage": "family photos, shoes, mail, bags, coat rack, closet clutter"
+      },
+      "doNotChange": [
+        "domestic hallway grounding",
+        "foreground/background depth threat readability",
+        "parallax layer structure"
+      ],
+      "allowedVariations": [
+        "family photo arrangement",
+        "shoe and mail clutter",
+        "coat silhouettes",
+        "light spill intensity"
+      ],
+      "notes": "Needs layered source before runtime export."
+    },
+    {
+      "assetId": "room.level01_bathroom",
+      "aliases": [
+        "level01_bathroom_layers"
+      ],
+      "displayName": "Level 01 Bathroom",
+      "category": "room",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "camera": "layered side-view bathroom with searchable medicine and laundry clutter",
+        "palette": "cold tile reflections, mirror darkness, small warm practical-light accents",
+        "materialLanguage": "sink, mirror, hamper, tub curtain, medicine cabinet, towels"
+      },
+      "doNotChange": [
+        "bathroom material identity",
+        "readable searchable cabinet/hamper zones",
+        "layered parallax structure"
+      ],
+      "allowedVariations": [
+        "tile pattern",
+        "towel placement",
+        "mirror reflection darkness",
+        "hamper clutter"
+      ],
+      "notes": "Needs layered source before runtime export."
+    },
+    {
+      "assetId": "room.level01_kitchen",
+      "aliases": [
+        "level01_kitchen_layers"
+      ],
+      "displayName": "Level 01 Kitchen",
+      "category": "room",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "camera": "layered side-view kitchen with dish, cabinet, counter, and table clutter",
+        "palette": "cold appliance shadows, dull metal, stained ceramic, small amber light pockets",
+        "materialLanguage": "counters, dishes, drawers, cabinets, trash, chair/table foreground occluders"
+      },
+      "doNotChange": [
+        "kitchen clutter origin",
+        "searchable drawer/cabinet readability",
+        "foreground occluder fairness"
+      ],
+      "allowedVariations": [
+        "counter clutter",
+        "dish pile composition",
+        "chair/table placement",
+        "appliance shadows"
+      ],
+      "notes": "Needs layered source before runtime export."
+    },
+    {
+      "assetId": "room.level01_living_room_front_door",
+      "aliases": [
+        "level01_living_room_front_door_layers"
+      ],
+      "displayName": "Level 01 Living Room and Front Door",
+      "category": "room",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "camera": "layered side-view living room ending at the front-door boss arena",
+        "palette": "cold night room shadows, couch warmth, porch-light escape spill",
+        "materialLanguage": "couch, coffee table, family photos, entry clutter, front door"
+      },
+      "doNotChange": [
+        "front-door escape focus",
+        "domestic living-room grounding",
+        "boss lane readability"
+      ],
+      "allowedVariations": [
+        "couch and coffee-table clutter",
+        "family photo wall",
+        "porch-light intensity",
+        "foreground occlusion framing"
+      ],
+      "notes": "Needs layered source and boss-arena composition review before runtime export."
+    },
+    {
+      "assetId": "ui.hud_core",
+      "aliases": [
+        "hud_inventory_bars_objectives"
+      ],
+      "displayName": "Core HUD",
+      "category": "ui",
+      "status": "candidate",
+      "artVersion": "0.9.0",
+      "owner": "art-direction",
+      "sourceReference": "assets/reference/concept_drawings/gameplay_ui_mockup_proto_1672x941_rgb.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "layout": "anchor-based survival HUD with inventory, flashlight, health/stamina, and objective readout",
+        "palette": "readable warm/cold contrast with distressed domestic edges",
+        "style": "game UI elements separate from concept-art text and never baked into room art"
+      },
+      "doNotChange": [
+        "anchor-based responsive HUD requirement",
+        "phone readability",
+        "separation from background art"
+      ],
+      "allowedVariations": [
+        "icon distress",
+        "panel texture",
+        "compact phone layout",
+        "9-slice border refinement"
+      ],
+      "notes": "Concept mockup is not final UI; final icons and panels need scalable/tiered exports."
+    },
+    {
+      "assetId": "vfx.flashlight_cone",
+      "aliases": [
+        "flashlight_cone_masks"
+      ],
+      "displayName": "Flashlight Cone Masks",
+      "category": "vfx",
+      "status": "concept",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": null,
+      "approvedContactSheet": null,
+      "runtimeFiles": [],
+      "lockedIdentity": {
+        "shapeLanguage": "strong readable flashlight cones with soft falloff and lane-specific targeting",
+        "palette": "warm white/yellow core against cold blue-grey shadow",
+        "motionLanguage": "responsive aim, focus, flicker, stun readability"
+      },
+      "doNotChange": [
+        "readable foreground/main/background targeting",
+        "gameplay-critical clarity",
+        "no baked HUD or text"
+      ],
+      "allowedVariations": [
+        "falloff softness",
+        "dust specks",
+        "flicker intensity",
+        "focus cone width"
+      ],
+      "notes": "Can be shader-driven or PNG masks, but must be QAed at target resolutions."
+    }
+  ]
+}

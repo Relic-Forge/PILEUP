@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "assets:validate": "node scripts/validate-asset-registry.mjs"
   },
   "dependencies": {
     "phaser": "4.1.0"

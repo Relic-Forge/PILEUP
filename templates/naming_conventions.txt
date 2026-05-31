@@ -6,9 +6,9 @@ General:
 - Do not use spaces.
 
 Examples:
-- laundry_pile_monster_idle_sheet_v001.png
-- laundry_pile_monster_attack_sheet_v001.png
-- laundry_pile_monster_attack_meta_v001.json
+- enemy_laundry_monster_idle_1024_v0.9.0.png
+- enemy_laundry_monster_attack_1024_v0.9.0.png
+- enemy_laundry_monster_attack_1024_v0.9.0.json
 - level01_bedroom_far_bg_v001.png
 - level01_bedroom_fg_clutter_v001.png
 - ui_icon_flashlight_v001.png

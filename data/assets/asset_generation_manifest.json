@@ -1,0 +1,29 @@
+{
+  "schema": "pileup_asset_generation_manifest_v1",
+  "project": "PILEUP",
+  "updated_utc": "2026-05-31T00:00:00Z",
+  "batches": [],
+  "requiredBatchFields": [
+    "batchId",
+    "createdUtc",
+    "assetId",
+    "requestedOutput",
+    "lifecycleState",
+    "sourceReferences",
+    "prompt",
+    "negativePrompt",
+    "tool",
+    "seed",
+    "outputFiles",
+    "reviewStatus",
+    "qaChecks"
+  ],
+  "reviewStatuses": [
+    "generated",
+    "needs_review",
+    "rejected",
+    "candidate",
+    "approved"
+  ],
+  "notes": "Append generated asset batches here before promotion. Do not overwrite approved art from a generation batch."
+}
