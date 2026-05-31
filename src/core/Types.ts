@@ -112,6 +112,7 @@ export type GameEvent =
   | { type: 'mess.changed'; value: number; max: number }
   | { type: 'objective.changed'; text: string }
   | { type: 'hotbar.changed'; slots: unknown[] }
+  | { type: 'checklist.created'; items: Array<{ itemId: string; label: string }> }
   | { type: 'flashlight.depthChanged'; layer: DepthLayer }
   | { type: 'flashlight.batteryChanged'; value: number; flicker: boolean; focus: boolean }
   | { type: 'flashlight.focusStarted' }

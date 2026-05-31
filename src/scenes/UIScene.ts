@@ -7,6 +7,14 @@ import { ResponsiveScaleSystem } from '../systems/ResponsiveScaleSystem';
 
 interface UISceneData {
   state?: GameState;
+  checklistItems?: Array<{ itemId: string; label: string }>;
+  phaseInfo?: {
+    phase: string;
+    roomId: string;
+    segmentCount: number;
+    worldWidth: number;
+    seed: string;
+  };
 }
 
 export class UIScene extends Phaser.Scene {
@@ -26,6 +34,11 @@ export class UIScene extends Phaser.Scene {
   private burdenState = 'light';
   private burdenValue = 0;
   private hotbarSlots: InventoryItem[] = [];
+  private checklistItems: Array<{ itemId: string; label: string; found: boolean }> = [];
+  private phaseInfo?: UISceneData['phaseInfo'];
+  private infoButton?: HTMLButtonElement;
+  private infoPanel?: HTMLDivElement;
+  private infoPanelOpen = false;
   private uiObjects: Phaser.GameObjects.GameObject[] = [];
   private unsubscribeEvents: Array<() => void> = [];
 
@@ -34,7 +47,11 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(data: UISceneData): void {
+    this.scene.bringToTop();
     this.state = data.state;
+    this.checklistItems = data.checklistItems?.map((item) => ({ ...item, found: false })) ?? [];
+    this.phaseInfo = data.phaseInfo;
+    this.createInfoOverlay();
     this.responsive = new ResponsiveScaleSystem(this);
     this.responsive.onResize(() => this.renderHud());
 
@@ -122,10 +139,24 @@ export class UIScene extends Phaser.Scene {
       this.hotbarSlots = event.slots as InventoryItem[];
       this.renderHud();
     }));
+    this.unsubscribeEvents.push(gameEvents.on('checklist.created', (event) => {
+      this.checklistItems = event.items.map((item) => ({ ...item, found: false }));
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('item.collected', (event) => {
+      this.checklistItems = this.checklistItems.map((item) =>
+        item.itemId === event.itemId ? { ...item, found: true } : item,
+      );
+      this.renderHud();
+    }));
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.unsubscribeEvents.forEach((unsubscribe) => unsubscribe());
       this.unsubscribeEvents = [];
+      this.infoButton?.remove();
+      this.infoPanel?.remove();
+      this.infoButton = undefined;
+      this.infoPanel = undefined;
       this.responsive?.destroy();
     });
   }
@@ -141,8 +172,10 @@ export class UIScene extends Phaser.Scene {
 
     if (layout.isPortrait) {
       this.responsive?.ensurePortraitPrompt();
+      this.updateInfoOverlay(layout.viewportClass, false);
       return;
     }
+    this.updateInfoOverlay(layout.viewportClass, true);
 
     const state = this.state;
     const safe = layout.safeArea;
@@ -258,6 +291,7 @@ export class UIScene extends Phaser.Scene {
       )
       .setOrigin(1, 1)
       .setScrollFactor(0);
+    const checklist = this.renderChecklistPaper(safe, scale);
 
     this.uiObjects = [
       background,
@@ -272,9 +306,147 @@ export class UIScene extends Phaser.Scene {
       searchBack,
       searchFill,
       searchText,
+      ...checklist,
       doorText,
       hotbarText,
     ];
     this.responsive?.ensurePortraitPrompt();
+  }
+
+  private renderChecklistPaper(
+    safe: { left: number; right: number; top: number; bottom: number; width: number; height: number },
+    scale: number,
+  ): Phaser.GameObjects.GameObject[] {
+    const paperWidth = Math.min(260 * scale, safe.width * 0.28);
+    const paperHeight = Math.min(210 * scale, safe.height * 0.34);
+    const x = safe.right - paperWidth;
+    const y = safe.top + 78 * scale;
+    const objects: Phaser.GameObjects.GameObject[] = [];
+    const paper = this.add
+      .rectangle(x, y, paperWidth, paperHeight, 0xf2e5c7, 0.96)
+      .setOrigin(0, 0)
+      .setStrokeStyle(2, 0x8b6f4c, 0.52)
+      .setScrollFactor(0);
+    objects.push(paper);
+
+    for (let line = 1; line < 8; line += 1) {
+      objects.push(
+        this.add
+          .line(x + 12 * scale, y + (34 + line * 20) * scale, 0, 0, paperWidth - 24 * scale, 0, 0x8bb0bd, 0.32)
+          .setOrigin(0, 0)
+          .setScrollFactor(0),
+      );
+    }
+    objects.push(
+      this.add
+        .line(x + 34 * scale, y + 12 * scale, 0, 0, 0, paperHeight - 24 * scale, 0xc9817e, 0.35)
+        .setOrigin(0, 0)
+        .setScrollFactor(0),
+    );
+    objects.push(
+      this.add
+        .text(x + 48 * scale, y + 14 * scale, 'lost last week', {
+          color: '#352a22',
+          fontFamily: 'Bradley Hand, Comic Sans MS, cursive',
+          fontSize: `${Math.max(16, Math.round(19 * scale))}px`,
+        })
+        .setScrollFactor(0),
+    );
+
+    const rowFont = Math.max(14, Math.round(16 * scale));
+    const rows = this.checklistItems.length > 0 ? this.checklistItems : [{ itemId: 'loading', label: 'checking rooms', found: false }];
+    rows.slice(0, 5).forEach((item, index) => {
+      const rowY = y + (52 + index * 25) * scale;
+      objects.push(
+        this.add
+          .text(x + 18 * scale, rowY, item.found ? 'x' : '-', {
+            color: item.found ? '#667a4f' : '#3d3027',
+            fontFamily: 'Bradley Hand, Comic Sans MS, cursive',
+            fontSize: `${rowFont}px`,
+          })
+          .setScrollFactor(0),
+      );
+      objects.push(
+        this.add
+          .text(x + 48 * scale, rowY, item.label.toLowerCase(), {
+            color: item.found ? '#767064' : '#3d3027',
+            fontFamily: 'Bradley Hand, Comic Sans MS, cursive',
+            fontSize: `${rowFont}px`,
+            wordWrap: { width: paperWidth - 64 * scale },
+          })
+          .setScrollFactor(0),
+      );
+      if (item.found) {
+        objects.push(
+          this.add
+            .line(x + 44 * scale, rowY + 10 * scale, 0, 0, paperWidth - 70 * scale, 0, 0x725342, 0.72)
+            .setOrigin(0, 0)
+            .setScrollFactor(0),
+        );
+      }
+    });
+
+    return objects;
+  }
+
+  private createInfoOverlay(): void {
+    this.infoButton?.remove();
+    this.infoPanel?.remove();
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'i';
+    button.setAttribute('aria-label', 'Show level info');
+    button.style.cssText = [
+      'position:fixed',
+      'left:132px',
+      'top:100px',
+      'z-index:20',
+      'width:30px',
+      'height:30px',
+      'border-radius:50%',
+      'border:2px solid rgba(227,211,111,.72)',
+      'background:rgba(23,18,15,.88)',
+      'color:#f4efe0',
+      'font:700 18px Georgia,serif',
+      'cursor:pointer',
+    ].join(';');
+    const panel = document.createElement('div');
+    this.infoPanelOpen = false;
+    panel.style.cssText = [
+      'position:fixed',
+      'left:176px',
+      'top:18px',
+      'z-index:19',
+      'max-width:min(900px,calc(100vw - 210px))',
+      'padding:12px 16px',
+      'background:rgba(7,6,8,.88)',
+      'border:1px solid rgba(63,53,46,.72)',
+      'color:#aaa196',
+      'font:16px Georgia,serif',
+      'line-height:1.35',
+      'white-space:pre-wrap',
+      'pointer-events:none',
+    ].join(';');
+    button.addEventListener('click', () => {
+      this.infoPanelOpen = !this.infoPanelOpen;
+      panel.style.display = this.infoPanelOpen ? 'block' : 'none';
+      button.setAttribute('aria-label', this.infoPanelOpen ? 'Hide level info' : 'Show level info');
+    });
+    document.body.append(button, panel);
+    this.infoButton = button;
+    this.infoPanel = panel;
+  }
+
+  private updateInfoOverlay(viewportClass: string, visible: boolean): void {
+    if (!this.infoButton || !this.infoPanel) {
+      return;
+    }
+    this.infoButton.style.display = visible ? 'block' : 'none';
+    this.infoPanel.style.display = visible && this.infoPanelOpen ? 'block' : 'none';
+    this.infoPanel.textContent = `${this.phaseInfo?.phase ?? 'Phase 10 flashlight feedback'}\nroom: ${
+      this.phaseInfo?.roomId ?? 'level_01_family_house'
+    } (${this.phaseInfo?.segmentCount ?? 0} segments, ${this.phaseInfo?.worldWidth ?? 0} world px)\nviewport class: ${viewportClass}\nseed: ${
+      this.phaseInfo?.seed ?? 'unknown'
+    }\nWASD/arrows move. Space searches/unlocks. Mouse aims light. Left mouse focuses. Right mouse or L toggles lock-on. 1/2/3 switch depth. R resets to main. F3 debug.`;
   }
 }

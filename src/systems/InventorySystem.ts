@@ -16,6 +16,8 @@ const ITEM_DEFINITIONS: Record<string, InventoryItem> = {
   junk_stack: { id: 'junk_stack', label: 'Junk Stack', burden: 2, hotbar: false },
 };
 
+export const labelForItemId = (itemId: string): string => ITEM_DEFINITIONS[itemId]?.label ?? itemId.replaceAll('_', ' ');
+
 export class InventorySystem {
   private readonly items: InventoryItem[] = [];
   private hasKey = false;

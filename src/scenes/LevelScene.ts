@@ -14,7 +14,7 @@ import { PlayerController } from '../systems/PlayerController';
 import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
 import { DarknessSystem } from '../systems/DarknessSystem';
 import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
-import { InventorySystem } from '../systems/InventorySystem';
+import { InventorySystem, labelForItemId } from '../systems/InventorySystem';
 import { SearchSystem, type SearchState } from '../systems/SearchSystem';
 import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
 import { DoorSystem, type DoorSystemState } from '../systems/DoorSystem';
@@ -77,7 +77,18 @@ export class LevelScene extends Phaser.Scene {
     this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
     this.responsive.onResize(() => this.renderRoom());
 
-    this.scene.launch('UIScene', { state: this.state });
+    this.scene.launch('UIScene', {
+      state: this.state,
+      checklistItems: this.buildChecklistItems(),
+      phaseInfo: {
+        phase: 'Phase 10 flashlight feedback',
+        roomId: this.room.id,
+        segmentCount: this.room.segments.length,
+        worldWidth: Math.round(this.room.width),
+        seed: this.room.seed,
+      },
+    });
+    this.scene.bringToTop('UIScene');
     gameEvents.emit({ type: 'run.seeded', seed });
     this.publishRunSeedDebug();
     gameEvents.emit({ type: 'objective.changed', text: this.state.objective });
@@ -117,6 +128,7 @@ export class LevelScene extends Phaser.Scene {
       this.refreshFlashlightTargets();
       this.flashlightSystem?.setTargets(this.flashlightTargets);
       const flashlightState = this.flashlightSystem?.update(input, delta, Boolean(searchState?.activeId));
+      this.searchSystem?.setFocusedTargetIds(flashlightState?.focus ? flashlightState.hitIds : []);
       this.keepPlayerAboveDarkness();
       this.darknessSystem?.update(flashlightState, delta, this.player?.getReadabilityCenterWorld());
       const doorState = this.doorSystem?.update(input, delta);
@@ -176,35 +188,8 @@ export class LevelScene extends Phaser.Scene {
   private renderPhaseLabels(room: RuntimeRoom, viewportClass: string): void {
     this.phaseLabels.forEach((label) => label.destroy());
     this.phaseLabels = [];
-
-    const title = this.add
-      .text(64, 96, 'Phase 10 flashlight feedback', {
-        color: '#f4efe0',
-        fontSize: '32px',
-      })
-      .setDepth(2_200)
-      .setScrollFactor(0);
-    const details = this.add
-      .text(
-        64,
-        140,
-        [
-          `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
-          `viewport class: ${viewportClass}`,
-          `seed: ${room.seed}`,
-          'WASD/arrows move. Space searches/unlocks. Mouse aims light. Left mouse focuses. Right mouse or L toggles lock-on. 1/2/3 switch depth. R resets to main. F3 debug.',
-        ],
-        {
-          color: '#aaa196',
-          fontSize: '18px',
-          lineSpacing: 5,
-          wordWrap: { width: Math.min(1_020, this.scale.width - 96) },
-        },
-      )
-      .setDepth(2_200)
-      .setScrollFactor(0);
-
-    this.phaseLabels = [title, details];
+    void room;
+    void viewportClass;
   }
 
   private renderDepthReferenceObjects(room: RuntimeRoom): void {
@@ -299,6 +284,28 @@ export class LevelScene extends Phaser.Scene {
 
     const keyPlacement = this.room.searchPlacements.find((placement) => placement.itemId === 'front_door_key');
     document.body.dataset.pileupKeyNode = keyPlacement?.nodeId ?? '';
+  }
+
+  private buildChecklistItems(): Array<{ itemId: string; label: string }> {
+    if (!this.room) {
+      return [];
+    }
+
+    const seen = new Set<string>();
+    return this.room.searchPlacements
+      .filter((placement) => Boolean(placement.itemId))
+      .filter((placement) => {
+        if (!placement.itemId || seen.has(placement.itemId)) {
+          return false;
+        }
+        seen.add(placement.itemId);
+        return true;
+      })
+      .slice(0, 5)
+      .map((placement) => ({
+        itemId: placement.itemId ?? '',
+        label: labelForItemId(placement.itemId ?? ''),
+      }));
   }
 
   private publishDebugState(

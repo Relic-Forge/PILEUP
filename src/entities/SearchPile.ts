@@ -19,6 +19,8 @@ export class SearchPile {
   private readonly progressRing: Phaser.GameObjects.Arc;
   private readonly prompt: Phaser.GameObjects.Text;
   private searched = false;
+  private nearby = false;
+  private focusedByLight = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -76,8 +78,17 @@ export class SearchPile {
       return;
     }
 
-    this.ring.setStrokeStyle(3, 0xe3d36f, isNearby ? 0.9 : 0.28);
-    this.prompt.setText(isNearby ? `Hold Space to search ${this.config.label}` : '').setVisible(isNearby);
+    this.nearby = isNearby;
+    this.updateIdlePrompt();
+  }
+
+  setFocusedByLight(isFocused: boolean): void {
+    if (this.searched) {
+      return;
+    }
+
+    this.focusedByLight = isFocused;
+    this.updateIdlePrompt();
   }
 
   setProgress(progress01: number): void {
@@ -98,5 +109,11 @@ export class SearchPile {
 
   destroy(): void {
     this.container.destroy(true);
+  }
+
+  private updateIdlePrompt(): void {
+    const highlighted = this.nearby || this.focusedByLight;
+    this.ring.setStrokeStyle(3, 0xe3d36f, this.nearby ? 0.9 : this.focusedByLight ? 0.54 : 0.28);
+    this.prompt.setText(highlighted ? `Hold Space to search ${this.config.label}` : '').setVisible(highlighted);
   }
 }

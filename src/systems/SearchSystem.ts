@@ -107,6 +107,11 @@ export class SearchSystem {
       }));
   }
 
+  setFocusedTargetIds(targetIds: readonly string[]): void {
+    const focused = new Set(targetIds);
+    this.piles.forEach((pile) => pile.setFocusedByLight(focused.has(pile.id)));
+  }
+
   private createPileConfigs(room: RuntimeRoom): SearchPileConfig[] {
     const placements = new Map(room.searchPlacements.map((placement) => [placement.nodeId, placement]));
     return room.segments.flatMap((segment) =>
