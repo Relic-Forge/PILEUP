@@ -1,7 +1,7 @@
 {
   "schema": "pileup_asset_registry_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-05-31T00:00:00Z",
+  "updated_utc": "2026-05-31T06:10:00Z",
   "id_policy": {
     "canonical_format": "category.slug",
     "runtime_alias_policy": "Existing gameplay keys may remain as aliases until code and data are migrated.",
@@ -15,12 +15,14 @@
       ],
       "displayName": "Player Child",
       "category": "character",
-      "status": "concept",
-      "artVersion": "0.1.0",
+      "status": "candidate",
+      "artVersion": "0.2.0",
       "owner": "art-direction",
-      "sourceReference": null,
+      "sourceReference": "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate_rgba.png",
       "approvedContactSheet": null,
-      "runtimeFiles": [],
+      "runtimeFiles": [
+        "public/assets/characters/player_child/v0_2/player_child_v0_2.asset.json"
+      ],
       "lockedIdentity": {
         "silhouette": "small child survivor silhouette with readable flashlight and carried item poses",
         "palette": "muted home-at-night colors with warm practical-light accents",
@@ -37,7 +39,7 @@
         "flashlight aim direction",
         "minor clothing folds that preserve silhouette"
       ],
-      "notes": "Needs approved contact sheet before animation production."
+      "notes": "First generated identity contact sheet and full candidate runtime-resolution package exist for review. Runtime package is a proxy timing/sizing set and needs art approval before final gameplay promotion."
     },
     {
       "assetId": "enemy.laundry_monster",

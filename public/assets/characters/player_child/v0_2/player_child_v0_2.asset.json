@@ -1,0 +1,537 @@
+{
+  "schema": "pileup_character_asset_set_v1",
+  "assetId": "character.player_child",
+  "artVersion": "0.2.0",
+  "lifecycleState": "candidate",
+  "sourceContactSheet": "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate_rgba.png",
+  "sourceFrameSize": [
+    2048,
+    2048
+  ],
+  "runtimeTiers": {
+    "mobile": [
+      512,
+      512
+    ],
+    "standard": [
+      768,
+      768
+    ],
+    "high_4k": [
+      1024,
+      1024
+    ]
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.92
+  },
+  "notes": [
+    "Candidate asset set generated from the v0.2 six-pose contact sheet plus the v0.3 walk-cycle sheet.",
+    "Walk and run use generated cycle frames; other animation states remain proxy timing sheets until bespoke frame art is approved."
+  ],
+  "poses": [
+    {
+      "id": "idle_flashlight_forward",
+      "stateHint": "idle",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/idle_flashlight_forward_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/idle_flashlight_forward_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/idle_flashlight_forward_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/idle_flashlight_forward_1024.png"
+      }
+    },
+    {
+      "id": "cautious_walk",
+      "stateHint": "walk_run_depth",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/cautious_walk_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/cautious_walk_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/cautious_walk_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/cautious_walk_1024.png"
+      }
+    },
+    {
+      "id": "search_clutter",
+      "stateHint": "search",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/search_clutter_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/search_clutter_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/search_clutter_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/search_clutter_1024.png"
+      }
+    },
+    {
+      "id": "hurt_recoil",
+      "stateHint": "hurt",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/hurt_recoil_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/hurt_recoil_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/hurt_recoil_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/hurt_recoil_1024.png"
+      }
+    },
+    {
+      "id": "flashlight_high_aim",
+      "stateHint": "depth_flashlight",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/flashlight_high_aim_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/flashlight_high_aim_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/flashlight_high_aim_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/flashlight_high_aim_1024.png"
+      }
+    },
+    {
+      "id": "unlock_door",
+      "stateHint": "unlock_door",
+      "source": "art/source/characters/player_child/v0_2/poses_2048/unlock_door_source_2048.png",
+      "runtime": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/poses/unlock_door_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/poses/unlock_door_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/poses/unlock_door_1024.png"
+      }
+    }
+  ],
+  "animations": [
+    {
+      "id": "idle",
+      "sourcePose": "idle_flashlight_forward",
+      "frames": 8,
+      "fps": 6,
+      "loop": true,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_idle_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_idle_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_idle_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_idle_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_idle_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_idle_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "walk",
+      "sourcePose": "walk",
+      "frames": 10,
+      "fps": 10,
+      "loop": true,
+      "status": "candidate_cycle",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 3
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_walk_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_walk_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_walk_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_walk_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_walk_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_walk_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "run",
+      "sourcePose": "walk",
+      "frames": 10,
+      "fps": 14,
+      "loop": true,
+      "status": "candidate_cycle",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 3
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_run_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_run_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_run_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_run_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_run_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_run_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "depth_step_up",
+      "sourcePose": "flashlight_high_aim",
+      "frames": 6,
+      "fps": 10,
+      "loop": true,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_depth_step_up_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_depth_step_up_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_depth_step_up_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_depth_step_up_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_depth_step_up_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_depth_step_up_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "depth_step_down",
+      "sourcePose": "cautious_walk",
+      "frames": 6,
+      "fps": 10,
+      "loop": true,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_depth_step_down_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_depth_step_down_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_depth_step_down_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_depth_step_down_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_depth_step_down_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_depth_step_down_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "search",
+      "sourcePose": "search_clutter",
+      "frames": 12,
+      "fps": 10,
+      "loop": true,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 3
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_search_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_search_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_search_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_search_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_search_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_search_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "broom_attack",
+      "sourcePose": "cautious_walk",
+      "frames": 8,
+      "fps": 12,
+      "loop": false,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_broom_attack_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_broom_attack_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_broom_attack_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_broom_attack_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_broom_attack_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_broom_attack_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "spray_use",
+      "sourcePose": "flashlight_high_aim",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_spray_use_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_spray_use_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_spray_use_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_spray_use_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_spray_use_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_spray_use_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "hurt",
+      "sourcePose": "hurt_recoil",
+      "frames": 6,
+      "fps": 8,
+      "loop": false,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 2
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 2
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_hurt_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_hurt_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_hurt_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_hurt_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_hurt_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_hurt_high_4k_1024.json"
+      }
+    },
+    {
+      "id": "unlock_door",
+      "sourcePose": "unlock_door",
+      "frames": 12,
+      "fps": 8,
+      "loop": true,
+      "status": "candidate_proxy",
+      "frameLayout": {
+        "mobile": {
+          "frameSize": [
+            512,
+            512
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "standard": {
+          "frameSize": [
+            768,
+            768
+          ],
+          "columns": 4,
+          "rows": 3
+        },
+        "high_4k": {
+          "frameSize": [
+            1024,
+            1024
+          ],
+          "columns": 4,
+          "rows": 3
+        }
+      },
+      "sheets": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_unlock_door_mobile_512.png",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_unlock_door_standard_768.png",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_unlock_door_high_4k_1024.png"
+      },
+      "metadata": {
+        "mobile": "public/assets/characters/player_child/v0_2/mobile/sheets/player_child_unlock_door_mobile_512.json",
+        "standard": "public/assets/characters/player_child/v0_2/standard/sheets/player_child_unlock_door_standard_768.json",
+        "high_4k": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_unlock_door_high_4k_1024.json"
+      }
+    }
+  ]
+}

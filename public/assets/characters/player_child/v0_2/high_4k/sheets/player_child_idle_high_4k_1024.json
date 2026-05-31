@@ -1,0 +1,23 @@
+{
+  "schema": "pileup_animation_sheet_v1",
+  "assetId": "character.player_child",
+  "animationId": "idle",
+  "artVersion": "0.2.0",
+  "status": "candidate_proxy",
+  "sheet": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_idle_high_4k_1024.png",
+  "frameSize": [
+    1024,
+    1024
+  ],
+  "frames": 8,
+  "columns": 4,
+  "rows": 2,
+  "fps": 6,
+  "loop": true,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.92
+  },
+  "sourcePose": "idle_flashlight_forward",
+  "notes": "Repeated-pose timing sheet generated for resolution/package validation. Replace with bespoke approved animation frames before final gameplay art."
+}

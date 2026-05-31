@@ -1,8 +1,9 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const registryPath = 'data/assets/asset_registry.json';
 const approvedPath = 'data/assets/approved_assets.json';
 const generationManifestPath = 'data/assets/asset_generation_manifest.json';
+const runtimeManifestPath = 'data/asset_manifest.json';
 
 const allowedStatuses = new Set(['concept', 'candidate', 'approved', 'locked', 'deprecated']);
 const requiredAssetFields = [
@@ -39,6 +40,22 @@ const requiredMvpAssetIds = [
   'vfx.flashlight_cone',
 ];
 
+const requiredBatchFields = [
+  'batchId',
+  'createdUtc',
+  'assetId',
+  'requestedOutput',
+  'lifecycleState',
+  'sourceReferences',
+  'prompt',
+  'negativePrompt',
+  'tool',
+  'seed',
+  'outputFiles',
+  'reviewStatus',
+  'qaChecks',
+];
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -50,6 +67,7 @@ function fail(message) {
 const registry = readJson(registryPath);
 const approved = readJson(approvedPath);
 const generationManifest = readJson(generationManifestPath);
+const runtimeManifest = readJson(runtimeManifestPath);
 
 if (registry.schema !== 'pileup_asset_registry_v1') {
   fail(`${registryPath} has unexpected schema ${registry.schema}`);
@@ -97,6 +115,12 @@ for (const asset of registry.assets) {
     fail(`${asset.assetId} runtimeFiles must be an array`);
   }
 
+  for (const runtimeFile of asset.runtimeFiles) {
+    if (!existsSync(runtimeFile)) {
+      fail(`${asset.assetId} references missing runtime file ${runtimeFile}`);
+    }
+  }
+
   if (!Array.isArray(asset.doNotChange) || asset.doNotChange.length === 0) {
     fail(`${asset.assetId} must define doNotChange entries`);
   }
@@ -127,8 +151,50 @@ for (const approvedAssetId of approved.approvedAssetIds ?? []) {
 }
 
 for (const batch of generationManifest.batches ?? []) {
+  for (const field of requiredBatchFields) {
+    if (!(field in batch)) {
+      fail(`${generationManifestPath} batch ${batch.batchId ?? '<unknown>'} is missing required field ${field}`);
+    }
+  }
+
   if (!assetIds.has(batch.assetId)) {
     fail(`${generationManifestPath} batch ${batch.batchId ?? '<unknown>'} references unknown assetId ${batch.assetId}`);
+  }
+
+  if (!generationManifest.reviewStatuses.includes(batch.reviewStatus)) {
+    fail(`${generationManifestPath} batch ${batch.batchId} has invalid reviewStatus ${batch.reviewStatus}`);
+  }
+
+  if (!Array.isArray(batch.outputFiles) || batch.outputFiles.length === 0) {
+    fail(`${generationManifestPath} batch ${batch.batchId} must list outputFiles`);
+  }
+
+  for (const output of batch.outputFiles) {
+    const outputPath = typeof output === 'string' ? output : output.path;
+
+    if (!outputPath) {
+      fail(`${generationManifestPath} batch ${batch.batchId} has an output file without a path`);
+    }
+
+    if (!existsSync(outputPath)) {
+      fail(`${generationManifestPath} batch ${batch.batchId} references missing output ${outputPath}`);
+    }
+  }
+
+  if (!Array.isArray(batch.qaChecks) || batch.qaChecks.length === 0) {
+    fail(`${generationManifestPath} batch ${batch.batchId} must list qaChecks`);
+  }
+}
+
+for (const candidate of runtimeManifest.candidate_assets ?? []) {
+  if (!assetIds.has(candidate.assetId)) {
+    fail(`${runtimeManifestPath} candidate ${candidate.id ?? '<unknown>'} references unknown assetId ${candidate.assetId}`);
+  }
+
+  for (const field of ['manifest', 'source_contact_sheet', 'source_pose_directory', 'runtime_root']) {
+    if (!candidate[field] || !existsSync(candidate[field])) {
+      fail(`${runtimeManifestPath} candidate ${candidate.id ?? '<unknown>'} references missing ${field}: ${candidate[field]}`);
+    }
   }
 }
 

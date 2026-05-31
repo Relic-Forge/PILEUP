@@ -8,6 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "assets:prepare-contact-sheet": "node scripts/prepare-contact-sheet.mjs",
+    "assets:build-player": "node scripts/build-player-asset-set.mjs",
     "assets:validate": "node scripts/validate-asset-registry.mjs"
   },
   "dependencies": {

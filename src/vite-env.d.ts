@@ -15,6 +15,7 @@ interface Window {
       isSprinting: boolean;
       isCrouching: boolean;
       noise: number;
+      hasProductionSprite: boolean;
     };
     flashlight?: {
       layer: string;

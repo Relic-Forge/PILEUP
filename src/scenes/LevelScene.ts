@@ -109,6 +109,7 @@ export class LevelScene extends Phaser.Scene {
       const searchState = this.searchSystem?.update(input, delta);
       const doorState = this.doorSystem?.update(input, delta);
       const bossState = this.bossDoorSequence?.update(input, flashlightState, doorState, delta);
+      this.updatePlayerActionAnimation(searchState, doorState);
       this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState, bossState);
       this.updateActiveRoomObjective();
     } else {
@@ -229,6 +230,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.state.health = Math.max(0, this.state.health - amount);
+    this.player?.playActionAnimation('hurt');
     gameEvents.emit({ type: 'player.healthChanged', value: this.state.health, max: this.state.maxHealth });
     if (this.state.health === 0) {
       this.scene.stop('UIScene');
@@ -249,6 +251,17 @@ export class LevelScene extends Phaser.Scene {
       this.scene.stop('UIScene');
       this.scene.start('VictoryScene');
     });
+  }
+
+  private updatePlayerActionAnimation(searchState?: SearchState, doorState?: DoorSystemState): void {
+    if (doorState?.unlocking) {
+      this.player?.playActionAnimation('unlock_door');
+      return;
+    }
+
+    if (searchState?.activeId) {
+      this.player?.playActionAnimation('search');
+    }
   }
 
   private publishRunSeedDebug(): void {
@@ -285,6 +298,7 @@ export class LevelScene extends Phaser.Scene {
         isSprinting: movementState.isSprinting,
         isCrouching: movementState.isCrouching,
         noise: movementState.noise,
+        hasProductionSprite: this.player.hasProductionSprite(),
       },
       flashlight: flashlightState
         ? {
@@ -318,6 +332,7 @@ export class LevelScene extends Phaser.Scene {
     document.body.dataset.pileupSprinting = String(movementState.isSprinting);
     document.body.dataset.pileupCrouching = String(movementState.isCrouching);
     document.body.dataset.pileupNoise = movementState.noise.toFixed(2);
+    document.body.dataset.pileupPlayerSprite = String(this.player.hasProductionSprite());
     if (flashlightState) {
       document.body.dataset.pileupFlashlightLayer = flashlightState.layer;
       document.body.dataset.pileupFlashlightFocus = String(flashlightState.focus);

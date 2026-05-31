@@ -1,8 +1,153 @@
 {
   "schema": "pileup_asset_generation_manifest_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-05-31T00:00:00Z",
-  "batches": [],
+  "updated_utc": "2026-05-31T06:35:00Z",
+  "batches": [
+    {
+      "batchId": "character.player_child.contact_sheet.v0_2.2026_05_30",
+      "createdUtc": "2026-05-31T05:59:26Z",
+      "assetId": "character.player_child",
+      "requestedOutput": "six-pose identity contact sheet for review before animation production",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "data/assets/asset_registry.json#character.player_child",
+        "docs/PILEUP_Art_Bible_and_Asset_Spec.md",
+        "docs/PILEUP_Asset_Generation_Runbook.md"
+      ],
+      "prompt": "Create a production concept contact sheet for the PILEUP game asset character.player_child. Hand-drawn 2D/2.5D domestic survival horror style, side-view house diorama game character, transparent background, no text, no watermark, no labels. A small child survivor silhouette, scaled for threats in a cluttered home, wearing muted home-at-night clothing with warm practical-light accents, carrying a flashlight that is clearly readable in every pose. Mood is tense, careful, domestic survival, never superheroic, never cute mobile-cartoon. Include 6 clean isolated poses in a 3x2 grid with consistent character identity: idle with flashlight forward, cautious walk, searching through clutter, hurt/recoiling, aiming flashlight high/deep background, unlocking a door while nervous. Muted cold blue-grey shadows, warm amber highlights, slight desaturation, readable silhouette, strong flashlight direction, no baked room background, no props except flashlight and small carried item silhouette, no checkerboard background.",
+      "negativePrompt": "photorealistic, superhero, anime mascot, cute mobile cartoon, generic haunted house, fantasy armor, sci-fi gear, adult hero proportions, unreadable flashlight direction, labels, watermark, text, baked background, checkerboard background, halo edges",
+      "tool": "OpenAI image generation via Codex image_gen, followed by scripts/prepare-contact-sheet.mjs alpha cleanup",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate.png",
+          "role": "raw generated source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate_rgba.png",
+          "role": "cleaned RGBA review candidate",
+          "status": "needs_art_direction_review"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "file_exists",
+          "status": "pass",
+          "notes": "Raw and cleaned files are present in art/source/characters/player_child."
+        },
+        {
+          "name": "dimensions",
+          "status": "pass",
+          "notes": "Generated contact sheet is 1536x1024, sufficient for identity review but below preferred 2048x2048 per-frame source targets."
+        },
+        {
+          "name": "alpha_channel",
+          "status": "pass_with_caveat",
+          "notes": "Cleaned review candidate is RGBA after checkerboard cleanup; original generation was RGB."
+        },
+        {
+          "name": "style_readability",
+          "status": "needs_review",
+          "notes": "Readable child silhouette, flashlight direction, search, hurt, high-aim, and door-unlock poses are present."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "fail",
+          "notes": "Not sliced, not pivoted, and not exported at runtime tiers. Do not add to data/asset_manifest.json yet."
+        }
+      ]
+    },
+    {
+      "batchId": "character.player_child.runtime_set.v0_2.2026_05_30",
+      "createdUtc": "2026-05-31T06:10:00Z",
+      "assetId": "character.player_child",
+      "requestedOutput": "full candidate player character asset set at source and runtime target resolutions",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate_rgba.png",
+        "art/source/characters/player_child/player_child_walk_cycle_v0_3_raw.png",
+        "data/art_export_targets.json#sprites.player",
+        "data/animation_specs.json#player",
+        "docs/assets/asset-style-contract.md"
+      ],
+      "prompt": "Package the reviewed character.player_child contact sheet and v0.3 walk-cycle source into a complete candidate asset set: six source pose masters at 2048x2048, ten generated walk-cycle source frames at 2048x2048, runtime pose exports at 512x512, 768x768, and 1024x1024, walk/run animation sheets with natural alternating leg motion, and proxy animation timing sheets for idle, depth_step_up, depth_step_down, search, broom_attack, spray_use, hurt, and unlock_door. Preserve the standing/search child survivor identity, flashlight prop readability, muted home-at-night palette, and consistent feet-center anchor.",
+      "negativePrompt": "new silhouette, new outfit, new palette, skin-tone drift, new hair accessory, ponytail scrunchie, adult hero proportions, missing flashlight prop direction, baked flashlight beam, baked flashlight cone, baked background, checkerboard background, white halo, matte fringe, duplicate body parts, floating duplicate head, inconsistent frame size, missing alpha, missing metadata, untracked runtime files",
+      "tool": "scripts/build-player-asset-set.mjs",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/characters/player_child/player_child_walk_cycle_v0_3_raw.png",
+          "role": "raw generated 10-frame walk-cycle source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "art/source/characters/player_child/v0_2/poses_2048",
+          "role": "2048x2048 source pose and walk-cycle masters",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/characters/player_child/v0_2/player_child_v0_2.asset.json",
+          "role": "asset set manifest",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/characters/player_child/v0_2/mobile",
+          "role": "512x512 runtime tier",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/characters/player_child/v0_2/standard",
+          "role": "768x768 runtime tier",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/characters/player_child/v0_2/high_4k",
+          "role": "1024x1024 runtime tier",
+          "status": "candidate"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "source_resolution",
+          "status": "pass",
+          "notes": "Generated six 2048x2048 source pose masters."
+        },
+        {
+          "name": "runtime_resolution_tiers",
+          "status": "pass",
+          "notes": "Generated mobile 512, standard 768, and high_4k 1024 pose and sheet tiers."
+        },
+        {
+          "name": "animation_coverage",
+          "status": "pass_with_caveat",
+          "notes": "All player animation states in data/animation_specs.json are represented. Walk/run use generated v0.3 walk-cycle frames; other states remain proxy timing frames."
+        },
+        {
+          "name": "matte_cleanup",
+          "status": "pass",
+          "notes": "Neutral checker/matte pixels, small alpha islands, boundary halo pixels, and baked flashlight-cone pixels are removed during packaging."
+        },
+        {
+          "name": "walk_style_match",
+          "status": "pass_with_caveat",
+          "notes": "Walk/run frames are scaled down and palette-normalized toward the standing/search child. Remaining source identity mismatch should be reviewed in the next bespoke animation pass."
+        },
+        {
+          "name": "metadata",
+          "status": "pass",
+          "notes": "Generated asset-set JSON plus per-animation sheet JSON metadata."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "needs_review",
+          "notes": "Files are correctly packaged and sized, but final runtime promotion should wait for bespoke animation art and art-direction approval."
+        }
+      ]
+    }
+  ],
   "requiredBatchFields": [
     "batchId",
     "createdUtc",

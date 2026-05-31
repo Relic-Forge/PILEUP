@@ -201,6 +201,45 @@
     "background_export_strategy": "streamable layered room segments with resolution tiers and parallax overscan",
     "ui_strategy": "anchor-based responsive HUD with safe-area margins, 9-slice panels, and scalable fonts"
   },
+  "candidate_assets": [
+    {
+      "id": "character.player_child.v0_2",
+      "assetId": "character.player_child",
+      "status": "candidate",
+      "manifest": "public/assets/characters/player_child/v0_2/player_child_v0_2.asset.json",
+      "source_contact_sheet": "art/source/characters/player_child/player_child_contact_sheet_v0_2_candidate_rgba.png",
+      "source_walk_cycle": "art/source/characters/player_child/player_child_walk_cycle_v0_3_raw.png",
+      "source_pose_directory": "art/source/characters/player_child/v0_2/poses_2048",
+      "runtime_root": "public/assets/characters/player_child/v0_2",
+      "runtime_tiers": {
+        "mobile": [
+          512,
+          512
+        ],
+        "standard": [
+          768,
+          768
+        ],
+        "high_4k": [
+          1024,
+          1024
+        ]
+      },
+      "animations": [
+        "idle",
+        "walk",
+        "run",
+        "depth_step_up",
+        "depth_step_down",
+        "search",
+        "broom_attack",
+        "spray_use",
+        "hurt",
+        "unlock_door"
+      ],
+      "production_notes": "Full candidate package generated at target resolutions. Walk and run use generated v0.3 walk-cycle frames with stronger matte cleanup, baked flashlight-cone removal, scaled-down framing, and palette normalization toward the standing/search child. Other states remain proxy timing sheets until bespoke approved frame art replaces them."
+    }
+  ],
   "quality_gate": [
     "true_alpha_no_checkerboard",
     "consistent_frame_size",
@@ -216,5 +255,5 @@
     "parallax_overscan_bleed_present",
     "resolution_tier_exports_present"
   ],
-  "updated_utc": "2026-05-30T17:25:00Z"
+  "updated_utc": "2026-05-31T06:10:00Z"
 }

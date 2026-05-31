@@ -1,0 +1,22 @@
+{
+  "schema": "pileup_animation_sheet_v1",
+  "assetId": "character.player_child",
+  "animationId": "run",
+  "artVersion": "0.2.0",
+  "status": "candidate_cycle",
+  "sheet": "public/assets/characters/player_child/v0_2/high_4k/sheets/player_child_run_high_4k_1024.png",
+  "frameSize": [
+    1024,
+    1024
+  ],
+  "frames": 10,
+  "columns": 4,
+  "rows": 3,
+  "fps": 14,
+  "loop": true,
+  "anchor": {
+    "x": 0.5,
+    "y": 0.92
+  },
+  "notes": "Generated walk-cycle frames packaged for candidate runtime review. Replace only if art direction requests a new cycle."
+}

@@ -1,4 +1,14 @@
 import Phaser from 'phaser';
+import {
+  PLAYER_ASSET_SET_KEY,
+  PLAYER_ASSET_SET_URL,
+  playerAnimationKey,
+  playerTextureKey,
+  publicAssetPath,
+  selectPlayerRuntimeTier,
+  type PlayerAssetSet,
+  type PlayerRuntimeTier,
+} from '../assets/playerAssetSet';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -10,11 +20,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json('controlMap', '/assets/data/control_map.json');
     this.load.json('level01FamilyHouse', '/assets/data/level_01_family_house.json');
     this.load.json('runtimeWorldUnits', '/assets/data/runtime_world_units.json');
+    this.load.json(PLAYER_ASSET_SET_KEY, PLAYER_ASSET_SET_URL);
   }
 
   create(): void {
     this.createPlaceholderTextures();
-    this.scene.start('MainMenuScene');
+    this.loadPlayerCharacterAssets(() => {
+      this.scene.start('MainMenuScene');
+    });
   }
 
   private createPlaceholderTextures(): void {
@@ -34,5 +47,64 @@ export class PreloadScene extends Phaser.Scene {
       .fillCircle(100, 24, 6)
       .generateTexture('laundry-placeholder', 120, 70)
       .destroy();
+  }
+
+  private loadPlayerCharacterAssets(onComplete: () => void): void {
+    const assetSet = this.cache.json.get(PLAYER_ASSET_SET_KEY) as PlayerAssetSet | undefined;
+
+    if (!assetSet?.animations?.length) {
+      onComplete();
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const tier = selectPlayerRuntimeTier(this.scale.width, window.devicePixelRatio, searchParams.get('playerTier'));
+    for (const animation of assetSet.animations) {
+      const layout = animation.frameLayout[tier];
+      const sheet = animation.sheets[tier];
+
+      if (!layout || !sheet) {
+        continue;
+      }
+
+      this.load.spritesheet(playerTextureKey(animation.id), publicAssetPath(sheet), {
+        frameWidth: layout.frameSize[0],
+        frameHeight: layout.frameSize[1],
+      });
+    }
+
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+      this.registerPlayerAnimations(assetSet, tier);
+      if (import.meta.env.DEV) {
+        document.body.dataset.pileupPlayerAssetTier = tier;
+        document.body.dataset.pileupPlayerAssetVersion = assetSet.artVersion;
+      }
+      onComplete();
+    });
+    this.load.start();
+  }
+
+  private registerPlayerAnimations(assetSet: PlayerAssetSet, tier: PlayerRuntimeTier): void {
+    for (const animation of assetSet.animations) {
+      const textureKey = playerTextureKey(animation.id);
+
+      if (!this.textures.exists(textureKey) || this.anims.exists(playerAnimationKey(animation.id))) {
+        continue;
+      }
+
+      this.anims.create({
+        key: playerAnimationKey(animation.id),
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 0, end: animation.frames - 1 }),
+        frameRate: animation.fps,
+        repeat: animation.loop ? -1 : 0,
+      });
+    }
+
+    if (import.meta.env.DEV) {
+      document.body.dataset.pileupPlayerAnimationCount = String(
+        assetSet.animations.filter((animation) => this.anims.exists(playerAnimationKey(animation.id))).length,
+      );
+      document.body.dataset.pileupPlayerAssetTier = tier;
+    }
   }
 }
