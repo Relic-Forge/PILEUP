@@ -29,6 +29,8 @@ export interface FlashlightState {
   origin: Vec2;
   hitIds: string[];
   intensity: number;
+  lockOn: boolean;
+  lockedTargetId?: string;
 }
 
 interface FlashlightVisualState {
@@ -56,6 +58,9 @@ const BATTERY_MAX = 100;
 const SEARCH_RANGE_SCALE = 0.34;
 const SEARCH_HALF_ANGLE_SCALE = 0.82;
 const SEARCH_INTENSITY_SCALE = 0.48;
+const LOCK_CURSOR_RADIUS = 260;
+const LOCK_BEAM_HALF_ANGLE = Phaser.Math.DegToRad(32);
+const LOCK_RELEASE_DISTANCE = 920;
 
 export class FlashlightSystem {
   private readonly beam: Phaser.GameObjects.Graphics;
@@ -78,6 +83,8 @@ export class FlashlightSystem {
   private hurtShakeMs = 0;
   private lastAim = new Phaser.Math.Vector2(1, 0);
   private searchPenalty01 = 0;
+  private lockedTargetId?: string;
+  private readonly debugBeamVisible = new URLSearchParams(window.location.search).get('flashlightDebug') === '1';
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -98,7 +105,10 @@ export class FlashlightSystem {
 
   setTargets(targets: FlashlightTarget[]): void {
     const sameMarkers =
-      targets.length === this.targets.length && targets.every((target, index) => target.id === this.targets[index]?.id);
+      targets.length === this.targets.length &&
+      this.hitMarkers.length === targets.length &&
+      this.hitMarkers.every((marker) => marker.scene) &&
+      targets.every((target, index) => target.id === this.targets[index]?.id);
     this.targets = targets;
     if (sameMarkers) {
       this.hitMarkers.forEach((marker, index) => {
@@ -165,6 +175,8 @@ export class FlashlightSystem {
       origin: { x: Math.round(visualState.origin.x), y: Math.round(visualState.origin.y) },
       hitIds,
       intensity,
+      lockOn: Boolean(this.lockedTargetId),
+      lockedTargetId: this.lockedTargetId,
     };
   }
 
@@ -193,18 +205,80 @@ export class FlashlightSystem {
   }
 
   private resolveAim(input: PlayerInputState): Phaser.Math.Vector2 {
-    const pointer = this.scene.input.activePointer;
-    const pointerWorld = pointer.positionToCamera(this.scene.cameras.main) as Phaser.Math.Vector2;
-    const fromPointer = new Phaser.Math.Vector2(pointerWorld.x - this.player.x, pointerWorld.y - this.player.y);
-    if (fromPointer.lengthSq() > 36) {
-      this.lastAim = fromPointer.normalize();
+    const origin = this.player.getFlashlightTipWorld();
+    const pointerWorld = this.getPointerWorld();
+    const manualAim = new Phaser.Math.Vector2(pointerWorld.x - origin.x, pointerWorld.y - origin.y);
+    if (manualAim.lengthSq() > 4) {
+      this.lastAim = manualAim.normalize();
+    }
+
+    const lockedTarget = this.resolveLockedTarget(input, pointerWorld, origin);
+    if (lockedTarget) {
+      const lockedAim = new Phaser.Math.Vector2(lockedTarget.x - origin.x, lockedTarget.y - origin.y);
+      if (lockedAim.lengthSq() > 4) {
+        this.lastAim = lockedAim.normalize();
+      }
       return this.lastAim.clone();
     }
 
-    if (input.x !== 0 || input.y !== 0) {
-      this.lastAim = new Phaser.Math.Vector2(input.x || this.lastAim.x, input.y * 0.45).normalize();
-    }
     return this.lastAim.clone();
+  }
+
+  private getPointerWorld(): Phaser.Math.Vector2 {
+    const pointer = this.scene.input.activePointer;
+    return pointer.positionToCamera(this.scene.cameras.main) as Phaser.Math.Vector2;
+  }
+
+  private resolveLockedTarget(input: PlayerInputState, pointerWorld: Phaser.Math.Vector2, origin: Phaser.Math.Vector2): FlashlightTarget | undefined {
+    const existingTarget = this.targets.find((target) => target.id === this.lockedTargetId);
+
+    if (input.lockOnPressed) {
+      if (existingTarget) {
+        this.lockedTargetId = undefined;
+        return undefined;
+      }
+
+      const nextTarget = this.acquireLockTarget(pointerWorld, origin);
+      this.lockedTargetId = nextTarget?.id;
+      return nextTarget;
+    }
+
+    if (existingTarget && this.canMaintainLock(existingTarget, origin)) {
+      return existingTarget;
+    }
+
+    this.lockedTargetId = undefined;
+    return undefined;
+  }
+
+  private canMaintainLock(target: FlashlightTarget, origin: Phaser.Math.Vector2): boolean {
+    if (target.layer !== this.layer) {
+      return false;
+    }
+
+    return Phaser.Math.Distance.Between(origin.x, origin.y, target.x, target.y) <= LOCK_RELEASE_DISTANCE + target.radius;
+  }
+
+  private acquireLockTarget(pointerWorld: Phaser.Math.Vector2, origin: Phaser.Math.Vector2): FlashlightTarget | undefined {
+    const manualAimAngle = this.lastAim.angle();
+    return this.targets
+      .filter((target) => target.layer === this.layer)
+      .map((target) => {
+        const cursorDistance = Phaser.Math.Distance.Between(pointerWorld.x, pointerWorld.y, target.x, target.y);
+        const originDistance = Phaser.Math.Distance.Between(origin.x, origin.y, target.x, target.y);
+        const targetAngle = Math.atan2(target.y - origin.y, target.x - origin.x);
+        const angleDistance = Math.abs(Phaser.Math.Angle.Wrap(targetAngle - manualAimAngle));
+        const cursorCandidate = cursorDistance <= LOCK_CURSOR_RADIUS + target.radius;
+        const beamCandidate = originDistance <= LOCK_RELEASE_DISTANCE + target.radius && angleDistance <= LOCK_BEAM_HALF_ANGLE;
+        return {
+          target,
+          cursorCandidate,
+          beamCandidate,
+          score: (cursorCandidate ? cursorDistance : 420 + angleDistance * 260) + originDistance * 0.08,
+        };
+      })
+      .filter((candidate) => candidate.cursorCandidate || candidate.beamCandidate)
+      .sort((a, b) => a.score - b.score)[0]?.target;
   }
 
   private detectTargets(range: number, halfAngle: number): string[] {
@@ -317,21 +391,46 @@ export class FlashlightSystem {
     const edgeShimmer = Math.sin(this.scene.time.now * 0.018) * (5 + visual.batteryInstability01 * 10);
 
     this.beam.clear();
-    this.beam.fillStyle(color, baseAlpha * 0.16 * profile.haze);
-    this.beam.fillTriangle(visual.origin.x, visual.origin.y, outerPoints.left.x, outerPoints.left.y, outerPoints.right.x, outerPoints.right.y);
-    this.beam.fillStyle(color, baseAlpha * (0.35 + pulseBoost));
-    this.beam.fillTriangle(visual.origin.x, visual.origin.y, mainPoints.left.x, mainPoints.left.y, mainPoints.right.x, mainPoints.right.y);
-    this.beam.fillStyle(0xfff7cf, baseAlpha * Phaser.Math.Linear(0.16, 0.38, visual.focus01));
-    this.beam.fillTriangle(visual.origin.x, visual.origin.y, corePoints.left.x, corePoints.left.y, corePoints.right.x, corePoints.right.y);
-    this.beam.fillStyle(color, baseAlpha * (0.14 + visual.batteryInstability01 * 0.08));
-    this.beam.fillEllipse(bloom.x, bloom.y, 92 + visual.focus01 * 38, 30 + visual.batteryInstability01 * 22);
-    this.beam.fillStyle(0xfff0bd, baseAlpha * (0.32 + visual.focus01 * 0.26));
-    this.beam.fillCircle(visual.origin.x, visual.origin.y, 12 + visual.focus01 * 5 + visual.layerPulse01 * 8);
-    this.beam.lineStyle(2, color, baseAlpha * (flicker ? 0.34 : 0.62));
-    this.beam.lineBetween(visual.origin.x, visual.origin.y, mainPoints.left.x, mainPoints.left.y + edgeShimmer);
-    this.beam.lineBetween(visual.origin.x, visual.origin.y, mainPoints.right.x, mainPoints.right.y - edgeShimmer);
-
     this.debugBeam.clear();
+    this.hitMarkers.forEach((marker) => marker.setVisible(this.debugBeamVisible));
+    if (!this.debugBeamVisible) {
+      return;
+    }
+
+    this.debugBeam.fillStyle(color, baseAlpha * 0.08 * profile.haze);
+    this.debugBeam.fillTriangle(
+      visual.origin.x,
+      visual.origin.y,
+      outerPoints.left.x,
+      outerPoints.left.y,
+      outerPoints.right.x,
+      outerPoints.right.y,
+    );
+    this.debugBeam.fillStyle(color, baseAlpha * (0.18 + pulseBoost * 0.5));
+    this.debugBeam.fillTriangle(
+      visual.origin.x,
+      visual.origin.y,
+      mainPoints.left.x,
+      mainPoints.left.y,
+      mainPoints.right.x,
+      mainPoints.right.y,
+    );
+    this.debugBeam.fillStyle(0xfff7cf, baseAlpha * Phaser.Math.Linear(0.08, 0.18, visual.focus01));
+    this.debugBeam.fillTriangle(
+      visual.origin.x,
+      visual.origin.y,
+      corePoints.left.x,
+      corePoints.left.y,
+      corePoints.right.x,
+      corePoints.right.y,
+    );
+    this.debugBeam.fillStyle(color, baseAlpha * (0.07 + visual.batteryInstability01 * 0.04));
+    this.debugBeam.fillEllipse(bloom.x, bloom.y, 92 + visual.focus01 * 38, 30 + visual.batteryInstability01 * 22);
+    this.debugBeam.fillStyle(0xfff0bd, baseAlpha * (0.16 + visual.focus01 * 0.13));
+    this.debugBeam.fillCircle(visual.origin.x, visual.origin.y, 12 + visual.focus01 * 5 + visual.layerPulse01 * 8);
+    this.debugBeam.lineStyle(2, color, baseAlpha * (flicker ? 0.34 : 0.62));
+    this.debugBeam.lineBetween(visual.origin.x, visual.origin.y, mainPoints.left.x, mainPoints.left.y + edgeShimmer);
+    this.debugBeam.lineBetween(visual.origin.x, visual.origin.y, mainPoints.right.x, mainPoints.right.y - edgeShimmer);
     this.debugBeam.lineStyle(1, color, 0.34);
     this.debugBeam.strokeCircle(visual.origin.x, visual.origin.y, range);
     this.debugBeam.lineStyle(1, 0xffffff, 0.2);

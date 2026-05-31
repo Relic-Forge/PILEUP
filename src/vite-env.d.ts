@@ -32,6 +32,8 @@ interface Window {
       visualRange: number;
       origin: { x: number; y: number };
       hitIds: string[];
+      lockOn: boolean;
+      lockedTargetId?: string;
     };
     search?: {
       nearestId?: string;

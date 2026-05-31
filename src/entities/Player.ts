@@ -98,6 +98,15 @@ export class Player {
     return new Phaser.Math.Vector2(this.x + localTipX * this.container.scaleX, this.y + localTipY * this.container.scaleY);
   }
 
+  getReadabilityCenterWorld(): Phaser.Math.Vector2 {
+    if (this.sprite) {
+      const bounds = this.sprite.getBounds();
+      return new Phaser.Math.Vector2(bounds.centerX, bounds.centerY);
+    }
+
+    return new Phaser.Math.Vector2(this.x, this.y - 18);
+  }
+
   playPlaceholderAnimation(deltaSeconds: number, movement: PlayerMovementState): void {
     if (!this.isVisualActionHeld()) {
       this.updateSpriteAnimation(movement);

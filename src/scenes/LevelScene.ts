@@ -12,6 +12,7 @@ import { ParallaxSystem } from '../systems/ParallaxSystem';
 import { InputSystem } from '../systems/InputSystem';
 import { PlayerController } from '../systems/PlayerController';
 import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
+import { DarknessSystem } from '../systems/DarknessSystem';
 import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
 import { InventorySystem } from '../systems/InventorySystem';
 import { SearchSystem, type SearchState } from '../systems/SearchSystem';
@@ -19,6 +20,8 @@ import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
 import { DoorSystem, type DoorSystemState } from '../systems/DoorSystem';
 import { AudioSystem } from '../systems/AudioSystem';
 import { BossDoorSequenceSystem, type BossDoorSequenceState } from '../systems/BossDoorSequenceSystem';
+
+const PLAYER_DARKNESS_EXEMPT_DEPTH = 1_440;
 
 export class LevelScene extends Phaser.Scene {
   private state?: GameState;
@@ -28,6 +31,7 @@ export class LevelScene extends Phaser.Scene {
   private parallaxSystem?: ParallaxSystem;
   private inputSystem?: InputSystem;
   private playerController?: PlayerController;
+  private darknessSystem?: DarknessSystem;
   private flashlightSystem?: FlashlightSystem;
   private inventorySystem?: InventorySystem;
   private searchSystem?: SearchSystem;
@@ -65,8 +69,13 @@ export class LevelScene extends Phaser.Scene {
     });
 
     this.cameras.main.setBackgroundColor('#111016');
-    this.responsive.onResize(() => this.renderRoom());
+    this.darknessSystem = new DarknessSystem(this, {
+      worldWidth: this.room.width,
+      worldHeight: DESIGN_HEIGHT,
+      debug: new URLSearchParams(window.location.search).get('lightingDebug') === '1',
+    });
     this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
+    this.responsive.onResize(() => this.renderRoom());
 
     this.scene.launch('UIScene', { state: this.state });
     gameEvents.emit({ type: 'run.seeded', seed });
@@ -88,6 +97,7 @@ export class LevelScene extends Phaser.Scene {
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.responsive?.destroy();
+      this.darknessSystem?.destroy();
       this.flashlightSystem?.destroy();
       this.searchSystem?.destroy();
       this.enemySystem?.destroy();
@@ -107,6 +117,8 @@ export class LevelScene extends Phaser.Scene {
       this.refreshFlashlightTargets();
       this.flashlightSystem?.setTargets(this.flashlightTargets);
       const flashlightState = this.flashlightSystem?.update(input, delta, Boolean(searchState?.activeId));
+      this.keepPlayerAboveDarkness();
+      this.darknessSystem?.update(flashlightState, delta, this.player?.getReadabilityCenterWorld());
       const doorState = this.doorSystem?.update(input, delta);
       const bossState = this.bossDoorSequence?.update(input, flashlightState, doorState, delta);
       this.updatePlayerActionAnimation(searchState, doorState);
@@ -127,6 +139,16 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.cameraSystem.configureFoundation(layout, room.width, DESIGN_HEIGHT);
+    this.darknessSystem?.setWorldBounds(room.width, DESIGN_HEIGHT);
+    this.darknessSystem?.setBlockers(
+      room.segments.flatMap((segment) =>
+        segment.blockers.map((blocker) => ({
+          ...blocker,
+          layer: 'all' as const,
+          castsShadow: true,
+        })),
+      ),
+    );
     this.parallaxSystem.renderRoom(room);
     this.renderDepthReferenceObjects(room);
     this.searchSystem?.destroy();
@@ -142,8 +164,13 @@ export class LevelScene extends Phaser.Scene {
     this.flashlightSystem?.setTargets(this.flashlightTargets);
     this.renderPhaseLabels(room, layout.viewportClass);
     this.depthPlane.applyDepth(player.container, player.y, room.floorBounds);
+    this.keepPlayerAboveDarkness();
     this.cameraSystem.follow(player.container);
     this.responsive?.ensurePortraitPrompt();
+  }
+
+  private keepPlayerAboveDarkness(): void {
+    this.player?.container.setDepth(PLAYER_DARKNESS_EXEMPT_DEPTH);
   }
 
   private renderPhaseLabels(room: RuntimeRoom, viewportClass: string): void {
@@ -165,7 +192,7 @@ export class LevelScene extends Phaser.Scene {
           `room: ${room.id} (${room.segments.length} segments, ${Math.round(room.width)} world px)`,
           `viewport class: ${viewportClass}`,
           `seed: ${room.seed}`,
-          'WASD/arrows move. E searches/unlocks. Mouse aims light. 1/2/3 switch depth. Space focuses. F3 debug.',
+          'WASD/arrows move. E searches/unlocks. Mouse aims light. Right mouse or L toggles lock-on. 1/2/3 switch depth. Space focuses. F3 debug.',
         ],
         {
           color: '#aaa196',
@@ -222,6 +249,7 @@ export class LevelScene extends Phaser.Scene {
       }
     });
     this.enemySystem?.getFlashlightTargets().forEach((target) => this.flashlightTargets.push(target));
+    this.searchSystem?.getFlashlightTargets().forEach((target) => this.flashlightTargets.push(target));
   }
 
   private applyPlayerDamage(amount: number, source: string): void {
@@ -316,6 +344,8 @@ export class LevelScene extends Phaser.Scene {
             visualRange: flashlightState.visualRange,
             origin: flashlightState.origin,
             hitIds: flashlightState.hitIds,
+            lockOn: flashlightState.lockOn,
+            lockedTargetId: flashlightState.lockedTargetId,
           }
         : undefined,
       search: searchState
@@ -356,6 +386,8 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupFlashlightInstability = String(flashlightState.batteryInstability01);
       document.body.dataset.pileupFlashlightOriginX = String(flashlightState.origin.x);
       document.body.dataset.pileupFlashlightOriginY = String(flashlightState.origin.y);
+      document.body.dataset.pileupFlashlightLockOn = String(flashlightState.lockOn);
+      document.body.dataset.pileupFlashlightLockedTarget = flashlightState.lockedTargetId ?? '';
     }
     if (searchState) {
       document.body.dataset.pileupSearchNearest = searchState.nearestId ?? '';

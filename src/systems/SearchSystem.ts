@@ -3,6 +3,7 @@ import { gameEvents } from '../core/EventBus';
 import type { RuntimeRoom } from '../data/levelTypes';
 import type { Player } from '../entities/Player';
 import { SearchPile, type SearchPileConfig } from '../entities/SearchPile';
+import type { FlashlightTarget } from './FlashlightSystem';
 import type { PlayerInputState } from './InputSystem';
 import type { InventorySystem } from './InventorySystem';
 
@@ -91,6 +92,19 @@ export class SearchSystem {
     this.unsubscribeEvents.forEach((unsubscribe) => unsubscribe());
     this.unsubscribeEvents.length = 0;
     this.piles.forEach((pile) => pile.destroy());
+  }
+
+  getFlashlightTargets(): FlashlightTarget[] {
+    return this.piles
+      .filter((pile) => !pile.isSearched())
+      .map((pile) => ({
+        id: pile.id,
+        layer: 'main',
+        x: pile.x,
+        y: pile.y,
+        radius: pile.config.radius,
+        object: pile.container,
+      }));
   }
 
   private createPileConfigs(room: RuntimeRoom): SearchPileConfig[] {

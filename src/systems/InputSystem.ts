@@ -9,6 +9,7 @@ export interface PlayerInputState {
   interact: boolean;
   aim: Phaser.Math.Vector2;
   focus: boolean;
+  lockOnPressed: boolean;
   depthCycle: -1 | 0 | 1;
   depthDirect?: DepthLayer;
   debugFlicker: boolean;
@@ -17,7 +18,7 @@ export interface PlayerInputState {
 export class InputSystem {
   private readonly cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys?: Record<
-    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f',
+    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'one' | 'two' | 'three' | 'f' | 'l',
     Phaser.Input.Keyboard.Key
   >;
   private tapX = 0;
@@ -30,8 +31,10 @@ export class InputSystem {
   private depthCycle: -1 | 0 | 1 = 0;
   private depthDirect?: DepthLayer;
   private debugFlickerUntil = 0;
+  private lockOnPressed = false;
 
   constructor(scene: Phaser.Scene) {
+    scene.input.mouse?.disableContextMenu();
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard
       ? {
@@ -48,11 +51,17 @@ export class InputSystem {
           two: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
           three: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
           f: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
+          l: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L),
         }
       : undefined;
 
     scene.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
       this.captureTap(event);
+    });
+    scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.rightButtonDown() || pointer.middleButtonDown()) {
+        this.lockOnPressed = true;
+      }
     });
   }
 
@@ -73,12 +82,14 @@ export class InputSystem {
       interact: Boolean(this.keys?.e.isDown || now < this.interactTapUntil),
       aim: new Phaser.Math.Vector2(),
       focus: Boolean(this.keys?.space.isDown || now < this.focusTapUntil),
+      lockOnPressed: this.lockOnPressed,
       depthCycle: this.depthCycle,
       depthDirect: this.depthDirect,
       debugFlicker: now < this.debugFlickerUntil,
     };
     this.depthCycle = 0;
     this.depthDirect = undefined;
+    this.lockOnPressed = false;
     return state;
   }
 
@@ -120,10 +131,13 @@ export class InputSystem {
       this.depthDirect = 'foreground';
     } else if (key === 'f') {
       this.debugFlickerUntil = performance.now() + 2200;
+    } else if (key === 'l') {
+      this.lockOnPressed = true;
     }
 
     if (event.shiftKey) {
       this.sprintTapUntil = until;
     }
   }
+
 }
