@@ -146,4 +146,15 @@ data/assets/asset_registry.json
 
 Core rule: approved assets are locked design references. Gameplay implementation phases may place, configure, animate, export, or reference approved assets, but they must not redesign or replace approved art unless a new asset version is explicitly requested and approved.
 
-Generated assets start as candidates. Record generation batches in `data/assets/asset_generation_manifest.json`, keep source/candidate art out of approved/runtime folders until review passes, and promote only after the checklist in the guardrails is satisfied.
+## Backpack menu and HUD overhaul addendum
+
+This package now includes a focused UI handoff for the backpack inventory, usable items, lost-items notebook integration, HUD simplification, animation polish, and scalable hand-drawn UI asset rules.
+
+Start here before changing the current HUD/menu system:
+
+```text
+docs/PILEUP_Backpack_Menu_HUD_Overhaul_Spec.md
+data/ui_backpack_menu_profile.json
+```
+
+Core rule: the lost-items page belongs inside the backpack menu, not permanently on the gameplay HUD. The main HUD should stay minimal and immersive; inventory, item details, item use, burden detail, and the lost-items list should appear only when the backpack is opened.
