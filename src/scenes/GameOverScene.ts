@@ -8,19 +8,29 @@ export class GameOverScene extends Phaser.Scene {
   create(): void {
     const { width, height } = this.scale.gameSize;
     this.add
-      .text(width / 2, height / 2 - 32, 'Game Over', {
+      .text(width / 2, height / 2 - 86, 'GAME OVER', {
         color: '#f4efe0',
-        fontSize: '48px',
+        fontFamily: 'Georgia, serif',
+        fontSize: '76px',
+        fontStyle: '700',
       })
       .setOrigin(0.5);
-    const retryBack = this.add
-      .rectangle(width / 2, height / 2 + 48, 390, 54, 0x1a1715, 0.88)
-      .setStrokeStyle(2, 0x81796f, 0.9)
+
+    const escapeOption = this.add
+      .text(width / 2 - 118, height / 2 + 48, 'ESCAPE', {
+        color: '#b9b0a3',
+        fontFamily: 'Georgia, serif',
+        fontSize: '34px',
+        fontStyle: '700',
+      })
+      .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
     const retry = this.add
-      .text(width / 2, height / 2 + 46, 'Press Enter or R to retry the room', {
+      .text(width / 2 + 118, height / 2 + 48, 'ENTER', {
         color: '#b9b0a3',
-        fontSize: '22px',
+        fontFamily: 'Georgia, serif',
+        fontSize: '34px',
+        fontStyle: '700',
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -41,9 +51,21 @@ export class GameOverScene extends Phaser.Scene {
 
       window.location.assign(nextUrl.toString());
     };
+    const mainMenu = () => {
+      if (restarted) {
+        return;
+      }
+
+      restarted = true;
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.delete('scene');
+      window.location.assign(nextUrl.toString());
+    };
     const handleDocumentKey = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key.toLowerCase() === 'r') {
+      if (event.key === 'Enter') {
         restart();
+      } else if (event.key === 'Escape') {
+        mainMenu();
       }
     };
     const handleDocumentPointer = () => restart();
@@ -54,12 +76,14 @@ export class GameOverScene extends Phaser.Scene {
       document.removeEventListener('pointerdown', handleDocumentPointer);
     });
     this.input.keyboard?.once('keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key.toLowerCase() === 'r') {
+      if (event.key === 'Enter') {
         restart();
+      } else if (event.key === 'Escape') {
+        mainMenu();
       }
     });
     this.input.once(Phaser.Input.Events.POINTER_DOWN, restart);
-    retryBack.on('pointerdown', restart);
+    escapeOption.on('pointerup', mainMenu);
     retry.on('pointerup', restart);
   }
 }

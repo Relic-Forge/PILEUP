@@ -38,7 +38,7 @@ Run typecheck only:
 npm run typecheck
 ```
 
-Current prototype status: Phase 10 plus an initial darkness-atmosphere pass. The full-house graybox now includes the final boss-door sequence, flashlight feedback, and a screen-space darkness overlay with soft reveal stamps, depth-specific lighting profiles, vignette, beam FX, and viewport overscan so darkness coverage holds while the camera follows across the full level. Visual aim has weight, focus narrows smoothly, depth modes have distinct beam profiles, low battery destabilizes the beam, and flashlight focus/depth/flicker events drive subtle audio and HUD feedback.
+Current prototype status: Phase 10 plus an initial darkness-atmosphere pass and the first backpack/HUD overhaul implementation. The full-house graybox now includes the final boss-door sequence, flashlight feedback, a screen-space darkness overlay with soft reveal stamps, depth-specific lighting profiles, compact survival HUD, visual hotbar, toast feedback, and a Phaser-rendered backpack menu that holds inventory details and the lost-items notebook. Visual aim has weight, focus narrows smoothly, depth modes have distinct beam profiles, low battery destabilizes the beam, and flashlight focus/depth/flicker events drive subtle audio and HUD feedback.
 
 Controls:
 
@@ -47,12 +47,21 @@ Controls:
 - `Shift`: sprint.
 - `C`: crouch.
 - Mouse: aim flashlight.
-- `1` / `2` / `3`: target background, main, or foreground depth.
+- `Q` / `E`: cycle flashlight depth target backward/forward.
+- `R`: reset flashlight depth to main.
 - Left mouse: focus flashlight beam.
 - `Space`: hold to search nearby clutter or unlock the exit door after finding the key.
-- `F3`: debug overlay.
-- `F4`: world layer/collision labels.
+- Settings gear: level info, debug overlay, world layer/collision labels, and darkness toggle.
 - `F`: trigger flashlight flicker/low-battery debug state.
+- `Tab` or `I`: open/close the backpack menu.
+- `1`: equip flashlight.
+- `2` / `3` / `4` / `5`: equip collected hotbar items.
+- `Q` / `E`: change backpack tabs while the backpack is open.
+- `Enter` or `Space`: use the selected backpack item while the backpack is open.
+
+Useful UI debug helpers:
+
+- `?scene=level&giveItems=all&backpackOpen=1`: load the level with all current item-pool entries and the backpack open.
 
 ## Folder structure
 

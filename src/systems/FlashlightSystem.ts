@@ -32,6 +32,7 @@ export interface FlashlightState {
   intensity: number;
   lockOn: boolean;
   lockedTargetId?: string;
+  disabled: boolean;
 }
 
 interface FlashlightVisualState {
@@ -128,13 +129,13 @@ export class FlashlightSystem {
     );
   }
 
-  update(input: PlayerInputState, deltaMs: number, isSearching = false): FlashlightState {
+  update(input: PlayerInputState, deltaMs: number, isSearching = false, disabled = false): FlashlightState {
     this.applyDepthInput(input);
     const deltaSeconds = deltaMs / 1000;
-    const focus = input.focus;
-    this.battery = Phaser.Math.Clamp(this.battery - deltaSeconds * (focus ? 1.8 : 0.55), 0, BATTERY_MAX);
-    const debugLowBattery = input.debugFlicker;
-    const flicker = debugLowBattery || this.battery <= 12;
+    const focus = disabled ? false : input.focus;
+    this.battery = Phaser.Math.Clamp(this.battery - deltaSeconds * (disabled ? 0 : focus ? 1.8 : 0.55), 0, BATTERY_MAX);
+    const debugLowBattery = !disabled && input.debugFlicker;
+    const flicker = !disabled && (debugLowBattery || this.battery <= 12);
     const aim = this.resolveAim(input);
     this.aimAngle = Math.atan2(aim.y, aim.x);
     this.updatePlayerFacing(input);
@@ -144,11 +145,15 @@ export class FlashlightSystem {
 
     const searchRangeScale = Phaser.Math.Linear(1, SEARCH_RANGE_SCALE, this.searchPenalty01);
     const searchHalfAngleScale = Phaser.Math.Linear(1, SEARCH_HALF_ANGLE_SCALE, this.searchPenalty01);
-    const range = (focus ? FOCUS_RANGE : RANGE) * searchRangeScale;
-    const halfAngle = (focus ? FOCUS_HALF_ANGLE : CONE_HALF_ANGLE) * searchHalfAngleScale;
-    const intensity = (focus ? 1 : 0.62) * Phaser.Math.Linear(1, SEARCH_INTENSITY_SCALE, this.searchPenalty01);
-    const hitIds = this.detectTargets(range, halfAngle);
-    this.render(range, halfAngle, intensity, flicker, hitIds, visualState);
+    const range = disabled ? 0 : (focus ? FOCUS_RANGE : RANGE) * searchRangeScale;
+    const halfAngle = disabled ? 0 : (focus ? FOCUS_HALF_ANGLE : CONE_HALF_ANGLE) * searchHalfAngleScale;
+    const intensity = disabled ? 0 : (focus ? 1 : 0.62) * Phaser.Math.Linear(1, SEARCH_INTENSITY_SCALE, this.searchPenalty01);
+    const hitIds = disabled ? [] : this.detectTargets(range, halfAngle);
+    if (disabled) {
+      this.clearLightVisuals();
+    } else {
+      this.render(range, halfAngle, intensity, flicker, hitIds, visualState);
+    }
     this.publishBatteryIfNeeded(flicker, focus);
     this.publishFlashlightEvents(flicker, focus, hitIds);
 
@@ -181,7 +186,19 @@ export class FlashlightSystem {
       intensity,
       lockOn: Boolean(this.lockedTargetId),
       lockedTargetId: this.lockedTargetId,
+      disabled,
     };
+  }
+
+  canRestoreBattery(): boolean {
+    return this.battery < BATTERY_MAX - 1;
+  }
+
+  restoreBattery(amount: number): number {
+    this.battery = Phaser.Math.Clamp(this.battery + amount, 0, BATTERY_MAX);
+    this.lastBatteryEvent = -1;
+    this.publishBatteryIfNeeded(this.battery <= 12, this.lastFocusEvent);
+    return Math.round(this.battery);
   }
 
   destroy(): void {
@@ -485,6 +502,12 @@ export class FlashlightSystem {
       marker.setStrokeStyle(isHit ? 4 : 2, isHit ? color : 0x3b3630, isActiveLayer ? 0.9 : 0.25);
       marker.setFillStyle(isHit ? color : 0xffffff, isHit ? 0.18 : 0);
     });
+  }
+
+  private clearLightVisuals(): void {
+    this.beam.clear();
+    this.debugBeam.clear();
+    this.hitMarkers.forEach((marker) => marker.setVisible(false));
   }
 
   private conePoints(origin: Vec2, range: number, halfAngle: number, angle = this.aimAngle): { left: Vec2; right: Vec2 } {

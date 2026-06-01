@@ -7,7 +7,7 @@ export class DebugOverlay {
 
   constructor(private readonly scene: Phaser.Scene) {
     this.text = scene.add
-      .text(16, 16, '', {
+      .text(16, 144, '', {
         color: '#c9f7d0',
         fontFamily: 'monospace',
         fontSize: '14px',
@@ -45,7 +45,7 @@ export class DebugOverlay {
       `display: ${Math.round(displaySize.width)}x${Math.round(displaySize.height)}`,
       `aspect: ${aspect.toFixed(2)}${aspect >= 2.1 ? ' ultrawide' : ''}`,
       `reference: ${REFERENCE_ASPECT.toFixed(2)}`,
-      'toggle: F3',
+      'toggle: settings',
     ]);
   }
 }

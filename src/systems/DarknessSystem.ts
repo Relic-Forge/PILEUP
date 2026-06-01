@@ -112,6 +112,7 @@ export class DarknessSystem {
   private worldHeight: number;
   private blockers: LightBlocker[] = [];
   private readonly debug: boolean;
+  private enabled = true;
   private projection: ScreenProjection = { scrollX: 0, scrollY: 0, width: 1, height: 1, zoom: 1 };
 
   constructor(
@@ -147,8 +148,38 @@ export class DarknessSystem {
     }));
   }
 
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    this.darkness.setVisible(enabled);
+    this.beamFx.setVisible(enabled);
+    this.vignette.setVisible(enabled);
+    this.debugGraphics.setVisible(enabled && this.debug);
+    if (!enabled) {
+      this.revealStamps.length = 0;
+      this.darkness.clear();
+      this.lightMask.clear();
+      this.beamFx.clear();
+      this.vignette.clear();
+      this.debugGraphics.clear();
+    }
+  }
+
   update(light: FlashlightState | undefined, deltaMs: number, playerCenter?: Vec2): void {
+    if (!this.enabled) {
+      if (import.meta.env.DEV) {
+        document.body.dataset.pileupLightingDisabled = 'true';
+      }
+      return;
+    }
+
+    if (import.meta.env.DEV) {
+      document.body.dataset.pileupLightingDisabled = 'false';
+    }
+
     this.ageRevealStamps(deltaMs);
+    if (light?.disabled) {
+      this.revealStamps.length = 0;
+    }
     this.stampLight(light);
     this.renderDarkness(light, playerCenter);
     this.renderBeamFx(light);
@@ -187,7 +218,7 @@ export class DarknessSystem {
   }
 
   private stampLight(light: FlashlightState | undefined): void {
-    if (!light || light.battery <= 0) {
+    if (!light || light.disabled || light.battery <= 0) {
       return;
     }
 
@@ -276,7 +307,7 @@ export class DarknessSystem {
       this.drawIrregularPlayerSpill(playerCenter);
     }
 
-    if (light && light.battery > 0 && activeLayer === 'main') {
+    if (light && !light.disabled && light.battery > 0 && activeLayer === 'main') {
       this.drawSoftEraseCircleWorld(light.origin.x, light.origin.y, 86, 0.72);
     }
 
@@ -350,7 +381,7 @@ export class DarknessSystem {
 
   private renderBeamFx(light: FlashlightState | undefined): void {
     this.beamFx.clear();
-    if (!light || light.battery <= 0) {
+    if (!light || light.disabled || light.battery <= 0) {
       return;
     }
 

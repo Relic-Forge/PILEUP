@@ -30,6 +30,7 @@ interface Window {
       batteryInstability01: number;
       effectiveRange: number;
       visualRange: number;
+      disabled: boolean;
       visualTargetDistance: number;
       origin: { x: number; y: number };
       hitIds: string[];

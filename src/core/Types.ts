@@ -27,6 +27,55 @@ export type EnemyState =
   | 'Stunned'
   | 'Retreating'
   | 'DeadOrDisabled';
+export type BackpackTabId = 'inventory' | 'lostItems' | 'notes';
+export type ItemCategory =
+  | 'required_objective'
+  | 'consumable'
+  | 'utility_weapon'
+  | 'utility'
+  | 'memory'
+  | 'decoy'
+  | 'junk';
+
+export interface ItemDefinition {
+  id: string;
+  label: string;
+  category: ItemCategory;
+  iconAssetId: string;
+  hotbar: boolean;
+  usable: boolean;
+  stackable: boolean;
+  maxStack?: number;
+  burden: number;
+  effectId?: string;
+  useContexts: Array<'gameplay' | 'searching' | 'combat' | 'door' | 'menuOnly'>;
+  description: string;
+  disabledUseText?: string;
+}
+
+export interface InventoryEntry {
+  itemId: string;
+  count: number;
+  discoveredAtMs: number;
+  assignedHotbarSlot?: number;
+  isKeyItem: boolean;
+}
+
+export interface LostItemEntry {
+  itemId: string;
+  label: string;
+  found: boolean;
+  hint?: string;
+  required: boolean;
+}
+
+export interface BackpackMenuState {
+  open: boolean;
+  activeTab: BackpackTabId;
+  selectedItemId?: string;
+  selectedIndex: number;
+  inputMode: 'keyboardMouse' | 'controller' | 'touch';
+}
 
 export interface Vec2 {
   x: number;
@@ -113,6 +162,17 @@ export type GameEvent =
   | { type: 'objective.changed'; text: string }
   | { type: 'hotbar.changed'; slots: unknown[] }
   | { type: 'checklist.created'; items: Array<{ itemId: string; label: string }> }
+  | { type: 'inventory.changed'; entries: InventoryEntry[]; hotbarSlots: InventoryEntry[]; burden: number; burdenState: string }
+  | { type: 'inventory.selectedChanged'; itemId?: string; hotbarSlot?: number }
+  | { type: 'inventory.useRequested'; itemId: string; source: 'hud' | 'backpack' | 'hotbar' }
+  | { type: 'inventory.useProgress'; itemId: string; label: string; progress01: number; active: boolean }
+  | { type: 'inventory.useResolved'; itemId: string; success: boolean; reason?: string }
+  | { type: 'inventory.dropRequested'; itemId: string; count: number }
+  | { type: 'backpack.opened' }
+  | { type: 'backpack.closed' }
+  | { type: 'backpack.tabChanged'; tab: BackpackTabId }
+  | { type: 'lostItems.changed'; items: LostItemEntry[] }
+  | { type: 'hud.toast'; tone: 'item' | 'warning' | 'objective' | 'damage'; text: string }
   | { type: 'flashlight.depthChanged'; layer: DepthLayer }
   | { type: 'flashlight.batteryChanged'; value: number; flicker: boolean; focus: boolean }
   | { type: 'flashlight.focusStarted' }
@@ -120,6 +180,9 @@ export type GameEvent =
   | { type: 'flashlight.depthSwitch'; layer: DepthLayer }
   | { type: 'flashlight.flickerBurst'; battery: number }
   | { type: 'flashlight.batteryCritical' }
+  | { type: 'settings.darknessToggled'; disabled: boolean }
+  | { type: 'settings.debugOverlayToggled'; visible: boolean }
+  | { type: 'settings.worldDebugToggled'; visible: boolean }
   | { type: 'flashlight.hitEnemyStarted'; enemyId: string }
   | {
       type: 'flashlight.hitEnemy';

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { DepthLayer } from '../core/Types';
+import { isUiPointerCaptured } from '../ui/uiPointerCapture';
 
 export interface PlayerInputState {
   x: number;
@@ -17,10 +18,7 @@ export interface PlayerInputState {
 
 export class InputSystem {
   private readonly cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private readonly keys?: Record<
-    'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'one' | 'two' | 'three' | 'f' | 'l' | 'r',
-    Phaser.Input.Keyboard.Key
-  >;
+  private readonly keys?: Record<'w' | 'a' | 's' | 'd' | 'shift' | 'c' | 'space' | 'q' | 'e' | 'f' | 'l' | 'r', Phaser.Input.Keyboard.Key>;
   private tapX = 0;
   private tapY = 0;
   private tapUntil = 0;
@@ -45,9 +43,7 @@ export class InputSystem {
           c: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
           space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
           q: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
-          one: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
-          two: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
-          three: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
+          e: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
           f: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
           l: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L),
           r: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
@@ -81,7 +77,7 @@ export class InputSystem {
       crouch: Boolean(this.keys?.c.isDown || now < this.crouchTapUntil),
       interact: Boolean(this.keys?.space.isDown || now < this.interactTapUntil),
       aim: new Phaser.Math.Vector2(),
-      focus: Boolean(this.scene.input.activePointer.leftButtonDown()),
+      focus: Boolean(this.scene.input.activePointer.leftButtonDown() && !isUiPointerCaptured()),
       lockOnPressed: this.lockOnPressed,
       depthCycle: this.depthCycle,
       depthDirect: this.depthDirect,
@@ -121,12 +117,8 @@ export class InputSystem {
       this.interactTapUntil = until;
     } else if (key === 'q') {
       this.depthCycle = -1;
-    } else if (key === '1') {
-      this.depthDirect = 'background';
-    } else if (key === '2') {
-      this.depthDirect = 'main';
-    } else if (key === '3') {
-      this.depthDirect = 'foreground';
+    } else if (key === 'e') {
+      this.depthCycle = 1;
     } else if (key === 'r') {
       this.depthDirect = 'main';
     } else if (key === 'f') {

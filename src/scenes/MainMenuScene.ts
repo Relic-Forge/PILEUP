@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { DebugOverlay } from '../dev/DebugOverlay';
-import { debugCommands } from '../dev/DebugCommands';
 import { ResponsiveScaleSystem } from '../systems/ResponsiveScaleSystem';
 
 export class MainMenuScene extends Phaser.Scene {
@@ -18,14 +17,14 @@ export class MainMenuScene extends Phaser.Scene {
     this.responsive.onResize(() => this.renderMenu());
 
     this.input.keyboard?.once('keydown-ENTER', () => this.startLevel());
-    if (new URLSearchParams(window.location.search).get('scene') === 'level') {
+    const sceneParam = new URLSearchParams(window.location.search).get('scene');
+    if (sceneParam === 'level') {
       this.time.delayedCall(0, () => this.startLevel());
+    } else if (sceneParam === 'gameover') {
+      this.time.delayedCall(0, () => this.scene.start('GameOverScene'));
     }
 
     this.debugOverlay = new DebugOverlay(this);
-    this.input.keyboard?.on(`keydown-${debugCommands.overlayToggleKey}`, () => {
-      this.debugOverlay?.toggle();
-    });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.responsive?.destroy();
     });
@@ -80,7 +79,7 @@ export class MainMenuScene extends Phaser.Scene {
       .text(
         width / 2,
         Math.min(height * 0.74, safeArea.bottom),
-        'Press Enter or click start. Press F3 for debug overlay.',
+        'Press Enter or click start.',
         {
           color: '#81796f',
           fontSize: `${Math.round(16 * uiScale)}px`,

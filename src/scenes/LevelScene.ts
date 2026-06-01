@@ -3,8 +3,6 @@ import { createInitialGameState, type GameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { adaptLevelFromSource } from '../data/loaders';
 import type { RuntimeRoom, SourceLevelData } from '../data/levelTypes';
-import { DebugOverlay } from '../dev/DebugOverlay';
-import { debugCommands } from '../dev/DebugCommands';
 import { Player } from '../entities/Player';
 import { CameraSystem } from '../systems/CameraSystem';
 import { DESIGN_HEIGHT, DESIGN_WIDTH, ResponsiveScaleSystem } from '../systems/ResponsiveScaleSystem';
@@ -14,7 +12,7 @@ import { PlayerController } from '../systems/PlayerController';
 import { DepthPlaneSystem } from '../systems/DepthPlaneSystem';
 import { DarknessSystem } from '../systems/DarknessSystem';
 import { FlashlightSystem, type FlashlightState, type FlashlightTarget } from '../systems/FlashlightSystem';
-import { InventorySystem, labelForItemId } from '../systems/InventorySystem';
+import { InventorySystem, ITEM_DEFINITIONS, labelForItemId } from '../systems/InventorySystem';
 import { SearchSystem, type SearchState } from '../systems/SearchSystem';
 import { EnemySystem, type EnemySystemState } from '../systems/EnemySystem';
 import { DoorSystem, type DoorSystemState } from '../systems/DoorSystem';
@@ -22,10 +20,10 @@ import { AudioSystem } from '../systems/AudioSystem';
 import { BossDoorSequenceSystem, type BossDoorSequenceState } from '../systems/BossDoorSequenceSystem';
 
 const PLAYER_DARKNESS_EXEMPT_DEPTH = 1_440;
+const BATTERY_CHANGE_MS = 1000;
 
 export class LevelScene extends Phaser.Scene {
   private state?: GameState;
-  private debugOverlay?: DebugOverlay;
   private responsive?: ResponsiveScaleSystem;
   private cameraSystem?: CameraSystem;
   private parallaxSystem?: ParallaxSystem;
@@ -46,6 +44,11 @@ export class LevelScene extends Phaser.Scene {
   private depthReferenceObjects: Phaser.GameObjects.GameObject[] = [];
   private flashlightTargets: FlashlightTarget[] = [];
   private activeRoomId = '';
+  private unsubscribeEvents: Array<() => void> = [];
+  private selectedItemId?: string;
+  private batteryUseProgressMs = 0;
+  private batteryUseCompletedWhileHeld = false;
+  private darknessDisabled = false;
 
   constructor() {
     super('LevelScene');
@@ -55,6 +58,7 @@ export class LevelScene extends Phaser.Scene {
     this.state = createInitialGameState();
     const levelData = this.cache.json.get('level01FamilyHouse') as SourceLevelData | undefined;
     const seed = new URLSearchParams(window.location.search).get('seed') ?? `pileup-${Date.now().toString(36)}`;
+    this.darknessDisabled = this.isDarknessDisabledByQuery();
     this.room = adaptLevelFromSource(levelData ?? { schema: 'missing', level_id: 'missing', title: 'Missing', rooms: [] }, seed);
     this.responsive = new ResponsiveScaleSystem(this);
     this.cameraSystem = new CameraSystem(this);
@@ -69,11 +73,14 @@ export class LevelScene extends Phaser.Scene {
     });
 
     this.cameras.main.setBackgroundColor('#111016');
-    this.darknessSystem = new DarknessSystem(this, {
-      worldWidth: this.room.width,
-      worldHeight: DESIGN_HEIGHT,
-      debug: new URLSearchParams(window.location.search).get('lightingDebug') === '1',
-    });
+    if (!this.isParallaxPreview()) {
+      this.darknessSystem = new DarknessSystem(this, {
+        worldWidth: this.room.width,
+        worldHeight: DESIGN_HEIGHT,
+        debug: new URLSearchParams(window.location.search).get('lightingDebug') === '1',
+      });
+      this.darknessSystem.setEnabled(!this.darknessDisabled);
+    }
     this.flashlightSystem = new FlashlightSystem(this, this.player, this.flashlightTargets);
     this.responsive.onResize(() => this.renderRoom());
 
@@ -94,17 +101,27 @@ export class LevelScene extends Phaser.Scene {
     gameEvents.emit({ type: 'objective.changed', text: this.state.objective });
     gameEvents.emit({ type: 'player.healthChanged', value: this.state.health, max: this.state.maxHealth });
 
-    this.input.keyboard?.once('keydown-ESC', () => {
+    this.unsubscribeEvents.push(gameEvents.on('inventory.selectedChanged', (event) => {
+      this.selectedItemId = event.itemId;
+      this.batteryUseCompletedWhileHeld = false;
+      this.resetBatteryUseProgress();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('inventory.useRequested', (event) => this.resolveInventoryUse(event.itemId)));
+    this.unsubscribeEvents.push(gameEvents.on('settings.darknessToggled', (event) => {
+      this.darknessDisabled = event.disabled;
+      this.darknessSystem?.setEnabled(!event.disabled);
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('settings.worldDebugToggled', (event) => {
+      this.parallaxSystem?.setDebugVisible(event.visible);
+    }));
+    this.time.delayedCall(0, () => this.applyInventoryDebugQuery());
+
+    this.input.keyboard?.on('keydown-ESC', (event: KeyboardEvent) => {
+      if (event.defaultPrevented || document.body.dataset.pileupBackpackOpen === '1') {
+        return;
+      }
       this.scene.stop('UIScene');
       this.scene.start('MainMenuScene');
-    });
-
-    this.debugOverlay = new DebugOverlay(this);
-    this.input.keyboard?.on(`keydown-${debugCommands.overlayToggleKey}`, () => {
-      this.debugOverlay?.toggle();
-    });
-    this.input.keyboard?.on(`keydown-${debugCommands.worldDebugToggleKey}`, () => {
-      this.parallaxSystem?.toggleDebug();
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.responsive?.destroy();
@@ -115,31 +132,38 @@ export class LevelScene extends Phaser.Scene {
       this.doorSystem?.destroy();
       this.bossDoorSequence?.destroy();
       this.audioSystem?.destroy();
+      this.unsubscribeEvents.forEach((unsubscribe) => unsubscribe());
+      this.unsubscribeEvents = [];
+      this.resetBatteryUseProgress();
     });
   }
 
   update(_: number, delta: number): void {
     const input = this.inputSystem?.read();
+    const backpackOpen = document.body.dataset.pileupBackpackOpen === '1';
     let movementState;
-    if (input) {
-      movementState = this.playerController?.update(input, delta);
+    if (input && !backpackOpen) {
+      const batterySelected = this.isSelectedBatteryItem();
+      this.updateBatteryUse(input, delta, batterySelected);
+      const gameplayInput = batterySelected ? { ...input, interact: false, focus: false } : input;
+      movementState = this.playerController?.update(gameplayInput, delta);
       const enemyState = this.enemySystem?.update(delta);
-      const searchState = this.searchSystem?.update(input, delta);
+      const searchState = this.searchSystem?.update(gameplayInput, delta);
       this.refreshFlashlightTargets();
       this.flashlightSystem?.setTargets(this.flashlightTargets);
-      const flashlightState = this.flashlightSystem?.update(input, delta, Boolean(searchState?.activeId));
+      const flashlightState = this.flashlightSystem?.update(gameplayInput, delta, Boolean(searchState?.activeId), batterySelected);
       this.searchSystem?.setFocusedTargetIds(flashlightState?.focus ? flashlightState.hitIds : []);
       this.keepPlayerAboveDarkness();
       this.darknessSystem?.update(flashlightState, delta, this.player?.getReadabilityCenterWorld());
-      const doorState = this.doorSystem?.update(input, delta);
-      const bossState = this.bossDoorSequence?.update(input, flashlightState, doorState, delta);
+      const doorState = this.doorSystem?.update(gameplayInput, delta);
+      const bossState = this.bossDoorSequence?.update(gameplayInput, flashlightState, doorState, delta);
       this.updatePlayerActionAnimation(searchState, doorState);
       this.publishDebugState(movementState, flashlightState, searchState, enemyState, doorState, bossState);
       this.updateActiveRoomObjective();
     } else {
+      this.resetBatteryUseProgress();
       this.publishDebugState(movementState);
     }
-    this.debugOverlay?.update();
   }
 
   private renderRoom(): void {
@@ -168,7 +192,9 @@ export class LevelScene extends Phaser.Scene {
     this.doorSystem?.destroy();
     this.bossDoorSequence?.destroy();
     this.searchSystem = this.inventorySystem ? new SearchSystem(this, room, player, this.inventorySystem) : undefined;
-    this.enemySystem = new EnemySystem(this, room, player, (amount, source) => this.applyPlayerDamage(amount, source));
+    this.enemySystem = this.isParallaxPreview()
+      ? undefined
+      : new EnemySystem(this, room, player, (amount, source) => this.applyPlayerDamage(amount, source));
     this.doorSystem =
       this.inventorySystem ? new DoorSystem(this, room, player, this.inventorySystem, () => this.completeEscape()) : undefined;
     this.bossDoorSequence = new BossDoorSequenceSystem(this, room, player, this.inventorySystem?.keyFound() ?? false);
@@ -179,6 +205,26 @@ export class LevelScene extends Phaser.Scene {
     this.keepPlayerAboveDarkness();
     this.cameraSystem.follow(player.container);
     this.responsive?.ensurePortraitPrompt();
+  }
+
+  private applyInventoryDebugQuery(): void {
+    if (!import.meta.env.DEV || !this.inventorySystem) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('giveItems') === 'all') {
+      Object.keys(ITEM_DEFINITIONS).forEach((itemId) => this.inventorySystem?.addDebugItem(itemId));
+    }
+  }
+
+  private isParallaxPreview(): boolean {
+    return new URLSearchParams(window.location.search).get('parallaxPreview') === '1';
+  }
+
+  private isDarknessDisabledByQuery(): boolean {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get('noDarkness') === '1' || searchParams.get('darkness') === '0' || this.isParallaxPreview();
   }
 
   private keepPlayerAboveDarkness(): void {
@@ -266,6 +312,94 @@ export class LevelScene extends Phaser.Scene {
     });
   }
 
+  private resolveInventoryUse(itemId: string): void {
+    if (!this.inventorySystem) {
+      return;
+    }
+
+    const itemDefinition = ITEM_DEFINITIONS[itemId];
+    if (itemId === 'spare_batteries' || itemDefinition?.effectId === 'restore_flashlight_battery') {
+      if (!this.flashlightSystem?.canRestoreBattery()) {
+        this.inventorySystem.resolveUse(itemId, false, 'Battery already full.');
+        return;
+      }
+      const battery = this.flashlightSystem.restoreBattery(45);
+      this.inventorySystem.resolveUse(itemId, true, `AA BATTERY CONSUMED - FLASHLIGHT ${battery}%`);
+      return;
+    }
+
+    if (itemId === 'front_door_key') {
+      this.inventorySystem.resolveUse(itemId, false, 'Needed at the front door.');
+      return;
+    }
+
+    this.inventorySystem.resolveUse(itemId, false, 'Not here.');
+  }
+
+  private isSelectedBatteryItem(): boolean {
+    const itemId = this.selectedItemId;
+    const itemDefinition = itemId ? ITEM_DEFINITIONS[itemId] : undefined;
+    if (!itemId || itemDefinition?.effectId !== 'restore_flashlight_battery') {
+      return false;
+    }
+
+    const entry = this.inventorySystem?.inventoryEntries().find((inventoryEntry) => inventoryEntry.itemId === itemId);
+    return Boolean(entry && entry.count > 0);
+  }
+
+  private updateBatteryUse(input: ReturnType<InputSystem['read']>, deltaMs: number, batterySelected: boolean): void {
+    const itemId = this.selectedItemId;
+    if (!input.interact) {
+      this.batteryUseCompletedWhileHeld = false;
+    }
+
+    if (!batterySelected || !itemId || !input.interact || this.batteryUseCompletedWhileHeld) {
+      this.resetBatteryUseProgress(itemId);
+      return;
+    }
+
+    this.batteryUseProgressMs = Math.min(BATTERY_CHANGE_MS, this.batteryUseProgressMs + deltaMs);
+    const progress01 = this.batteryUseProgressMs / BATTERY_CHANGE_MS;
+    gameEvents.emit({
+      type: 'inventory.useProgress',
+      itemId,
+      label: 'Changing AA batteries',
+      progress01,
+      active: true,
+    });
+
+    if (this.batteryUseProgressMs < BATTERY_CHANGE_MS) {
+      return;
+    }
+
+    const entry = this.inventorySystem?.inventoryEntries().find((inventoryEntry) => inventoryEntry.itemId === itemId);
+    if (!entry || entry.count <= 0) {
+      this.resetBatteryUseProgress(itemId);
+      return;
+    }
+
+    gameEvents.emit({ type: 'inventory.useRequested', itemId, source: 'hotbar' });
+    this.batteryUseCompletedWhileHeld = true;
+    this.resetBatteryUseProgress(itemId);
+  }
+
+  private resetBatteryUseProgress(itemId = this.selectedItemId): void {
+    if (this.batteryUseProgressMs <= 0) {
+      return;
+    }
+
+    this.batteryUseProgressMs = 0;
+    if (itemId) {
+      gameEvents.emit({
+        type: 'inventory.useProgress',
+        itemId,
+        label: 'Changing AA batteries',
+        progress01: 0,
+        active: false,
+      });
+    }
+  }
+
   private updatePlayerActionAnimation(searchState?: SearchState, doorState?: DoorSystemState): void {
     if (doorState?.unlocking) {
       this.player?.playActionAnimation('unlock_door');
@@ -349,6 +483,7 @@ export class LevelScene extends Phaser.Scene {
             batteryInstability01: flashlightState.batteryInstability01,
             effectiveRange: flashlightState.effectiveRange,
             visualRange: flashlightState.visualRange,
+            disabled: flashlightState.disabled,
             visualTargetDistance: flashlightState.visualTargetDistance,
             origin: flashlightState.origin,
             hitIds: flashlightState.hitIds,
@@ -386,6 +521,7 @@ export class LevelScene extends Phaser.Scene {
       document.body.dataset.pileupFlashlightFocus = String(flashlightState.focus);
       document.body.dataset.pileupFlashlightFlicker = String(flashlightState.flicker);
       document.body.dataset.pileupFlashlightBattery = String(flashlightState.battery);
+      document.body.dataset.pileupFlashlightDisabled = String(flashlightState.disabled);
       document.body.dataset.pileupFlashlightHits = flashlightState.hitIds.join(',');
       document.body.dataset.pileupFlashlightSearchPenalty = String(flashlightState.searchPenalty01);
       document.body.dataset.pileupFlashlightEffectiveRange = String(flashlightState.effectiveRange);
