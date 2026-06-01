@@ -267,6 +267,52 @@
       "notes": "Prototype room concept is directional only; final room requires layered source and tiered runtime exports."
     },
     {
+      "assetId": "room.level01_bedroom.static_props",
+      "aliases": [
+        "bedroom_static_props_v0_1"
+      ],
+      "displayName": "Level 01 Bedroom Static Prop Pack",
+      "category": "room_prop",
+      "status": "candidate",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": "art/source/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_sheet_v0_1_source.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_v0_1.asset.json",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_v0_1_preview.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_01_overflowing_laundry_basket_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_02_dirty_clothes_mound_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_03_child_bed_corner_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_04_nightstand_lamp_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_05_toy_bin_spill_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_06_small_chair_clothes_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_07_battered_plush_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_08_scattered_books_comics_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_09_toy_truck_blocks_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_10_backpack_shoes_pile_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_11_tipped_cardboard_box_v0_1.png",
+        "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_12_low_dresser_crates_v0_1.png"
+      ],
+      "lockedIdentity": {
+        "silhouette": "static familiar bedroom clutter with subtle impossible eyes and hidey-holes",
+        "palette": "cold night bedroom shadows, worn wood, dirty fabric, low-saturation toy colors, small warm lamp accents",
+        "materialLanguage": "laundry, toys, books, school bags, storage furniture, cardboard, bedding"
+      },
+      "doNotChange": [
+        "domestic child-bedroom grounding",
+        "readable foreground/main/background prop silhouettes",
+        "creepy familiar object language"
+      ],
+      "allowedVariations": [
+        "runtime scale",
+        "depth placement",
+        "minor crop cleanup",
+        "segment-specific prop selection"
+      ],
+      "notes": "Generated from the user-provided foreground prop direction sheet plus imagegen source sheet; wired into the bedroom parallax renderer as candidate runtime cutouts."
+    },
+    {
       "assetId": "room.level01_hallway",
       "aliases": [
         "level01_hallway_layers"

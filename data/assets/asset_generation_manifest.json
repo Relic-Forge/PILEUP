@@ -1,7 +1,7 @@
 {
   "schema": "pileup_asset_generation_manifest_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-06-01T04:17:20Z",
+  "updated_utc": "2026-06-01T05:13:21Z",
   "batches": [
     {
       "batchId": "character.player_child.contact_sheet.v0_2.2026_05_30",
@@ -200,6 +200,128 @@
           "name": "runtime_ready",
           "status": "candidate",
           "notes": "Loaded by PreloadScene and rendered through geometry masks; final promotion still needs art-direction review."
+        }
+      ]
+    },
+    {
+      "batchId": "room.level01_bedroom.static_props.v0_1.2026_06_01",
+      "createdUtc": "2026-06-01T05:13:21Z",
+      "assetId": "room.level01_bedroom.static_props",
+      "requestedOutput": "twelve static bedroom prop cutouts for foreground, main-plane, and background parallax placement",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "data/assets/asset_registry.json#room.level01_bedroom.static_props",
+        "docs/PILEUP_Asset_Generation_Runbook.md",
+        "docs/PILEUP_Art_Bible_and_Asset_Spec.md",
+        "/Users/jeffdarcy/Downloads/A4C4C862-3DA0-4C64-B836-367B7B2DB2B5.PNG"
+      ],
+      "prompt": "Use the provided PILEUP bedroom foreground prop concept sheet as style and subject reference. Create a clean 4x3 asset sheet of 12 isolated static bedroom props for a 2.5D side-view domestic survival horror game: overflowing laundry basket, dirty clothes mound, child bed corner, nightstand with lamp, toy bin spilling toys, small chair with clothes, battered stuffed plush, scattered books/comics, toy truck and blocks, backpack and shoes pile, tipped cardboard box with mixed clutter, and low dresser with storage crates. Make them creepy and familiar, with subtle unsettling shadow eyes and hidey-holes, but grounded in a real child bedroom. Use hand-drawn painterly 2D/2.5D game prop style, muted blue-gray night palette, worn wood, dirty fabric, low-saturation toy colors, and small warm domestic highlights. Place each object fully visible with padding on a perfectly flat #00ff00 chroma-key background. No labels, no captions, no title, no watermark, no borders, no floor plane, no cast shadows, no humans, no separate monster characters, and no #00ff00 inside the subject.",
+      "negativePrompt": "labels, captions, title, watermark, border, UI, floor plane, cast shadow, photorealism, cute mobile cartoon, generic haunted mansion props, fantasy props, sci-fi props, humans, separate monsters, #00ff00 subject colors, textured background, gradient background, overlapping props",
+      "tool": "OpenAI image generation via Codex image_gen, then local Pillow chroma-key cleanup and manual crop slicing with bundled workspace Python",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_reference_sheet.png",
+          "role": "user-provided direction reference retained with pack",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "art/source/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_sheet_v0_1_source.png",
+          "role": "raw generated chroma-key source sheet",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_v0_1.asset.json",
+          "role": "runtime prop-pack metadata",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_v0_1_preview.png",
+          "role": "runtime cutout preview contact sheet",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_01_overflowing_laundry_basket_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_02_dirty_clothes_mound_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_03_child_bed_corner_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_04_nightstand_lamp_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_05_toy_bin_spill_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_06_small_chair_clothes_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_07_battered_plush_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_08_scattered_books_comics_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_09_toy_truck_blocks_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_10_backpack_shoes_pile_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_11_tipped_cardboard_box_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/static_props/v0_1/bedroom_static_prop_12_low_dresser_crates_v0_1.png",
+          "role": "runtime transparent static prop cutout",
+          "status": "candidate"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "file_exists",
+          "status": "pass",
+          "notes": "Source sheet, reference sheet, metadata, preview, and 12 runtime prop PNGs are present."
+        },
+        {
+          "name": "alpha_cutouts",
+          "status": "pass_with_caveat",
+          "notes": "Chroma key was removed locally and preview shows usable alpha cutouts; a few edge pixels may still need paintover before approval."
+        },
+        {
+          "name": "runtime_integration",
+          "status": "pass",
+          "notes": "PreloadScene loads the pack metadata and prop textures; ParallaxSystem places the props in bedroom foreground, main, and background depths."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "candidate",
+          "notes": "Ready for in-game review as candidate art; approval should wait for art-direction review and any final crop cleanup."
         }
       ]
     }

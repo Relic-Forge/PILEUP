@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { WINDOW_OUTSIDE_WORLD_TEXTURE_KEY } from '../assets/roomAssets';
+import { BEDROOM_STATIC_PROP_ASSETS, WINDOW_OUTSIDE_WORLD_TEXTURE_KEY } from '../assets/roomAssets';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from './ResponsiveScaleSystem';
 import type { StaticLightZone } from './DarknessSystem';
 import type { RuntimeFloorBounds, RuntimeRoom, RuntimeRoomSegment } from '../data/levelTypes';
@@ -15,6 +15,16 @@ interface LayerStyle {
   alpha: number;
   depth: number;
   scrollFactor: number;
+}
+
+interface BedroomStaticPropPlacement {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  depth: number;
+  scrollFactor: number;
+  alpha?: number;
 }
 
 const INTERIOR_SCROLL_FACTOR = 1;
@@ -244,6 +254,7 @@ export class ParallaxSystem {
     this.renderBedroomBackgroundClutter(segment, roomStartX, roomWidth);
     this.renderBedroomMainPlane(segment, floorBounds);
     this.renderBedroomForeground(segment, roomStartX, roomWidth);
+    this.renderBedroomStaticProps(segment, roomStartX, roomWidth);
   }
 
   private bedroomOffset(segment: RuntimeRoomSegment): number {
@@ -593,6 +604,134 @@ export class ParallaxSystem {
       }
     });
     this.root?.add(props);
+  }
+
+  private renderBedroomStaticProps(segment: RuntimeRoomSegment, roomStartX: number, roomWidth: number): void {
+    const propById = new Map(BEDROOM_STATIC_PROP_ASSETS.map((asset) => [asset.id, asset]));
+    const local = (ratio: number) => roomStartX + roomWidth * ratio;
+    const placementsBySegment: Record<string, BedroomStaticPropPlacement[]> = {
+      bed_left_start: [
+        {
+          id: 'overflowing_laundry_basket',
+          x: segment.x + 192,
+          y: 932,
+          width: 292,
+          depth: 63,
+          scrollFactor: FOREGROUND_SCROLL_FACTOR,
+        },
+        {
+          id: 'toy_bin_spill',
+          x: segment.x + 566,
+          y: 944,
+          width: 314,
+          depth: 64,
+          scrollFactor: FOREGROUND_SCROLL_FACTOR,
+        },
+        {
+          id: 'toy_truck_blocks',
+          x: segment.x + 790,
+          y: 820,
+          width: 206,
+          depth: 30,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+          alpha: 0.9,
+        },
+      ],
+      bed_center_mess: [
+        {
+          id: 'child_bed_corner',
+          x: local(0.61),
+          y: 560,
+          width: 404,
+          depth: 18,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+        {
+          id: 'dirty_clothes_mound',
+          x: local(0.42),
+          y: 948,
+          width: 362,
+          depth: 62,
+          scrollFactor: FOREGROUND_SCROLL_FACTOR,
+        },
+        {
+          id: 'battered_plush',
+          x: local(0.32),
+          y: 940,
+          width: 178,
+          depth: 65,
+          scrollFactor: FOREGROUND_SCROLL_FACTOR,
+        },
+        {
+          id: 'small_chair_clothes',
+          x: local(0.5),
+          y: 812,
+          width: 174,
+          depth: 31,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+        {
+          id: 'backpack_shoes_pile',
+          x: local(0.73),
+          y: 846,
+          width: 248,
+          depth: 32,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+      ],
+      bed_right_exit: [
+        {
+          id: 'nightstand_lamp',
+          x: segment.x + segment.width * 0.42,
+          y: 594,
+          width: 240,
+          depth: 18,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+        {
+          id: 'low_dresser_crates',
+          x: segment.x + segment.width * 0.73,
+          y: 604,
+          width: 312,
+          depth: 18,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+        {
+          id: 'scattered_books_comics',
+          x: segment.x + segment.width * 0.28,
+          y: 812,
+          width: 244,
+          depth: 31,
+          scrollFactor: INTERIOR_SCROLL_FACTOR,
+        },
+        {
+          id: 'tipped_cardboard_box',
+          x: segment.x + segment.width * 0.82,
+          y: 948,
+          width: 330,
+          depth: 66,
+          scrollFactor: FOREGROUND_SCROLL_FACTOR,
+        },
+      ],
+    };
+
+    placementsBySegment[segment.id]?.forEach((placement) => {
+      const asset = propById.get(placement.id);
+      if (!asset || !this.scene.textures.exists(asset.textureKey)) {
+        return;
+      }
+
+      const sourceImage = this.scene.textures.get(asset.textureKey).getSourceImage();
+      const height = placement.width * (sourceImage.height / sourceImage.width);
+      const image = this.scene.add
+        .image(placement.x, placement.y, asset.textureKey)
+        .setOrigin(0.5, 1)
+        .setDisplaySize(placement.width, height)
+        .setDepth(placement.depth)
+        .setScrollFactor(placement.scrollFactor, 1)
+        .setAlpha(placement.alpha ?? 1);
+      this.root?.add(image);
+    });
   }
 
   private renderSearchNodes(segment: RuntimeRoomSegment): void {

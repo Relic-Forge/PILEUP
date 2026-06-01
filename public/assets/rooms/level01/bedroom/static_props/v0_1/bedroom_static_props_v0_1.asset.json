@@ -1,0 +1,262 @@
+{
+  "schema": "pileup_bedroom_static_prop_pack_v1",
+  "assetId": "room.level01_bedroom.static_props",
+  "artVersion": "0.1.0",
+  "sourceSheet": "art/source/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_sheet_v0_1_source.png",
+  "referenceSheet": "art/source/rooms/level01/bedroom/static_props/v0_1/bedroom_static_props_reference_sheet.png",
+  "runtimeBasePath": "assets/rooms/level01/bedroom/static_props/v0_1",
+  "props": [
+    {
+      "id": "overflowing_laundry_basket",
+      "displayName": "Overflowing laundry basket",
+      "textureKey": "bedroom-static-prop-overflowing_laundry_basket-v0-1",
+      "file": "bedroom_static_prop_01_overflowing_laundry_basket_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        55,
+        45,
+        281,
+        287
+      ],
+      "size": [
+        281,
+        287
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "dirty_clothes_mound",
+      "displayName": "Dirty clothes mound",
+      "textureKey": "bedroom-static-prop-dirty_clothes_mound-v0-1",
+      "file": "bedroom_static_prop_02_dirty_clothes_mound_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        365,
+        87,
+        339,
+        247
+      ],
+      "size": [
+        339,
+        247
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "child_bed_corner",
+      "displayName": "Child bed corner",
+      "textureKey": "bedroom-static-prop-child_bed_corner-v0-1",
+      "file": "bedroom_static_prop_03_child_bed_corner_v0_1.png",
+      "nativeLayer": "main",
+      "sourceCrop": [
+        758,
+        40,
+        327,
+        319
+      ],
+      "size": [
+        327,
+        319
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "nightstand_lamp",
+      "displayName": "Nightstand with lamp",
+      "textureKey": "bedroom-static-prop-nightstand_lamp-v0-1",
+      "file": "bedroom_static_prop_04_nightstand_lamp_v0_1.png",
+      "nativeLayer": "background",
+      "sourceCrop": [
+        1115,
+        30,
+        249,
+        326
+      ],
+      "size": [
+        249,
+        326
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "toy_bin_spill",
+      "displayName": "Toy bin spilling toys",
+      "textureKey": "bedroom-static-prop-toy_bin_spill-v0-1",
+      "file": "bedroom_static_prop_05_toy_bin_spill_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        36,
+        425,
+        308,
+        258
+      ],
+      "size": [
+        308,
+        258
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "small_chair_clothes",
+      "displayName": "Small chair with clothes",
+      "textureKey": "bedroom-static-prop-small_chair_clothes-v0-1",
+      "file": "bedroom_static_prop_06_small_chair_clothes_v0_1.png",
+      "nativeLayer": "main",
+      "sourceCrop": [
+        427,
+        383,
+        247,
+        311
+      ],
+      "size": [
+        247,
+        311
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "battered_plush",
+      "displayName": "Battered stuffed plush",
+      "textureKey": "bedroom-static-prop-battered_plush-v0-1",
+      "file": "bedroom_static_prop_07_battered_plush_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        740,
+        396,
+        266,
+        302
+      ],
+      "size": [
+        266,
+        302
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "scattered_books_comics",
+      "displayName": "Scattered books and comic books",
+      "textureKey": "bedroom-static-prop-scattered_books_comics-v0-1",
+      "file": "bedroom_static_prop_08_scattered_books_comics_v0_1.png",
+      "nativeLayer": "main",
+      "sourceCrop": [
+        1088,
+        465,
+        330,
+        232
+      ],
+      "size": [
+        330,
+        232
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "toy_truck_blocks",
+      "displayName": "Toy truck and blocks cluster",
+      "textureKey": "bedroom-static-prop-toy_truck_blocks-v0-1",
+      "file": "bedroom_static_prop_09_toy_truck_blocks_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        28,
+        813,
+        304,
+        216
+      ],
+      "size": [
+        304,
+        216
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "backpack_shoes_pile",
+      "displayName": "Backpack and shoes pile",
+      "textureKey": "bedroom-static-prop-backpack_shoes_pile-v0-1",
+      "file": "bedroom_static_prop_10_backpack_shoes_pile_v0_1.png",
+      "nativeLayer": "main",
+      "sourceCrop": [
+        388,
+        726,
+        276,
+        320
+      ],
+      "size": [
+        276,
+        320
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "tipped_cardboard_box",
+      "displayName": "Tipped cardboard box with mixed clutter",
+      "textureKey": "bedroom-static-prop-tipped_cardboard_box-v0-1",
+      "file": "bedroom_static_prop_11_tipped_cardboard_box_v0_1.png",
+      "nativeLayer": "foreground",
+      "sourceCrop": [
+        748,
+        770,
+        286,
+        276
+      ],
+      "size": [
+        286,
+        276
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "low_dresser_crates",
+      "displayName": "Low dresser with storage crates",
+      "textureKey": "bedroom-static-prop-low_dresser_crates-v0-1",
+      "file": "bedroom_static_prop_12_low_dresser_crates_v0_1.png",
+      "nativeLayer": "background",
+      "sourceCrop": [
+        1140,
+        727,
+        277,
+        292
+      ],
+      "size": [
+        277,
+        292
+      ],
+      "origin": [
+        0.5,
+        1
+      ]
+    }
+  ]
+}
