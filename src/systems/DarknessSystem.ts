@@ -18,6 +18,18 @@ interface DarknessSystemConfig {
   debug?: boolean;
 }
 
+export interface StaticLightZone {
+  x: number;
+  y: number;
+  radius: number;
+  radiusX?: number;
+  radiusY?: number;
+  width?: number;
+  height?: number;
+  strength: number;
+  layer: DepthLayer | 'all';
+}
+
 interface LayerLightProfile {
   color: number;
   darknessAlpha: number;
@@ -114,6 +126,7 @@ export class DarknessSystem {
   private worldWidth: number;
   private worldHeight: number;
   private blockers: LightBlocker[] = [];
+  private staticLightZones: StaticLightZone[] = [];
   private readonly debug: boolean;
   private enabled = true;
   private projection: ScreenProjection = { scrollX: 0, scrollY: 0, width: 1, height: 1, zoom: 1 };
@@ -153,6 +166,10 @@ export class DarknessSystem {
       layer: blocker.layer ?? 'all',
       castsShadow: blocker.castsShadow ?? true,
     }));
+  }
+
+  setStaticLightZones(zones: StaticLightZone[]): void {
+    this.staticLightZones = zones.map((zone) => ({ ...zone }));
   }
 
   setEnabled(enabled: boolean): void {
@@ -230,7 +247,7 @@ export class DarknessSystem {
   }
 
   private stampLight(light: FlashlightState | undefined, deltaMs: number): void {
-    if (!light || light.disabled || light.battery <= 0) {
+    if (!light || light.disabled || light.battery <= 0 || light.intensity <= 0.05) {
       this.stampAccumulatorMs = REVEAL_STAMP_INTERVAL_MS;
       return;
     }
@@ -327,12 +344,18 @@ export class DarknessSystem {
       this.drawSoftEraseCircleWorld(stamp.x, stamp.y, stamp.radius, stamp.strength * fade);
     });
 
+    this.staticLightZones.forEach((zone) => {
+      if (zone.layer === 'all' || zone.layer === activeLayer) {
+        this.drawSoftEraseZoneWorld(zone);
+      }
+    });
+
     if (playerCenter && activeLayer === 'main') {
       this.drawIrregularPlayerSpill(playerCenter);
     }
 
-    if (light && !light.disabled && light.battery > 0 && activeLayer === 'main') {
-      this.drawSoftEraseCircleWorld(light.origin.x, light.origin.y, 86, 0.72);
+    if (light && !light.disabled && light.battery > 0 && light.intensity > 0.05 && activeLayer === 'main') {
+      this.drawSoftEraseCircleWorld(light.origin.x, light.origin.y, 86, 0.72 * light.intensity);
     }
 
     this.darkness.erase(this.lightMask);
@@ -373,6 +396,34 @@ export class DarknessSystem {
     this.drawSoftEraseCircle(screenX, screenY, radius * this.projection.zoom, strength);
   }
 
+  private drawSoftEraseZoneWorld(zone: StaticLightZone): void {
+    const screenX = (zone.x - this.projection.scrollX) * this.projection.zoom + SCREEN_SURFACE_OVERSCAN_PX;
+    const screenY = (zone.y - this.projection.scrollY) * this.projection.zoom + SCREEN_SURFACE_OVERSCAN_PX;
+    if (zone.width && zone.height) {
+      this.drawSoftEraseRect(
+        screenX,
+        screenY,
+        zone.width * this.projection.zoom,
+        zone.height * this.projection.zoom,
+        zone.strength,
+      );
+      return;
+    }
+
+    if (zone.radiusX && zone.radiusY) {
+      this.drawSoftEraseEllipse(
+        screenX,
+        screenY,
+        zone.radiusX * this.projection.zoom,
+        zone.radiusY * this.projection.zoom,
+        zone.strength,
+      );
+      return;
+    }
+
+    this.drawSoftEraseCircle(screenX, screenY, zone.radius * this.projection.zoom, zone.strength);
+  }
+
   private drawIrregularPlayerSpill(playerCenter: Vec2): void {
     const time = this.scene.time.now * 0.001;
     const blobs = [
@@ -408,9 +459,29 @@ export class DarknessSystem {
     }
   }
 
+  private drawSoftEraseEllipse(x: number, y: number, radiusX: number, radiusY: number, strength: number): void {
+    const clampedStrength = Phaser.Math.Clamp(strength, 0, 1);
+    const steps = SOFT_ERASE_CIRCLE_STEPS;
+    this.currentSoftEraseRings += steps;
+    for (let index = 0; index < steps; index += 1) {
+      const t = index / (steps - 1);
+      const scale = Phaser.Math.Linear(1, 0.26, t);
+      const alpha = clampedStrength * Phaser.Math.Linear(0.018, 0.18, Phaser.Math.SmoothStep(t, 0, 1));
+      this.lightMask.fillStyle(0xffffff, alpha);
+      this.lightMask.fillEllipse(x, y, radiusX * scale * 2, radiusY * scale * 2);
+    }
+  }
+
+  private drawSoftEraseRect(x: number, y: number, width: number, height: number, strength: number): void {
+    const clampedStrength = Phaser.Math.Clamp(strength, 0, 1);
+    this.currentSoftEraseRings += 1;
+    this.lightMask.fillStyle(0xffffff, clampedStrength);
+    this.lightMask.fillRect(x - width / 2, y - height / 2, width, height);
+  }
+
   private renderBeamFx(light: FlashlightState | undefined): void {
     this.beamFx.clear();
-    if (!light || light.disabled || light.battery <= 0) {
+    if (!light || light.disabled || light.battery <= 0 || light.intensity <= 0.05) {
       return;
     }
 

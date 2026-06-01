@@ -54,7 +54,7 @@ Controls:
 - Settings gear: level info, debug overlay, world layer/collision labels, and darkness toggle.
 - `F`: trigger flashlight flicker/low-battery debug state.
 - `Tab` or `I`: open/close the backpack menu.
-- `1`: equip flashlight.
+- `1`: select flashlight; press/click again while selected to turn it off or on.
 - `2` / `3` / `4` / `5`: equip collected hotbar items.
 - `Q` / `E`: change backpack tabs while the backpack is open.
 - `Enter` or `Space`: use the selected backpack item while the backpack is open.

@@ -1,7 +1,7 @@
 {
   "schema": "pileup_asset_generation_manifest_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-05-31T06:35:00Z",
+  "updated_utc": "2026-06-01T04:17:20Z",
   "batches": [
     {
       "batchId": "character.player_child.contact_sheet.v0_2.2026_05_30",
@@ -144,6 +144,62 @@
           "name": "runtime_ready",
           "status": "needs_review",
           "notes": "Files are correctly packaged and sized, but final runtime promotion should wait for bespoke animation art and art-direction approval."
+        }
+      ]
+    },
+    {
+      "batchId": "room.level01_window_outside_world.layer.v0_1.2026_05_31",
+      "createdUtc": "2026-06-01T04:17:20Z",
+      "assetId": "room.level01_window_outside_world",
+      "requestedOutput": "single continuous spooky outside-world bitmap layer masked behind every Level 01 window",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "data/assets/asset_registry.json#room.level01_window_outside_world",
+        "docs/PILEUP_Asset_Generation_Runbook.md",
+        "docs/PILEUP_Art_Bible_and_Asset_Spec.md"
+      ],
+      "prompt": "Create a full-quality spooky outside world layer visible only through house windows. The scene should lean on silhouettes, feel deep and parallax-ready, and include moonlit forms that can cast cold light onto an interior floor. Suburban backyard at night seen from inside a family house window, deep layered exterior with distant rooflines, bare tree silhouettes, fence lines, bushes, a narrow path, far houses, heavy night sky, thin clouds, and subtle fog. No interior window frame, no room elements, no text. Empty eerie outside world with readable silhouettes only, not monsters in the foreground. Include depth layers: far moon/sky/clouds, middle houses/fence, near trees and bushes. Hand-drawn 2D/2.5D domestic survival horror game background, painterly but clean enough for runtime use, not photorealistic, not cute cartoon. Ultra-wide landscape scene, continuous complete exterior panorama with no hard panel borders. Keep important silhouette interest spread across the full width so different window crops reveal different parts. Avoid overlap clutter in the center; make it crop-safe for rectangular windows. Cold moonlight, spooky quiet, strong silhouette readability, faint blue-gray haze, small warm distant porch/window lights only as tiny accents. No window frame, no blinds, no interior floor, no interior walls, no characters, no text, no watermark.",
+      "negativePrompt": "generic haunted castle, graveyard, readable monsters, photorealism, sci-fi, fantasy, neon, labels, text, watermark, duplicated window frames, baked interior, blank areas",
+      "tool": "OpenAI image generation via Codex image_gen, then copied into art/source and public runtime asset folders",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/rooms/level01/outside_world/window_outside_world_layer_v0_1_source.png",
+          "role": "raw generated source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "public/assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.png",
+          "role": "runtime masked window layer",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.asset.json",
+          "role": "runtime asset metadata",
+          "status": "candidate"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "file_exists",
+          "status": "pass",
+          "notes": "Source, runtime PNG, and runtime metadata are present."
+        },
+        {
+          "name": "dimensions",
+          "status": "pass_with_caveat",
+          "notes": "Generated layer is 1672x941, suitable for current masked window crops but below preferred 4K source target."
+        },
+        {
+          "name": "window_integration",
+          "status": "needs_runtime_review",
+          "notes": "ParallaxSystem now crops the layer behind every procedural window and renders cold floor light spill separately."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "candidate",
+          "notes": "Loaded by PreloadScene and rendered through geometry masks; final promotion still needs art-direction review."
         }
       ]
     }

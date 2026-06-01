@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
+import { WINDOW_OUTSIDE_WORLD_TEXTURE_KEY } from '../assets/roomAssets';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from './ResponsiveScaleSystem';
+import type { StaticLightZone } from './DarknessSystem';
 import type { RuntimeFloorBounds, RuntimeRoom, RuntimeRoomSegment } from '../data/levelTypes';
 
 type LayerId = 'farBackground' | 'backgroundClutter' | 'mainGameplay' | 'foregroundClutter' | 'fxLighting';
@@ -18,7 +20,10 @@ interface LayerStyle {
 const INTERIOR_SCROLL_FACTOR = 1;
 const FOREGROUND_SCROLL_FACTOR = 1.34;
 const OUTDOOR_FAR_SCROLL_FACTOR = 0.58;
-const OUTDOOR_MID_SCROLL_FACTOR = 0.72;
+const OUTDOOR_PARALLAX_SPEED_MULTIPLIER = 1.25;
+const OUTSIDE_LAYER_SOURCE_WIDTH = 1672;
+const OUTSIDE_LAYER_SOURCE_HEIGHT = 941;
+const WINDOW_PICTURE_DEPTH = 1_396;
 
 const LAYER_STYLES: LayerStyle[] = [
   {
@@ -76,6 +81,9 @@ const LAYER_STYLES: LayerStyle[] = [
 export class ParallaxSystem {
   private root?: Phaser.GameObjects.Container;
   private debugObjects: Array<Phaser.GameObjects.GameObject & { setVisible: (visible: boolean) => unknown }> = [];
+  private outsideWindowPanes: Array<{ tile: Phaser.GameObjects.TileSprite; baseTileX: number; drift: number }> = [];
+  private windowLightZones: StaticLightZone[] = [];
+  private windowLightOverlays: Phaser.GameObjects.GameObject[] = [];
   private debugVisible = false;
 
   constructor(private readonly scene: Phaser.Scene) {}
@@ -98,7 +106,21 @@ export class ParallaxSystem {
   destroy(): void {
     this.root?.destroy(true);
     this.root = undefined;
+    this.windowLightOverlays.forEach((object) => object.destroy());
     this.debugObjects = [];
+    this.outsideWindowPanes = [];
+    this.windowLightZones = [];
+    this.windowLightOverlays = [];
+  }
+
+  update(cameraScrollX: number): void {
+    this.outsideWindowPanes.forEach((pane) => {
+      pane.tile.tilePositionX = pane.baseTileX + cameraScrollX * pane.drift;
+    });
+  }
+
+  getWindowLightZones(): StaticLightZone[] {
+    return this.windowLightZones.map((zone) => ({ ...zone }));
   }
 
   toggleDebug(): void {
@@ -313,68 +335,123 @@ export class ParallaxSystem {
     variant: string,
     scrollFactor: number,
   ): void {
-    const backGlass = this.scene.add
-      .rectangle(centerX, centerY, width, height, 0x142844, 0.96)
-      .setDepth(7)
+    const paneInset = 12;
+    const paneWidth = width - paneInset * 2;
+    const paneHeight = height - paneInset * 2;
+    const outsideVariantOffset: Record<string, number> = {
+      bedroom: 0.08,
+      hallway: 0.28,
+      bathroom: 0.43,
+      kitchen: 0.58,
+      living_room: 0.72,
+      entryway: 0.86,
+    };
+    const cropOffset = outsideVariantOffset[variant] ?? 0.5;
+    const tileScale = Math.max(paneWidth / (OUTSIDE_LAYER_SOURCE_WIDTH * 0.52), paneHeight / (OUTSIDE_LAYER_SOURCE_HEIGHT * 0.58));
+    const outside = this.scene.add
+      .tileSprite(centerX, centerY, paneWidth, paneHeight, WINDOW_OUTSIDE_WORLD_TEXTURE_KEY)
+      .setDepth(WINDOW_PICTURE_DEPTH)
       .setScrollFactor(scrollFactor, 1);
-    const moonX = centerX + width * (variant === 'bathroom' ? 0.18 : 0.28);
-    const moon = this.scene.add
-      .circle(moonX, centerY - height * 0.24, Math.max(18, width * 0.08), 0xe8edf5, 0.86)
-      .setDepth(8)
-      .setScrollFactor(OUTDOOR_FAR_SCROLL_FACTOR, 1);
-    const cloud = this.scene.add
-      .ellipse(centerX - width * 0.2, centerY - height * 0.16, width * 0.44, height * 0.12, 0x28364e, 0.58)
-      .setDepth(8)
-      .setScrollFactor(OUTDOOR_FAR_SCROLL_FACTOR, 1);
-    const roofLine = this.scene.add
-      .triangle(centerX + width * 0.16, centerY + height * 0.34, -width * 0.42, height * 0.12, 0, -height * 0.08, width * 0.48, height * 0.12, 0x070a10, 0.74)
-      .setDepth(9)
-      .setScrollFactor(OUTDOOR_MID_SCROLL_FACTOR, 1);
-    const treeObjects: Phaser.GameObjects.GameObject[] = [];
-    for (let index = 0; index < 5; index += 1) {
-      const treeX = centerX - width * 0.42 + index * width * 0.2;
-      const trunk = this.scene.add
-        .rectangle(treeX, centerY + height * 0.18 + (index % 2) * 10, 8 + (index % 2) * 3, height * 0.86, 0x05070a, 0.78)
-        .setDepth(10)
-        .setAngle(index % 2 === 0 ? -5 : 4)
-        .setScrollFactor(OUTDOOR_MID_SCROLL_FACTOR, 1);
-      const crown = this.scene.add
-        .triangle(treeX, centerY - height * 0.12, -42, 84, 0, -54, 46, 88, 0x070b0d, 0.68)
-        .setDepth(10)
-        .setScrollFactor(OUTDOOR_MID_SCROLL_FACTOR, 1);
-      treeObjects.push(trunk, crown);
-    }
+    outside.tileScaleX = tileScale;
+    outside.tileScaleY = tileScale;
+    outside.tilePositionX = OUTSIDE_LAYER_SOURCE_WIDTH * cropOffset;
+    outside.tilePositionY = variant === 'bathroom' ? OUTSIDE_LAYER_SOURCE_HEIGHT * 0.2 : OUTSIDE_LAYER_SOURCE_HEIGHT * 0.12;
+    this.outsideWindowPanes.push({
+      tile: outside,
+      baseTileX: outside.tilePositionX,
+      drift: (1 - OUTDOOR_FAR_SCROLL_FACTOR) * tileScale * 0.9 * OUTDOOR_PARALLAX_SPEED_MULTIPLIER,
+    });
+    const pictureBacking = this.scene.add
+      .rectangle(centerX, centerY, width + 12, height + 12, 0xd7eaf3, 0.14)
+      .setDepth(WINDOW_PICTURE_DEPTH - 1)
+      .setScrollFactor(scrollFactor, 1);
+    const glassTint = this.scene.add
+      .rectangle(centerX, centerY, paneWidth, paneHeight, variant === 'bathroom' ? 0xd9edf5 : 0xc8e8f6, 0.24)
+      .setDepth(WINDOW_PICTURE_DEPTH + 1)
+      .setScrollFactor(scrollFactor, 1);
     const frame = this.scene.add
       .rectangle(centerX, centerY, width, height, 0x000000, 0)
-      .setStrokeStyle(10, 0x5a5360, 0.96)
-      .setDepth(12)
+      .setStrokeStyle(10, 0xa9bac5, 0.98)
+      .setDepth(WINDOW_PICTURE_DEPTH + 2)
       .setScrollFactor(scrollFactor, 1);
-    const vertical = this.scene.add.rectangle(centerX, centerY, 8, height - 8, 0x5a5360, 0.94).setDepth(13).setScrollFactor(scrollFactor, 1);
-    const horizontal = this.scene.add.rectangle(centerX, centerY, width - 8, 7, 0x5a5360, 0.84).setDepth(13).setScrollFactor(scrollFactor, 1);
-    const blindA = this.scene.add.rectangle(centerX, centerY - height * 0.34, width - 22, 8, 0x0d1321, 0.72).setDepth(14).setScrollFactor(scrollFactor, 1);
-    const blindB = this.scene.add.rectangle(centerX, centerY - height * 0.16, width - 26, 6, 0x0d1321, 0.55).setDepth(14).setScrollFactor(scrollFactor, 1);
-    const lightSpill = this.scene.add
-      .triangle(centerX, 672, -width * 0.44, -96, width * 0.36, -92, width * 0.08, 178, 0x92a9bd, 0.18)
-      .setDepth(24)
-      .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
-    const floorGlow = this.scene.add
-      .ellipse(centerX + width * 0.05, 810, width * 1.02, 118, 0x9fb2bd, 0.12)
-      .setDepth(25)
-      .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
-    this.root?.add([
-      lightSpill,
-      floorGlow,
-      backGlass,
-      moon,
-      cloud,
-      roofLine,
-      ...treeObjects,
+    const vertical = this.scene.add
+      .rectangle(centerX, centerY, 8, height - 8, 0xb7c8d0, 0.94)
+      .setDepth(WINDOW_PICTURE_DEPTH + 3)
+      .setScrollFactor(scrollFactor, 1);
+    const horizontal = this.scene.add
+      .rectangle(centerX, centerY, width - 8, 7, 0xb7c8d0, 0.86)
+      .setDepth(WINDOW_PICTURE_DEPTH + 3)
+      .setScrollFactor(scrollFactor, 1);
+    const blindA = this.scene.add
+      .rectangle(centerX, centerY - height * 0.34, width - 22, 8, 0x24364a, 0.52)
+      .setDepth(WINDOW_PICTURE_DEPTH + 4)
+      .setScrollFactor(scrollFactor, 1);
+    const blindB = this.scene.add
+      .rectangle(centerX, centerY - height * 0.16, width - 26, 6, 0x24364a, 0.42)
+      .setDepth(WINDOW_PICTURE_DEPTH + 4)
+      .setScrollFactor(scrollFactor, 1);
+    this.registerWindowLightReveal(centerX, centerY, width, height, variant);
+    this.windowLightOverlays.push(
+      pictureBacking,
+      outside,
+      glassTint,
       frame,
       vertical,
       horizontal,
       blindA,
       blindB,
-    ]);
+    );
+  }
+
+  private registerWindowLightReveal(
+    centerX: number,
+    centerY: number,
+    width: number,
+    height: number,
+    variant: string,
+  ): void {
+    const isBathroom = variant === 'bathroom';
+    const floorY = isBathroom ? 760 : 792;
+    const patchCenterX = centerX + width * (isBathroom ? 0.1 : 0.2);
+    const patchWidth = width * (isBathroom ? 1.12 : 1.36);
+    const patchHeight = isBathroom ? 116 : 138;
+    const lean = width * 0.28;
+    const revealStrength = isBathroom ? 0.26 : 0.32;
+    this.windowLightZones.push({
+      x: centerX,
+      y: centerY,
+      radius: Math.max(width, height) * 0.5,
+      width: width + 18,
+      height: height + 18,
+      strength: 0.96,
+      layer: 'all',
+    });
+
+    const revealZones = [
+      {
+        x: patchCenterX + width * 0.18,
+        y: floorY + patchHeight * 0.08,
+        radius: patchWidth * 0.38,
+        radiusX: patchWidth * 0.48,
+        radiusY: patchHeight * 0.36,
+        strength: revealStrength,
+      },
+      {
+        x: patchCenterX + lean * 0.95,
+        y: floorY + patchHeight * 0.22,
+        radius: patchWidth * 0.32,
+        radiusX: patchWidth * 0.38,
+        radiusY: patchHeight * 0.28,
+        strength: revealStrength * 0.72,
+      },
+    ];
+
+    revealZones.forEach((zone) => {
+      this.windowLightZones.push({
+        ...zone,
+        layer: 'main',
+      });
+    });
   }
 
   private renderBedroomBackgroundClutter(segment: RuntimeRoomSegment, roomStartX: number, roomWidth: number): void {

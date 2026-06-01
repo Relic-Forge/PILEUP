@@ -43,8 +43,15 @@ interface FlashlightVisualState {
   visualHalfAngle: number;
   focus01: number;
   batteryInstability01: number;
+  batteryOutput01: number;
   alphaScale: number;
   layerPulse01: number;
+}
+
+interface BatteryOutputState {
+  dropout: boolean;
+  dimScale: number;
+  outputScale: number;
 }
 
 const LAYERS: DepthLayer[] = ['background', 'main', 'foreground'];
@@ -61,6 +68,8 @@ const BATTERY_MAX = 100;
 const SEARCH_RANGE_SCALE = 0.34;
 const SEARCH_HALF_ANGLE_SCALE = 0.82;
 const SEARCH_INTENSITY_SCALE = 0.48;
+const LOW_BATTERY_FLICKER_THRESHOLD = 20;
+const LOW_BATTERY_DIM_THRESHOLD = 10;
 const LOCK_CURSOR_RADIUS = 260;
 const LOCK_BEAM_HALF_ANGLE = Phaser.Math.DegToRad(32);
 const LOCK_RELEASE_DISTANCE = 920;
@@ -88,6 +97,8 @@ export class FlashlightSystem {
   private lastAim = new Phaser.Math.Vector2(1, 0);
   private searchPenalty01 = 0;
   private lockedTargetId?: string;
+  private nextDropoutCheckAt = 0;
+  private dropoutUntil = 0;
   private readonly debugBeamVisible = new URLSearchParams(window.location.search).get('flashlightDebug') === '1';
 
   constructor(
@@ -135,27 +146,30 @@ export class FlashlightSystem {
     const focus = disabled ? false : input.focus;
     this.battery = Phaser.Math.Clamp(this.battery - deltaSeconds * (disabled ? 0 : focus ? 1.8 : 0.55), 0, BATTERY_MAX);
     const debugLowBattery = !disabled && input.debugFlicker;
-    const flicker = !disabled && (debugLowBattery || this.battery <= 12);
+    const flicker = !disabled && (debugLowBattery || this.battery <= LOW_BATTERY_FLICKER_THRESHOLD);
+    const batteryOutput = this.resolveBatteryOutput(flicker, disabled);
     const aim = this.resolveAim(input);
     this.aimAngle = Math.atan2(aim.y, aim.x);
     this.updatePlayerFacing(input);
     this.updateFocus(focus, deltaSeconds);
     this.updateSearchPenalty(isSearching, deltaSeconds);
-    const visualState = this.updateVisualState(input, flicker, deltaMs);
+    const visualState = this.updateVisualState(input, flicker, batteryOutput, deltaMs);
 
     const searchRangeScale = Phaser.Math.Linear(1, SEARCH_RANGE_SCALE, this.searchPenalty01);
     const searchHalfAngleScale = Phaser.Math.Linear(1, SEARCH_HALF_ANGLE_SCALE, this.searchPenalty01);
-    const range = disabled ? 0 : (focus ? FOCUS_RANGE : RANGE) * searchRangeScale;
+    const range = disabled ? 0 : (focus ? FOCUS_RANGE : RANGE) * searchRangeScale * batteryOutput.outputScale;
     const halfAngle = disabled ? 0 : (focus ? FOCUS_HALF_ANGLE : CONE_HALF_ANGLE) * searchHalfAngleScale;
-    const intensity = disabled ? 0 : (focus ? 1 : 0.62) * Phaser.Math.Linear(1, SEARCH_INTENSITY_SCALE, this.searchPenalty01);
-    const hitIds = disabled ? [] : this.detectTargets(range, halfAngle);
+    const intensity = disabled
+      ? 0
+      : (focus ? 1 : 0.62) * Phaser.Math.Linear(1, SEARCH_INTENSITY_SCALE, this.searchPenalty01) * batteryOutput.outputScale;
+    const hitIds = disabled || batteryOutput.dropout ? [] : this.detectTargets(range, halfAngle);
     if (disabled) {
       this.clearLightVisuals();
     } else {
       this.render(range, halfAngle, intensity, flicker, hitIds, visualState);
     }
-    this.publishBatteryIfNeeded(flicker, focus);
-    this.publishFlashlightEvents(flicker, focus, hitIds);
+    this.publishBatteryIfNeeded(flicker || batteryOutput.dropout, focus);
+    this.publishFlashlightEvents(flicker || batteryOutput.dropout, focus, hitIds);
 
     hitIds.forEach((targetId) => {
       gameEvents.emit({
@@ -355,7 +369,41 @@ export class FlashlightSystem {
     this.searchPenalty01 = Phaser.Math.Linear(this.searchPenalty01, target, 1 - Math.exp(-speed * deltaSeconds));
   }
 
-  private updateVisualState(input: PlayerInputState, flicker: boolean, deltaMs: number): FlashlightVisualState {
+  private resolveBatteryOutput(flicker: boolean, disabled: boolean): BatteryOutputState {
+    if (disabled || this.battery <= 0) {
+      this.dropoutUntil = 0;
+      return { dropout: false, dimScale: disabled ? 1 : 0, outputScale: disabled ? 1 : 0 };
+    }
+
+    const now = this.scene.time.now;
+    if (!flicker) {
+      this.dropoutUntil = 0;
+      this.nextDropoutCheckAt = 0;
+      return { dropout: false, dimScale: 1, outputScale: 1 };
+    }
+
+    const flicker01 = Phaser.Math.Clamp((LOW_BATTERY_FLICKER_THRESHOLD - this.battery) / LOW_BATTERY_FLICKER_THRESHOLD, 0, 1);
+    const dim01 = Phaser.Math.Clamp((LOW_BATTERY_DIM_THRESHOLD - this.battery) / (LOW_BATTERY_DIM_THRESHOLD - 1), 0, 1);
+    const dimScale = this.battery <= LOW_BATTERY_DIM_THRESHOLD ? Phaser.Math.Linear(1, 0.26, dim01) : 1;
+
+    if (now >= this.nextDropoutCheckAt) {
+      const chance = Phaser.Math.Linear(0.12, 0.58, flicker01);
+      if (Phaser.Math.FloatBetween(0, 1) < chance) {
+        this.dropoutUntil = now + Phaser.Math.Linear(45, 210, flicker01) + Phaser.Math.Between(0, 70);
+      }
+      this.nextDropoutCheckAt = now + Phaser.Math.Linear(420, 115, flicker01) + Phaser.Math.Between(0, 120);
+    }
+
+    const dropout = now < this.dropoutUntil;
+    return { dropout, dimScale, outputScale: dropout ? 0 : dimScale };
+  }
+
+  private updateVisualState(
+    input: PlayerInputState,
+    flicker: boolean,
+    batteryOutput: BatteryOutputState,
+    deltaMs: number,
+  ): FlashlightVisualState {
     const deltaSeconds = deltaMs / 1000;
     const turnRate = input.focus ? 9.5 : input.sprint ? 7.25 : input.crouch ? 15 : 12.5;
     this.visualAimAngle = Phaser.Math.Angle.RotateTo(this.visualAimAngle, this.aimAngle, turnRate * deltaSeconds);
@@ -363,7 +411,7 @@ export class FlashlightSystem {
     this.hurtShakeMs = Math.max(0, this.hurtShakeMs - deltaMs);
 
     const batteryInstability01 = Phaser.Math.Clamp((65 - this.battery) / 65, 0, 1);
-    const critical01 = Phaser.Math.Clamp((13 - this.battery) / 13, 0, 1);
+    const critical01 = Phaser.Math.Clamp((LOW_BATTERY_DIM_THRESHOLD - this.battery) / LOW_BATTERY_DIM_THRESHOLD, 0, 1);
     const time = this.scene.time.now * 0.001;
     const isMoving = input.x !== 0 || input.y !== 0;
     const movementShake = input.sprint ? 0.022 : input.crouch ? 0.004 : isMoving ? 0.012 : 0.007;
@@ -371,13 +419,16 @@ export class FlashlightSystem {
     const hurtShake = this.hurtShakeMs > 0 ? Math.sin(time * 92) * 0.055 * (this.hurtShakeMs / 260) : 0;
     const lowBatterySlip = batteryInstability01 * Math.sin(time * 17.7 + Math.sin(time * 3.1) * 2) * 0.018;
     const jitter = Math.sin(time * 21.5) * movementShake + Math.sin(time * 28.7) * searchShake + lowBatterySlip + hurtShake;
-    const blackout = critical01 > 0 ? Math.max(0, Math.sin(time * 17.2) - 0.72) * critical01 : 0;
-    const flickerDip = flicker ? 0.54 + Math.sin(time * 29.5) * 0.12 : 1;
-    const alphaScale = Phaser.Math.Clamp(flickerDip - blackout, this.battery <= 0 ? 0.1 : 0.22, 1.15);
+    const blackout = batteryOutput.dropout ? 1 : critical01 > 0 ? Math.max(0, Math.sin(time * 17.2) - 0.72) * critical01 : 0;
+    const flickerDip = flicker ? 0.66 + Math.sin(time * 29.5) * 0.16 : 1;
+    const alphaScale = batteryOutput.dropout
+      ? 0
+      : Phaser.Math.Clamp((flickerDip - blackout) * batteryOutput.dimScale, this.battery <= 0 ? 0 : 0.14, 1.15);
     const layerProfile = this.getLayerProfile();
     const searchRangeScale = Phaser.Math.Linear(1, SEARCH_RANGE_SCALE, this.searchPenalty01);
     const searchHalfAngleScale = Phaser.Math.Linear(1, SEARCH_HALF_ANGLE_SCALE, this.searchPenalty01);
-    const visualRange = Phaser.Math.Linear(RANGE, FOCUS_RANGE, this.focus01) * layerProfile.rangeScale * searchRangeScale;
+    const visualRange =
+      Phaser.Math.Linear(RANGE, FOCUS_RANGE, this.focus01) * layerProfile.rangeScale * searchRangeScale * batteryOutput.outputScale;
     const visualHalfAngle =
       Phaser.Math.Linear(CONE_HALF_ANGLE, FOCUS_HALF_ANGLE, this.focus01) * layerProfile.angleScale * searchHalfAngleScale;
     const visualAimAngle = this.visualAimAngle + jitter;
@@ -392,6 +443,7 @@ export class FlashlightSystem {
       visualHalfAngle,
       focus01: this.focus01,
       batteryInstability01,
+      batteryOutput01: batteryOutput.outputScale,
       alphaScale,
       layerPulse01: this.layerPulse,
     };
@@ -450,6 +502,9 @@ export class FlashlightSystem {
     this.beam.clear();
     this.debugBeam.clear();
     this.hitMarkers.forEach((marker) => marker.setVisible(this.debugBeamVisible));
+    if (visual.batteryOutput01 <= 0) {
+      return;
+    }
     if (!this.debugBeamVisible) {
       return;
     }
@@ -546,7 +601,7 @@ export class FlashlightSystem {
       gameEvents.emit({ type: 'flashlight.flickerBurst', battery: Math.round(this.battery) });
     }
 
-    const critical = this.battery <= 13;
+    const critical = this.battery <= LOW_BATTERY_DIM_THRESHOLD;
     if (critical && !this.lastCriticalEvent) {
       gameEvents.emit({ type: 'flashlight.batteryCritical' });
     }

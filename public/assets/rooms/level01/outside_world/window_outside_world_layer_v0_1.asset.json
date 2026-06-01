@@ -1,0 +1,14 @@
+{
+  "schema": "pileup_room_window_layer_v1",
+  "assetId": "room.level01_window_outside_world",
+  "artVersion": "0.1.0",
+  "lifecycleState": "candidate",
+  "source": "art/source/rooms/level01/outside_world/window_outside_world_layer_v0_1_source.png",
+  "runtime": "public/assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.png",
+  "dimensions": [1672, 941],
+  "usage": "Masked behind every visible window in the Level 01 parallax renderer.",
+  "notes": [
+    "Single continuous outside-world layer cropped differently per room/window variant.",
+    "Interior window frames and floor light spill are runtime-rendered so the outside layer stays reusable."
+  ]
+}

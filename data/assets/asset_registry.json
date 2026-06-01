@@ -391,6 +391,40 @@
       "notes": "Needs layered source and boss-arena composition review before runtime export."
     },
     {
+      "assetId": "room.level01_window_outside_world",
+      "aliases": [
+        "level01_window_outside_world_layer"
+      ],
+      "displayName": "Level 01 Window Outside World",
+      "category": "room",
+      "status": "candidate",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": "art/source/rooms/level01/outside_world/window_outside_world_layer_v0_1_source.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [
+        "public/assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.png",
+        "public/assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.asset.json"
+      ],
+      "lockedIdentity": {
+        "camera": "outside-world panorama seen only through interior window masks",
+        "palette": "cold moonlit blue-grey silhouettes with sparse warm distant house lights",
+        "materialLanguage": "bare trees, fences, rooftops, bushes, wet path, fog, and night sky"
+      },
+      "doNotChange": [
+        "outside-only layer with no interior window frame baked in",
+        "spooky domestic suburb silhouette grounding",
+        "crop-safe continuous panorama for every window"
+      ],
+      "allowedVariations": [
+        "moon and cloud placement",
+        "tree silhouette density",
+        "distant house light intensity",
+        "fog and depth contrast"
+      ],
+      "notes": "Runtime frames, blinds, masks, and floor light spill are rendered in ParallaxSystem so this layer can be reused behind every window."
+    },
+    {
       "assetId": "ui.hud_core",
       "aliases": [
         "hud_inventory_bars_objectives"

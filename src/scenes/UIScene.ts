@@ -28,6 +28,7 @@ export class UIScene extends Phaser.Scene {
   private flashlightBattery = 100;
   private flashlightFocus = false;
   private flashlightFlicker = false;
+  private flashlightEnabled = true;
   private searchLabel = 'No search target';
   private searchProgress = 0;
   private searchNoise = 0;
@@ -144,6 +145,10 @@ export class UIScene extends Phaser.Scene {
       this.flashlightBattery = event.value;
       this.flashlightFocus = event.focus;
       this.flashlightFlicker = event.flicker;
+      this.renderHud();
+    }));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.powerChanged', (event) => {
+      this.flashlightEnabled = event.enabled;
       this.renderHud();
     }));
     this.unsubscribeEvents.push(gameEvents.on('search.progressChanged', (event) => {
@@ -304,11 +309,19 @@ export class UIScene extends Phaser.Scene {
     const flashlight = this.add.text(
       safe.left + 456 * scale,
       safe.top,
-      `LIGHT ${this.flashlightLayer.toUpperCase()} ${this.flashlightBattery}%${this.flashlightFocus ? ' FOCUS' : ''}${
-        this.flashlightFlicker ? ' FLICKER' : ''
-      }`,
+      this.flashlightEnabled
+        ? `LIGHT ${this.flashlightLayer.toUpperCase()} ${this.flashlightBattery}%${this.flashlightFocus ? ' FOCUS' : ''}${
+            this.flashlightFlicker ? ' FLICKER' : ''
+          }`
+        : `LIGHT OFF ${this.flashlightBattery}%`,
       {
-        color: this.flashlightLayer === 'main' ? '#f4e7a8' : this.flashlightLayer === 'foreground' ? '#f3b28d' : '#86a9d8',
+        color: this.flashlightEnabled
+          ? this.flashlightLayer === 'main'
+            ? '#f4e7a8'
+            : this.flashlightLayer === 'foreground'
+              ? '#f3b28d'
+              : '#86a9d8'
+          : '#81796f',
         fontSize: `${fontSize}px`,
       },
     ).setDepth(uiDepths.hud + 1);
@@ -472,24 +485,33 @@ export class UIScene extends Phaser.Scene {
       const isFlashlightSlot = index === 0;
       const itemId = isFlashlightSlot ? FLASHLIGHT_HOTBAR_ITEM_ID : slot?.itemId;
       const selected = itemId === this.selectedItemId;
+      const flashlightOff = isFlashlightSlot && !this.flashlightEnabled;
       const frame = this.add
-        .rectangle(x, y, slotSize, slotSize, 0x171b22, 0.86)
+        .rectangle(x, y, slotSize, slotSize, flashlightOff ? 0x111217 : 0x171b22, flashlightOff ? 0.74 : 0.86)
         .setOrigin(0, 0)
-        .setStrokeStyle(selected ? 2 : 1, selected ? 0xe3d36f : 0x8a7658, selected ? 0.9 : 0.45)
+        .setStrokeStyle(
+          selected ? 2 : 1,
+          flashlightOff ? 0x58535b : selected ? 0xe3d36f : 0x8a7658,
+          flashlightOff ? 0.72 : selected ? 0.9 : 0.45,
+        )
         .setScrollFactor(0)
         .setDepth(uiDepths.hud + 1)
         .setInteractive({ useHandCursor: Boolean(itemId) })
         .on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: { stopPropagation?: () => void }) => {
           captureUiPointer(pointer, event);
           if (itemId) {
-            this.selectedItemId = itemId;
-            gameEvents.emit({ type: 'inventory.selectedChanged', itemId, hotbarSlot: index + 1 });
+            if (isFlashlightSlot && selected) {
+              gameEvents.emit({ type: 'flashlight.toggleRequested', source: 'hud' });
+            } else {
+              this.selectedItemId = itemId;
+              gameEvents.emit({ type: 'inventory.selectedChanged', itemId, hotbarSlot: index + 1 });
+            }
             this.renderHud();
           }
         });
       const label = this.add
         .text(x + slotSize / 2, y + 10 * scale, itemId ? this.shortItemLabel(itemId) : String(index + 1), {
-          color: itemId ? '#e8e1d3' : '#58535b',
+          color: flashlightOff ? '#8c867d' : itemId ? '#e8e1d3' : '#58535b',
           fontFamily: 'Georgia, serif',
           fontSize: `${Math.max(11, Math.round(12 * scale))}px`,
           align: 'center',
@@ -552,8 +574,12 @@ export class UIScene extends Phaser.Scene {
     if (Number.isInteger(slotNumber) && slotNumber >= 1 && slotNumber <= 5) {
       const itemId = slotNumber === 1 ? FLASHLIGHT_HOTBAR_ITEM_ID : this.hotbarSlots[slotNumber - 2]?.itemId;
       if (itemId) {
-        this.selectedItemId = itemId;
-        gameEvents.emit({ type: 'inventory.selectedChanged', itemId, hotbarSlot: slotNumber });
+        if (slotNumber === 1 && this.selectedItemId === FLASHLIGHT_HOTBAR_ITEM_ID) {
+          gameEvents.emit({ type: 'flashlight.toggleRequested', source: 'hotbar' });
+        } else {
+          this.selectedItemId = itemId;
+          gameEvents.emit({ type: 'inventory.selectedChanged', itemId, hotbarSlot: slotNumber });
+        }
         this.renderHud();
       }
     }

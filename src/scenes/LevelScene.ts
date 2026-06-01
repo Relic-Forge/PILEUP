@@ -49,6 +49,7 @@ export class LevelScene extends Phaser.Scene {
   private batteryUseProgressMs = 0;
   private batteryUseCompletedWhileHeld = false;
   private darknessDisabled = false;
+  private flashlightManuallyOff = false;
 
   constructor() {
     super('LevelScene');
@@ -106,6 +107,15 @@ export class LevelScene extends Phaser.Scene {
       this.batteryUseCompletedWhileHeld = false;
       this.resetBatteryUseProgress();
     }));
+    this.unsubscribeEvents.push(gameEvents.on('flashlight.toggleRequested', () => {
+      this.flashlightManuallyOff = !this.flashlightManuallyOff;
+      gameEvents.emit({ type: 'flashlight.powerChanged', enabled: !this.flashlightManuallyOff });
+      gameEvents.emit({
+        type: 'hud.toast',
+        tone: this.flashlightManuallyOff ? 'warning' : 'item',
+        text: this.flashlightManuallyOff ? 'Flashlight off.' : 'Flashlight on.',
+      });
+    }));
     this.unsubscribeEvents.push(gameEvents.on('inventory.useRequested', (event) => this.resolveInventoryUse(event.itemId)));
     this.unsubscribeEvents.push(gameEvents.on('settings.darknessToggled', (event) => {
       this.darknessDisabled = event.disabled;
@@ -115,6 +125,7 @@ export class LevelScene extends Phaser.Scene {
       this.parallaxSystem?.setDebugVisible(event.visible);
     }));
     this.time.delayedCall(0, () => this.applyInventoryDebugQuery());
+    gameEvents.emit({ type: 'flashlight.powerChanged', enabled: !this.flashlightManuallyOff });
 
     this.input.keyboard?.on('keydown-ESC', (event: KeyboardEvent) => {
       if (event.defaultPrevented || document.body.dataset.pileupBackpackOpen === '1') {
@@ -145,15 +156,17 @@ export class LevelScene extends Phaser.Scene {
     if (input && !backpackOpen) {
       const batterySelected = this.isSelectedBatteryItem();
       this.updateBatteryUse(input, delta, batterySelected);
-      const gameplayInput = batterySelected ? { ...input, interact: false, focus: false } : input;
+      const flashlightDisabled = batterySelected || this.flashlightManuallyOff;
+      const gameplayInput = flashlightDisabled ? { ...input, interact: batterySelected ? false : input.interact, focus: false } : input;
       movementState = this.playerController?.update(gameplayInput, delta);
       const enemyState = this.enemySystem?.update(delta);
       const searchState = this.searchSystem?.update(gameplayInput, delta);
       this.refreshFlashlightTargets();
       this.flashlightSystem?.setTargets(this.flashlightTargets);
-      const flashlightState = this.flashlightSystem?.update(gameplayInput, delta, Boolean(searchState?.activeId), batterySelected);
+      const flashlightState = this.flashlightSystem?.update(gameplayInput, delta, Boolean(searchState?.activeId), flashlightDisabled);
       this.searchSystem?.setFocusedTargetIds(flashlightState?.focus ? flashlightState.hitIds : []);
       this.keepPlayerAboveDarkness();
+      this.parallaxSystem?.update(this.cameras.main.scrollX);
       this.darknessSystem?.update(flashlightState, delta, this.player?.getReadabilityCenterWorld());
       const doorState = this.doorSystem?.update(gameplayInput, delta);
       const bossState = this.bossDoorSequence?.update(gameplayInput, flashlightState, doorState, delta);
@@ -186,6 +199,7 @@ export class LevelScene extends Phaser.Scene {
       ),
     );
     this.parallaxSystem.renderRoom(room);
+    this.darknessSystem?.setStaticLightZones(this.parallaxSystem.getWindowLightZones());
     this.renderDepthReferenceObjects(room);
     this.searchSystem?.destroy();
     this.enemySystem?.destroy();
@@ -204,6 +218,7 @@ export class LevelScene extends Phaser.Scene {
     this.depthPlane.applyDepth(player.container, player.y, room.floorBounds);
     this.keepPlayerAboveDarkness();
     this.cameraSystem.follow(player.container);
+    this.parallaxSystem.update(this.cameras.main.scrollX);
     this.responsive?.ensurePortraitPrompt();
   }
 

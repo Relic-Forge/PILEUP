@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { WINDOW_OUTSIDE_WORLD_TEXTURE_KEY, WINDOW_OUTSIDE_WORLD_URL } from '../assets/roomAssets';
 import { dataAssetPath } from '../data/loaders';
 import {
   PLAYER_ASSET_SET_KEY,
@@ -22,6 +23,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json('level01FamilyHouse', dataAssetPath('level_01_family_house.json'));
     this.load.json('runtimeWorldUnits', dataAssetPath('runtime_world_units.json'));
     this.load.json(PLAYER_ASSET_SET_KEY, PLAYER_ASSET_SET_URL);
+    this.load.image(WINDOW_OUTSIDE_WORLD_TEXTURE_KEY, WINDOW_OUTSIDE_WORLD_URL);
   }
 
   create(): void {

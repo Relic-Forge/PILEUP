@@ -175,6 +175,8 @@ export type GameEvent =
   | { type: 'hud.toast'; tone: 'item' | 'warning' | 'objective' | 'damage'; text: string }
   | { type: 'flashlight.depthChanged'; layer: DepthLayer }
   | { type: 'flashlight.batteryChanged'; value: number; flicker: boolean; focus: boolean }
+  | { type: 'flashlight.toggleRequested'; source: 'hud' | 'hotbar' }
+  | { type: 'flashlight.powerChanged'; enabled: boolean }
   | { type: 'flashlight.focusStarted' }
   | { type: 'flashlight.focusEnded' }
   | { type: 'flashlight.depthSwitch'; layer: DepthLayer }

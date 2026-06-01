@@ -6,6 +6,7 @@ export class MainMenuScene extends Phaser.Scene {
   private debugOverlay?: DebugOverlay;
   private responsive?: ResponsiveScaleSystem;
   private menuObjects: Phaser.GameObjects.GameObject[] = [];
+  private isStarting = false;
 
   constructor() {
     super('MainMenuScene');
@@ -16,7 +17,13 @@ export class MainMenuScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#0b090d');
     this.responsive.onResize(() => this.renderMenu());
 
-    this.input.keyboard?.once('keydown-ENTER', () => this.startLevel());
+    const handleDocumentKey = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        this.startLevel();
+      }
+    };
+    document.addEventListener('keydown', handleDocumentKey);
+    this.input.keyboard?.on('keydown', handleDocumentKey);
     const sceneParam = new URLSearchParams(window.location.search).get('scene');
     if (sceneParam === 'level') {
       this.time.delayedCall(0, () => this.startLevel());
@@ -26,6 +33,8 @@ export class MainMenuScene extends Phaser.Scene {
 
     this.debugOverlay = new DebugOverlay(this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      document.removeEventListener('keydown', handleDocumentKey);
+      this.input.keyboard?.off('keydown', handleDocumentKey);
       this.responsive?.destroy();
     });
   }
@@ -35,6 +44,11 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   private startLevel(): void {
+    if (this.isStarting) {
+      return;
+    }
+
+    this.isStarting = true;
     this.scene.start('LevelScene');
   }
 
@@ -66,7 +80,7 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const startText = this.add
-      .text(width / 2, height * 0.62, 'Start Phase 10 Flashlight', {
+      .text(width / 2, height * 0.62, 'START', {
         color: '#11100f',
         backgroundColor: '#e3d36f',
         fontSize: `${Math.round(22 * uiScale)}px`,
@@ -79,7 +93,7 @@ export class MainMenuScene extends Phaser.Scene {
       .text(
         width / 2,
         Math.min(height * 0.74, safeArea.bottom),
-        'Press Enter or click start.',
+        'Press Enter',
         {
           color: '#81796f',
           fontSize: `${Math.round(16 * uiScale)}px`,
