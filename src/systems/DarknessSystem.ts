@@ -100,6 +100,9 @@ const DARKNESS_DEPTH = 1_390;
 const VIGNETTE_DEPTH = 1_392;
 const LIGHT_FX_DEPTH = 1_450;
 const SCREEN_SURFACE_OVERSCAN_PX = 160;
+const REVEAL_STAMP_INTERVAL_MS = 48;
+const MAX_REVEAL_STAMPS = 72;
+const SOFT_ERASE_CIRCLE_STEPS = 10;
 
 export class DarknessSystem {
   private readonly darkness: Phaser.GameObjects.RenderTexture;
@@ -114,6 +117,10 @@ export class DarknessSystem {
   private readonly debug: boolean;
   private enabled = true;
   private projection: ScreenProjection = { scrollX: 0, scrollY: 0, width: 1, height: 1, zoom: 1 };
+  private stampAccumulatorMs = REVEAL_STAMP_INTERVAL_MS;
+  private currentSoftEraseRings = 0;
+  private lastSoftEraseRings = 0;
+  private lastDarknessRenderMs = 0;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -156,6 +163,7 @@ export class DarknessSystem {
     this.debugGraphics.setVisible(enabled && this.debug);
     if (!enabled) {
       this.revealStamps.length = 0;
+      this.stampAccumulatorMs = REVEAL_STAMP_INTERVAL_MS;
       this.darkness.clear();
       this.lightMask.clear();
       this.beamFx.clear();
@@ -179,8 +187,9 @@ export class DarknessSystem {
     this.ageRevealStamps(deltaMs);
     if (light?.disabled) {
       this.revealStamps.length = 0;
+      this.stampAccumulatorMs = REVEAL_STAMP_INTERVAL_MS;
     }
-    this.stampLight(light);
+    this.stampLight(light, deltaMs);
     this.renderDarkness(light, playerCenter);
     this.renderBeamFx(light);
     this.renderVignette(light);
@@ -188,9 +197,12 @@ export class DarknessSystem {
 
     if (import.meta.env.DEV) {
       document.body.dataset.pileupLightingStamps = String(this.revealStamps.length);
+      document.body.dataset.pileupLightingStampCadenceMs = String(REVEAL_STAMP_INTERVAL_MS);
       document.body.dataset.pileupLightingDebug = String(this.debug);
       document.body.dataset.pileupDarknessTextureSize = `${this.darkness.width}x${this.darkness.height}`;
       document.body.dataset.pileupDarknessDisplaySize = `${Math.round(this.darkness.displayWidth)}x${Math.round(this.darkness.displayHeight)}`;
+      document.body.dataset.pileupDarknessRings = String(this.lastSoftEraseRings);
+      document.body.dataset.pileupDarknessRenderMs = this.lastDarknessRenderMs.toFixed(2);
       document.body.dataset.pileupDarknessScreenProjection = `${Math.round(this.projection.scrollX)},${Math.round(
         this.projection.scrollY,
       )},${Math.round(this.projection.width)}x${Math.round(this.projection.height)}@${this.projection.zoom.toFixed(3)}`;
@@ -217,10 +229,17 @@ export class DarknessSystem {
     }
   }
 
-  private stampLight(light: FlashlightState | undefined): void {
+  private stampLight(light: FlashlightState | undefined, deltaMs: number): void {
     if (!light || light.disabled || light.battery <= 0) {
+      this.stampAccumulatorMs = REVEAL_STAMP_INTERVAL_MS;
       return;
     }
+
+    this.stampAccumulatorMs += deltaMs;
+    if (this.stampAccumulatorMs < REVEAL_STAMP_INTERVAL_MS) {
+      return;
+    }
+    this.stampAccumulatorMs = Math.min(this.stampAccumulatorMs - REVEAL_STAMP_INTERVAL_MS, REVEAL_STAMP_INTERVAL_MS);
 
     const profile = LAYER_LIGHT_PROFILES[light.layer];
     const battery01 = Phaser.Math.Clamp(light.battery / 100, 0, 1);
@@ -282,12 +301,14 @@ export class DarknessSystem {
       }
     }
 
-    if (this.revealStamps.length > 96) {
-      this.revealStamps.splice(0, this.revealStamps.length - 96);
+    if (this.revealStamps.length > MAX_REVEAL_STAMPS) {
+      this.revealStamps.splice(0, this.revealStamps.length - MAX_REVEAL_STAMPS);
     }
   }
 
   private renderDarkness(light: FlashlightState | undefined, playerCenter?: Vec2): void {
+    const renderStartedAt = import.meta.env.DEV ? performance.now() : 0;
+    this.currentSoftEraseRings = 0;
     this.syncScreenSurfaces();
     const activeLayer = light?.layer ?? 'main';
     const profile = LAYER_LIGHT_PROFILES[activeLayer];
@@ -297,7 +318,10 @@ export class DarknessSystem {
     this.darkness.fill(0x050507, darknessAlpha, 0, 0, this.darkness.width, this.darkness.height);
     this.lightMask.clear();
 
-    this.revealStamps.filter((stamp) => stamp.layer === activeLayer).forEach((stamp) => {
+    this.revealStamps.forEach((stamp) => {
+      if (stamp.layer !== activeLayer) {
+        return;
+      }
       const life01 = Phaser.Math.Clamp(stamp.ageMs / stamp.durationMs, 0, 1);
       const fade = 1 - Phaser.Math.SmoothStep(life01, 0, 1);
       this.drawSoftEraseCircleWorld(stamp.x, stamp.y, stamp.radius, stamp.strength * fade);
@@ -313,6 +337,10 @@ export class DarknessSystem {
 
     this.darkness.erase(this.lightMask);
     this.darkness.render();
+    this.lastSoftEraseRings = this.currentSoftEraseRings;
+    if (import.meta.env.DEV) {
+      this.lastDarknessRenderMs = performance.now() - renderStartedAt;
+    }
   }
 
   private syncScreenSurfaces(): void {
@@ -369,7 +397,8 @@ export class DarknessSystem {
 
   private drawSoftEraseCircle(x: number, y: number, radius: number, strength: number): void {
     const clampedStrength = Phaser.Math.Clamp(strength, 0, 1);
-    const steps = 14;
+    const steps = SOFT_ERASE_CIRCLE_STEPS;
+    this.currentSoftEraseRings += steps;
     for (let index = 0; index < steps; index += 1) {
       const t = index / (steps - 1);
       const ringRadius = Phaser.Math.Linear(radius, radius * 0.22, t);
