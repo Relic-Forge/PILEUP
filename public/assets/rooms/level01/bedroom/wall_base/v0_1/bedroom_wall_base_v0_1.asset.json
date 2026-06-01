@@ -1,0 +1,59 @@
+{
+  "schema": "pileup_bedroom_wall_base_v1",
+  "assetId": "room.level01_bedroom.wall_base",
+  "artVersion": "0.1.0",
+  "lifecycleState": "candidate",
+  "sourceFiles": {
+    "wall": "art/source/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_source.png",
+    "baseboard": "art/source/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_source.png"
+  },
+  "runtimeBasePath": "assets/rooms/level01/bedroom/wall_base/v0_1",
+  "designSpace": {
+    "designWidth": 1920,
+    "designHeight": 1080,
+    "bedroomWidthScreens": 2.25,
+    "visibleWallSpan": [4320, 560],
+    "wallBleededRuntimeSize": [5120, 768],
+    "baseboardBleededRuntimeSize": [5120, 192],
+    "visibleCropOriginInBleededAsset": [400, 0]
+  },
+  "runtimeFiles": {
+    "wallBleeded": "bedroom_wall_base_v0_1_5120x768.png",
+    "wallVisibleReviewCrop": "bedroom_wall_base_v0_1_visible_4320x560.png",
+    "baseboardBleeded": "bedroom_baseboard_v0_1_5120x192.png",
+    "baseboardVisibleReviewCrop": "bedroom_baseboard_v0_1_visible_4320x192.png",
+    "preview": "bedroom_wall_base_v0_1_preview.png"
+  },
+  "layering": {
+    "wallLayer": "farBackground",
+    "baseboardLayer": "farBackground",
+    "windowFrames": "runtime_overlay",
+    "wallDecorations": "future_runtime_overlays"
+  },
+  "placementGuidance": {
+    "wallVisibleCrop": {
+      "x": 0,
+      "y": 0,
+      "width": 4320,
+      "height": 560
+    },
+    "baseboardSuggestedY": 500,
+    "baseboardRuntimeDisplayScale": 0.7,
+    "visualFloorMinY": 532,
+    "walkableFloorMinY": 556,
+    "currentBedroomWindowReference": {
+      "centerRatioX": 0.43,
+      "centerX": 1858,
+      "centerY": 244,
+      "width": 410,
+      "height": 248,
+      "notes": "Reference only. The wall art intentionally has no baked cutout, frame, or shadow so this window can move without repainting."
+    }
+  },
+  "qaNotes": [
+    "Wall contains no fake windows, posters, stickers, shelves, labels, text, or baked decorations.",
+    "Baseboard is separate from the wall so its y position, scale, and floor contact can be tuned independently.",
+    "Bleeded exports include 400px horizontal padding on each side around the 4320px visible bedroom span.",
+    "Generated source resolution is below preferred hero-room source target, so this should remain candidate until art-direction review or repaint."
+  ]
+}

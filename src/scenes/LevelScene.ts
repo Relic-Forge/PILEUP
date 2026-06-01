@@ -20,6 +20,7 @@ import { AudioSystem } from '../systems/AudioSystem';
 import { BossDoorSequenceSystem, type BossDoorSequenceState } from '../systems/BossDoorSequenceSystem';
 
 const PLAYER_DARKNESS_EXEMPT_DEPTH = 1_440;
+const FOREGROUND_REFERENCE_DEPTH = PLAYER_DARKNESS_EXEMPT_DEPTH + 30;
 const BATTERY_CHANGE_MS = 1000;
 
 export class LevelScene extends Phaser.Scene {
@@ -273,8 +274,13 @@ export class LevelScene extends Phaser.Scene {
           wordWrap: { width: item.width - 10 },
         })
         .setOrigin(0.5);
-      this.depthPlane.applyDepth(base, item.y, room.floorBounds, -4);
-      this.depthPlane.applyDepth(label, item.y, room.floorBounds, -3);
+      if (item.layer === 'foreground') {
+        base.setDepth(FOREGROUND_REFERENCE_DEPTH);
+        label.setDepth(FOREGROUND_REFERENCE_DEPTH + 1);
+      } else {
+        this.depthPlane.applyDepth(base, item.y, room.floorBounds, -4);
+        this.depthPlane.applyDepth(label, item.y, room.floorBounds, -3);
+      }
       base.setData('flashlightTarget', {
         id: item.label.replaceAll(' ', '-'),
         layer: item.layer,

@@ -1,7 +1,7 @@
 {
   "schema": "pileup_asset_generation_manifest_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-06-01T05:13:21Z",
+  "updated_utc": "2026-06-01T14:27:27Z",
   "batches": [
     {
       "batchId": "character.player_child.contact_sheet.v0_2.2026_05_30",
@@ -322,6 +322,158 @@
           "name": "runtime_ready",
           "status": "candidate",
           "notes": "Ready for in-game review as candidate art; approval should wait for art-direction review and any final crop cleanup."
+        }
+      ]
+    },
+    {
+      "batchId": "room.level01_bedroom.wall_base.v0_1.2026_06_01",
+      "createdUtc": "2026-06-01T14:27:27Z",
+      "assetId": "room.level01_bedroom.wall_base",
+      "requestedOutput": "neutral continuous kid bedroom wall base plus independently adjustable baseboard strip",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "data/assets/asset_registry.json#room.level01_bedroom.wall_base",
+        "data/art_export_targets.json#room_segment_per_one_screen",
+        "public/assets/data/level_01_family_house.json#rooms.bedroom",
+        "docs/PILEUP_Asset_Generation_Runbook.md",
+        "docs/PILEUP_Art_Bible_and_Asset_Spec.md"
+      ],
+      "prompt": "Create a continuous kids bedroom wall base layer only, no ceiling, no floor, no baseboard, no windows, no posters, no shelves, no drawings, no stickers, no objects, no text. It should read as floor-to-near-ceiling wall surface that can sit behind runtime-rendered windows and separate wall decorations. Hand-drawn 2D/2.5D domestic survival horror, layered side-view house diorama, familiar kid bedroom made slightly uneasy, not photorealistic, not cute mobile-cartoon, not generic haunted house. Very wide horizontal panoramic wall texture, straight-on side-view, seamless across the full length, with generous extra bleed on all edges. Cold night bedroom shadows with muted blue-grey lavender wall paint, faint warm domestic undertones, subtle uneven brush texture, gentle grime near lower wall, slight darkness toward top and far edges. Also create a separate long horizontal baseboard trim asset for the same wall, only the baseboard and a small amount of neutral wall contact shading immediately above it. No window shadows or baked decoration.",
+      "negativePrompt": "fake windows, window cutouts, posters, drawings, stickers, shelves, wall objects, text, labels, watermark, UI, characters, floorboards in the wall asset, ceiling, hard seams, generic haunted-house props, photorealism, cute mobile cartoon, baked window shadows, baked decoration",
+      "tool": "OpenAI image generation via Codex image_gen, then local Pillow crop and resize with bundled workspace Python",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_source.png",
+          "role": "raw generated wall source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "art/source/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_source.png",
+          "role": "raw generated baseboard source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1.asset.json",
+          "role": "runtime wall/baseboard metadata",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_5120x768.png",
+          "role": "bleeded runtime wall layer",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_5120x192.png",
+          "role": "bleeded runtime baseboard strip",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_preview.png",
+          "role": "wall and baseboard review composite",
+          "status": "candidate"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "file_exists",
+          "status": "pass",
+          "notes": "Source images, runtime exports, preview, and asset metadata are present."
+        },
+        {
+          "name": "separate_baseboard",
+          "status": "pass",
+          "notes": "The baseboard is exported as a separate strip so placement and scale can be adjusted independently."
+        },
+        {
+          "name": "window_flexibility",
+          "status": "pass",
+          "notes": "The wall has no baked windows, window cutouts, or window shadows; metadata records the current window only as a reference."
+        },
+        {
+          "name": "overscan_bleed",
+          "status": "pass",
+          "notes": "Runtime wall and baseboard exports are 5120px wide with a 4320px visible review crop centered inside them."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "candidate",
+          "notes": "Ready for renderer integration as candidate art; final approval should wait for in-scene review and source-resolution assessment."
+        }
+      ]
+    },
+    {
+      "batchId": "room.level01_bedroom.flooring.carpet.v0_1.2026_06_01",
+      "createdUtc": "2026-06-01T15:18:00Z",
+      "assetId": "room.level01_bedroom.flooring.carpet",
+      "requestedOutput": "continuous dusty off-cream bedroom carpet floor material with wall-style bleed and independent runtime placement",
+      "lifecycleState": "candidate",
+      "sourceReferences": [
+        "data/assets/asset_registry.json#room.level01_bedroom.flooring.carpet",
+        "data/assets/asset_registry.json#room.level01_bedroom.wall_base",
+        "data/art_export_targets.json#room_segment_per_one_screen",
+        "public/assets/data/level_01_family_house.json#rooms.bedroom",
+        "docs/PILEUP_Asset_Generation_Runbook.md",
+        "docs/PILEUP_Art_Bible_and_Asset_Spec.md"
+      ],
+      "prompt": "Create a continuous dusty off-cream bedroom carpet material that can run across the full Level 01 bedroom floor, seamless horizontally, with generous horizontal bleed for runtime cropping and placement changes. No scene, wall, baseboard, props, furniture, characters, labels, or baked object shadows. Use slightly dusty worn carpet in an off-cream warm ivory color with low pile fibers, subtle dirt, lint, compressed walk paths, soft blue-gray night shadows, and warm spotlight-readable highlights. Match PILEUP hand-drawn 2D/2.5D domestic survival horror room art, familiar home texture made subtly uneasy, painterly but runtime-clean. Very wide horizontal panoramic strip feel, straight-on side-view floor material, detail evenly distributed with no hard seams and no strong focal objects.",
+      "negativePrompt": "wall, baseboard, furniture, toys, laundry, objects, characters, footprints as obvious symbols, labels, captions, watermark, UI, seams, tile grid, hard panel borders, floorboards, wood planks, rugs, saturated yellow, photorealism, cute cartoon",
+      "tool": "OpenAI image generation via Codex image_gen, then local Pillow crop, color tune, mirror bleed, and resize with bundled workspace Python",
+      "seed": null,
+      "outputFiles": [
+        {
+          "path": "art/source/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_source.png",
+          "role": "raw generated carpet source",
+          "status": "retained_for_traceability"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1.asset.json",
+          "role": "runtime carpet metadata",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_5120x640.png",
+          "role": "bleeded runtime carpet floor layer",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_visible_4320x560.png",
+          "role": "visible bedroom span review crop",
+          "status": "candidate"
+        },
+        {
+          "path": "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_preview.png",
+          "role": "carpet review composite",
+          "status": "candidate"
+        }
+      ],
+      "reviewStatus": "candidate",
+      "qaChecks": [
+        {
+          "name": "file_exists",
+          "status": "pass",
+          "notes": "Source image, runtime export, visible crop, preview, and metadata are present."
+        },
+        {
+          "name": "independent_floor_layer",
+          "status": "pass",
+          "notes": "The carpet is exported separately from wall, baseboard, props, and foreground clutter so placement can be tuned independently."
+        },
+        {
+          "name": "overscan_bleed",
+          "status": "pass",
+          "notes": "Runtime carpet export is 5120px wide with a 4320px visible review crop centered inside it."
+        },
+        {
+          "name": "spotlight_readability",
+          "status": "candidate",
+          "notes": "Off-cream palette and warm center lift should read under flashlight/spotlight while preserving dusty wear; final approval needs in-scene review."
+        },
+        {
+          "name": "runtime_ready",
+          "status": "candidate",
+          "notes": "Ready for renderer integration as candidate art; final approval should wait for visual QA against foreground props and player feet."
         }
       ]
     }

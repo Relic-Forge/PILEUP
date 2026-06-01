@@ -1,8 +1,14 @@
 import Phaser from 'phaser';
 import {
+  BEDROOM_BASEBOARD_TEXTURE_KEY,
+  BEDROOM_BASEBOARD_URL,
+  BEDROOM_CARPET_FLOOR_TEXTURE_KEY,
+  BEDROOM_CARPET_FLOOR_URL,
   BEDROOM_STATIC_PROP_ASSETS,
   BEDROOM_STATIC_PROP_PACK_KEY,
   BEDROOM_STATIC_PROP_PACK_URL,
+  BEDROOM_WALL_BASE_TEXTURE_KEY,
+  BEDROOM_WALL_BASE_URL,
   WINDOW_OUTSIDE_WORLD_TEXTURE_KEY,
   WINDOW_OUTSIDE_WORLD_URL,
   bedroomStaticPropUrl,
@@ -31,6 +37,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json('runtimeWorldUnits', dataAssetPath('runtime_world_units.json'));
     this.load.json(PLAYER_ASSET_SET_KEY, PLAYER_ASSET_SET_URL);
     this.load.json(BEDROOM_STATIC_PROP_PACK_KEY, BEDROOM_STATIC_PROP_PACK_URL);
+    this.load.image(BEDROOM_WALL_BASE_TEXTURE_KEY, BEDROOM_WALL_BASE_URL);
+    this.load.image(BEDROOM_BASEBOARD_TEXTURE_KEY, BEDROOM_BASEBOARD_URL);
+    this.load.image(BEDROOM_CARPET_FLOOR_TEXTURE_KEY, BEDROOM_CARPET_FLOOR_URL);
     this.load.image(WINDOW_OUTSIDE_WORLD_TEXTURE_KEY, WINDOW_OUTSIDE_WORLD_URL);
     BEDROOM_STATIC_PROP_ASSETS.forEach((asset) => {
       this.load.image(asset.textureKey, bedroomStaticPropUrl(asset.file));

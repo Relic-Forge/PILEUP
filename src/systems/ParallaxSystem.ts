@@ -1,5 +1,10 @@
 import Phaser from 'phaser';
-import { BEDROOM_STATIC_PROP_ASSETS, WINDOW_OUTSIDE_WORLD_TEXTURE_KEY } from '../assets/roomAssets';
+import {
+  BEDROOM_CARPET_FLOOR_TEXTURE_KEY,
+  BEDROOM_STATIC_PROP_ASSETS,
+  BEDROOM_WALL_BASE_TEXTURE_KEY,
+  WINDOW_OUTSIDE_WORLD_TEXTURE_KEY,
+} from '../assets/roomAssets';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from './ResponsiveScaleSystem';
 import type { StaticLightZone } from './DarknessSystem';
 import type { RuntimeFloorBounds, RuntimeRoom, RuntimeRoomSegment } from '../data/levelTypes';
@@ -33,7 +38,17 @@ const OUTDOOR_FAR_SCROLL_FACTOR = 0.58;
 const OUTDOOR_PARALLAX_SPEED_MULTIPLIER = 1.25;
 const OUTSIDE_LAYER_SOURCE_WIDTH = 1672;
 const OUTSIDE_LAYER_SOURCE_HEIGHT = 941;
+const BEDROOM_WALL_BLEED_WIDTH = 5120;
+const BEDROOM_WALL_BLEED_HEIGHT = 768;
+const BEDROOM_WALL_VISIBLE_CROP_X = 400;
+const BEDROOM_CARPET_BLEED_WIDTH = 5120;
+const BEDROOM_CARPET_VISIBLE_CROP_X = 400;
+const BEDROOM_CARPET_DISPLAY_HEIGHT = 430;
+const BEDROOM_CARPET_WALL_OVERLAP = 48;
+const BEDROOM_BACKGROUND_PROP_DEPTH = 34;
+const BEDROOM_BACKGROUND_MARKER_DEPTH = 36;
 const WINDOW_PICTURE_DEPTH = 1_396;
+const FOREGROUND_OCCLUDER_DEPTH = 1_470;
 
 const LAYER_STYLES: LayerStyle[] = [
   {
@@ -90,6 +105,7 @@ const LAYER_STYLES: LayerStyle[] = [
 
 export class ParallaxSystem {
   private root?: Phaser.GameObjects.Container;
+  private foregroundOccluders: Phaser.GameObjects.GameObject[] = [];
   private debugObjects: Array<Phaser.GameObjects.GameObject & { setVisible: (visible: boolean) => unknown }> = [];
   private outsideWindowPanes: Array<{ tile: Phaser.GameObjects.TileSprite; baseTileX: number; drift: number }> = [];
   private windowLightZones: StaticLightZone[] = [];
@@ -115,12 +131,18 @@ export class ParallaxSystem {
 
   destroy(): void {
     this.root?.destroy(true);
+    this.foregroundOccluders.forEach((object) => object.destroy());
     this.root = undefined;
+    this.foregroundOccluders = [];
     this.windowLightOverlays.forEach((object) => object.destroy());
     this.debugObjects = [];
     this.outsideWindowPanes = [];
     this.windowLightZones = [];
     this.windowLightOverlays = [];
+  }
+
+  private trackForegroundOccluders(objects: Phaser.GameObjects.GameObject[]): void {
+    this.foregroundOccluders.push(...objects);
   }
 
   update(cameraScrollX: number): void {
@@ -144,7 +166,7 @@ export class ParallaxSystem {
 
   private renderSegment(segment: RuntimeRoomSegment, floorBounds: RuntimeFloorBounds): void {
     for (const layer of LAYER_STYLES) {
-      const y = layer.id === 'mainGameplay' ? floorBounds.minY : layer.y;
+      const y = layer.id === 'mainGameplay' ? this.visualFloorMinY(floorBounds) : layer.y;
       const label = this.scene.add
         .text(segment.x + 34, y + 20, `${segment.id} / ${layer.label} / sf ${layer.scrollFactor}`, {
           color: '#b8d79a',
@@ -172,9 +194,9 @@ export class ParallaxSystem {
 
   private renderLayerBands(room: RuntimeRoom): void {
     for (const layer of LAYER_STYLES) {
-      const y = layer.id === 'mainGameplay' ? room.floorBounds.minY : layer.y;
+      const y = layer.id === 'mainGameplay' ? this.visualFloorMinY(room.floorBounds) : layer.y;
       const height =
-        layer.id === 'mainGameplay' ? room.floorBounds.maxY - room.floorBounds.minY : layer.height;
+        layer.id === 'mainGameplay' ? room.floorBounds.maxY - this.visualFloorMinY(room.floorBounds) : layer.height;
       const width = room.width + DESIGN_HEIGHT * 8;
       const rect = this.scene.add
         .rectangle(room.width / 2, y + height / 2, width, height, layer.color, layer.alpha)
@@ -210,7 +232,7 @@ export class ParallaxSystem {
       const x = segment.x + segment.width * (0.28 + index * 0.24);
       const prop = this.scene.add
         .rectangle(x, 930, 240, 140, 0x151219, 0.78)
-        .setDepth(55)
+        .setDepth(FOREGROUND_OCCLUDER_DEPTH + index * 2)
         .setScrollFactor(FOREGROUND_SCROLL_FACTOR, 1);
       const label = this.scene.add
         .text(x, 910, name, {
@@ -220,9 +242,9 @@ export class ParallaxSystem {
           wordWrap: { width: 180 },
         })
         .setOrigin(0.5)
-        .setDepth(56)
+        .setDepth(FOREGROUND_OCCLUDER_DEPTH + index * 2 + 1)
         .setScrollFactor(FOREGROUND_SCROLL_FACTOR, 1);
-      this.root?.add([prop, label]);
+      this.trackForegroundOccluders([prop, label]);
     });
 
     const foregroundPileCount = Math.max(2, Math.round(segment.width / 420));
@@ -231,19 +253,19 @@ export class ParallaxSystem {
       const pileY = 928 + (index % 3) * 22;
       const base = this.scene.add
         .ellipse(pileX, pileY, 250, 96, index % 2 === 0 ? 0x1b1720 : 0x2b2430, 0.86)
-        .setDepth(57)
+        .setDepth(FOREGROUND_OCCLUDER_DEPTH + 10 + index * 3)
         .setScrollFactor(FOREGROUND_SCROLL_FACTOR, 1);
       const box = this.scene.add
         .rectangle(pileX - 52, pileY - 46, 104, 54, 0x4c3c48, 0.78)
         .setAngle(index % 2 === 0 ? -7 : 5)
-        .setDepth(58)
+        .setDepth(FOREGROUND_OCCLUDER_DEPTH + 11 + index * 3)
         .setScrollFactor(FOREGROUND_SCROLL_FACTOR, 1);
       const softPile = this.scene.add
         .ellipse(pileX + 72, pileY - 28, 122, 54, 0x5b4e62, 0.68)
         .setAngle(index % 2 === 0 ? 4 : -5)
-        .setDepth(59)
+        .setDepth(FOREGROUND_OCCLUDER_DEPTH + 12 + index * 3)
         .setScrollFactor(FOREGROUND_SCROLL_FACTOR, 1);
-      this.root?.add([base, box, softPile]);
+      this.trackForegroundOccluders([base, box, softPile]);
     }
   }
 
@@ -252,8 +274,7 @@ export class ParallaxSystem {
     const roomWidth = DESIGN_WIDTH * 2.25;
     this.renderBedroomFarBackground(segment, roomStartX, roomWidth);
     this.renderBedroomBackgroundClutter(segment, roomStartX, roomWidth);
-    this.renderBedroomMainPlane(segment, floorBounds);
-    this.renderBedroomForeground(segment, roomStartX, roomWidth);
+    this.renderBedroomMainPlane(segment, floorBounds, roomStartX, roomWidth);
     this.renderBedroomStaticProps(segment, roomStartX, roomWidth);
   }
 
@@ -272,28 +293,8 @@ export class ParallaxSystem {
     const layerScroll = INTERIOR_SCROLL_FACTOR;
     const x = segment.x;
     const w = segment.width;
-    const wall = this.scene.add
-      .rectangle(x + w / 2, 248, w + 520, 496, 0x353641, 1)
-      .setDepth(2)
-      .setScrollFactor(layerScroll, 1);
-    const ceiling = this.scene.add
-      .rectangle(x + w / 2, 40, w + 560, 80, 0x191922, 0.9)
-      .setDepth(3)
-      .setScrollFactor(layerScroll, 1);
-    const baseboard = this.scene.add
-      .rectangle(x + w / 2, 518, w + 560, 18, 0x5a4f4e, 0.96)
-      .setDepth(4)
-      .setScrollFactor(layerScroll, 1);
-    this.root?.add([wall, ceiling, baseboard]);
-
-    const seamCount = Math.max(3, Math.round(w / 360));
-    for (let index = 0; index <= seamCount; index += 1) {
-      const seamX = x + (w / seamCount) * index;
-      const seam = this.scene.add
-        .rectangle(seamX, 278, 3, 438, index % 2 === 0 ? 0x555663 : 0x20222b, 0.42)
-        .setDepth(5)
-        .setScrollFactor(layerScroll, 1);
-      this.root?.add(seam);
+    if (this.isFirstBedroomSegment(segment, roomStartX)) {
+      this.renderBedroomWallBase(roomStartX, roomWidth, layerScroll);
     }
 
     const windowCenter = roomStartX + roomWidth * 0.43;
@@ -313,6 +314,27 @@ export class ParallaxSystem {
         .setScrollFactor(layerScroll, 1);
       this.root?.add([doorShadow, doorLine]);
     }
+  }
+
+  private isFirstBedroomSegment(segment: RuntimeRoomSegment, roomStartX: number): boolean {
+    return Math.abs(segment.x - roomStartX) < 1;
+  }
+
+  private renderBedroomWallBase(roomStartX: number, roomWidth: number, scrollFactor: number): void {
+    const wallLeftX = roomStartX - BEDROOM_WALL_VISIBLE_CROP_X;
+    const wallCenterX = wallLeftX + BEDROOM_WALL_BLEED_WIDTH / 2;
+    const wall = this.scene.add
+      .image(wallCenterX, BEDROOM_WALL_BLEED_HEIGHT / 2, BEDROOM_WALL_BASE_TEXTURE_KEY)
+      .setDisplaySize(BEDROOM_WALL_BLEED_WIDTH, BEDROOM_WALL_BLEED_HEIGHT)
+      .setDepth(2)
+      .setScrollFactor(scrollFactor, 1);
+
+    const topShade = this.scene.add
+      .rectangle(roomStartX + roomWidth / 2, 22, roomWidth + 120, 44, 0x0c0d14, 0.24)
+      .setDepth(9)
+      .setScrollFactor(scrollFactor, 1);
+
+    this.root?.add([wall, topShade]);
   }
 
   private renderSegmentWindows(segment: RuntimeRoomSegment): void {
@@ -509,33 +531,33 @@ export class ParallaxSystem {
     props.forEach((prop, index) => {
       if ('setDepth' in prop && 'setScrollFactor' in prop) {
         (prop as unknown as Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor)
-          .setDepth(12 + (index % 3))
+          .setDepth(BEDROOM_BACKGROUND_PROP_DEPTH + (index % 3))
           .setScrollFactor(scrollFactor, 1);
       }
     });
     this.root?.add(props);
   }
 
-  private renderBedroomMainPlane(segment: RuntimeRoomSegment, floorBounds: RuntimeFloorBounds): void {
+  private renderBedroomMainPlane(
+    segment: RuntimeRoomSegment,
+    floorBounds: RuntimeFloorBounds,
+    roomStartX: number,
+    roomWidth: number,
+  ): void {
     const x = segment.x;
     const w = segment.width;
-    const floorCenterY = floorBounds.minY + (floorBounds.maxY - floorBounds.minY) / 2;
-    const floor = this.scene.add
-      .rectangle(x + w / 2, floorCenterY, w + 80, floorBounds.maxY - floorBounds.minY, 0x4d4541, 0.86)
-      .setDepth(22)
-      .setScrollFactor(1, 1);
-    const farFloorLine = this.scene.add.rectangle(x + w / 2, floorBounds.minY + 20, w + 80, 5, 0x7b6d67, 0.54).setDepth(23);
-    const nearFloorLine = this.scene.add.rectangle(x + w / 2, floorBounds.maxY - 10, w + 80, 8, 0x211f24, 0.64).setDepth(23);
-    this.root?.add([floor, farFloorLine, nearFloorLine]);
+    const visualMinY = this.visualFloorMinY(floorBounds);
 
-    const plankCount = Math.max(4, Math.round(w / 320));
-    for (let index = 0; index <= plankCount; index += 1) {
-      const plank = this.scene.add
-        .rectangle(x + (w / plankCount) * index, floorCenterY + 20 + (index % 2) * 18, 3, floorBounds.maxY - floorBounds.minY + 80, 0x211f24, 0.46)
-        .setAngle(index % 2 === 0 ? -3 : 3)
-        .setDepth(24)
+    if (this.isFirstBedroomSegment(segment, roomStartX)) {
+      const carpetLeftX = roomStartX - BEDROOM_CARPET_VISIBLE_CROP_X;
+      const carpetCenterX = carpetLeftX + BEDROOM_CARPET_BLEED_WIDTH / 2;
+      const carpetCenterY = visualMinY - BEDROOM_CARPET_WALL_OVERLAP + BEDROOM_CARPET_DISPLAY_HEIGHT / 2;
+      const carpet = this.scene.add
+        .image(carpetCenterX, carpetCenterY, BEDROOM_CARPET_FLOOR_TEXTURE_KEY)
+        .setDisplaySize(BEDROOM_CARPET_BLEED_WIDTH, BEDROOM_CARPET_DISPLAY_HEIGHT)
+        .setDepth(22)
         .setScrollFactor(1, 1);
-      this.root?.add(plank);
+      this.root?.add(carpet);
     }
 
     if (segment.id === 'bed_center_mess') {
@@ -548,64 +570,6 @@ export class ParallaxSystem {
     }
   }
 
-  private renderBedroomForeground(segment: RuntimeRoomSegment, roomStartX: number, roomWidth: number): void {
-    const scrollFactor = FOREGROUND_SCROLL_FACTOR;
-    const x = segment.x;
-    const w = segment.width;
-    const props: Phaser.GameObjects.GameObject[] = [];
-    const local = (ratio: number) => roomStartX + roomWidth * ratio;
-
-    if (segment.id === 'bed_left_start') {
-      props.push(
-        this.scene.add.rectangle(x + 190, 904, 330, 160, 0x342a32, 0.9),
-        this.scene.add.ellipse(x + 220, 842, 286, 74, 0x4a3d4c, 0.9),
-        this.scene.add.rectangle(x + 550, 930, 280, 150, 0x27242d, 0.84),
-      );
-    }
-
-    if (segment.id === 'bed_center_mess') {
-      props.push(
-        this.scene.add.rectangle(local(0.48), 900, 410, 112, 0x2f2b35, 0.86),
-        this.scene.add.ellipse(local(0.52), 850, 360, 86, 0x4d4455, 0.9),
-        this.scene.add.rectangle(local(0.58), 932, 340, 156, 0x342d38, 0.88),
-        this.scene.add.ellipse(local(0.37), 910, 180, 78, 0x5a4b63, 0.82),
-      );
-    }
-
-    if (segment.id === 'bed_right_exit') {
-      props.push(
-        this.scene.add.rectangle(x + w * 0.34, 902, 320, 128, 0x312a32, 0.88),
-        this.scene.add.rectangle(x + w * 0.66, 858, 116, 360, 0x3f333d, 0.84),
-        this.scene.add.rectangle(x + w * 0.71, 776, 140, 28, 0x6a4d55, 0.86),
-        this.scene.add.ellipse(x + w * 0.82, 932, 250, 116, 0x232229, 0.9),
-      );
-    }
-
-    const dustCount = Math.max(3, Math.round(w / 380));
-    for (let index = 0; index < dustCount; index += 1) {
-      props.push(this.scene.add.circle(x + 90 + index * (w / dustCount), 610 + (index % 3) * 62, 3 + (index % 2), 0xb5a684, 0.18));
-    }
-
-    const pileCount = Math.max(2, Math.round(w / 360));
-    for (let index = 0; index < pileCount; index += 1) {
-      const pileX = x + w * (0.18 + index / Math.max(1, pileCount) * 0.72);
-      props.push(
-        this.scene.add.ellipse(pileX, 948 + (index % 2) * 18, 250, 92, index % 2 === 0 ? 0x211d25 : 0x312934, 0.9),
-        this.scene.add.rectangle(pileX - 56, 896 + (index % 3) * 14, 96, 52, 0x4c3c48, 0.82).setAngle(index % 2 === 0 ? -6 : 7),
-        this.scene.add.rectangle(pileX + 58, 914, 110, 46, 0x5d4f57, 0.78).setAngle(index % 2 === 0 ? 8 : -5),
-      );
-    }
-
-    props.forEach((prop, index) => {
-      if ('setDepth' in prop && 'setScrollFactor' in prop) {
-        (prop as unknown as Phaser.GameObjects.Components.Depth & Phaser.GameObjects.Components.ScrollFactor)
-          .setDepth(58 + (index % 4))
-          .setScrollFactor(scrollFactor, 1);
-      }
-    });
-    this.root?.add(props);
-  }
-
   private renderBedroomStaticProps(segment: RuntimeRoomSegment, roomStartX: number, roomWidth: number): void {
     const propById = new Map(BEDROOM_STATIC_PROP_ASSETS.map((asset) => [asset.id, asset]));
     const local = (ratio: number) => roomStartX + roomWidth * ratio;
@@ -616,7 +580,7 @@ export class ParallaxSystem {
           x: segment.x + 192,
           y: 932,
           width: 292,
-          depth: 63,
+          depth: FOREGROUND_OCCLUDER_DEPTH,
           scrollFactor: FOREGROUND_SCROLL_FACTOR,
         },
         {
@@ -624,7 +588,7 @@ export class ParallaxSystem {
           x: segment.x + 566,
           y: 944,
           width: 314,
-          depth: 64,
+          depth: FOREGROUND_OCCLUDER_DEPTH + 1,
           scrollFactor: FOREGROUND_SCROLL_FACTOR,
         },
         {
@@ -643,7 +607,7 @@ export class ParallaxSystem {
           x: local(0.61),
           y: 560,
           width: 404,
-          depth: 18,
+          depth: BEDROOM_BACKGROUND_PROP_DEPTH,
           scrollFactor: INTERIOR_SCROLL_FACTOR,
         },
         {
@@ -651,7 +615,7 @@ export class ParallaxSystem {
           x: local(0.42),
           y: 948,
           width: 362,
-          depth: 62,
+          depth: FOREGROUND_OCCLUDER_DEPTH,
           scrollFactor: FOREGROUND_SCROLL_FACTOR,
         },
         {
@@ -659,7 +623,7 @@ export class ParallaxSystem {
           x: local(0.32),
           y: 940,
           width: 178,
-          depth: 65,
+          depth: FOREGROUND_OCCLUDER_DEPTH + 2,
           scrollFactor: FOREGROUND_SCROLL_FACTOR,
         },
         {
@@ -685,7 +649,7 @@ export class ParallaxSystem {
           x: segment.x + segment.width * 0.42,
           y: 594,
           width: 240,
-          depth: 18,
+          depth: BEDROOM_BACKGROUND_PROP_DEPTH,
           scrollFactor: INTERIOR_SCROLL_FACTOR,
         },
         {
@@ -693,7 +657,7 @@ export class ParallaxSystem {
           x: segment.x + segment.width * 0.73,
           y: 604,
           width: 312,
-          depth: 18,
+          depth: BEDROOM_BACKGROUND_PROP_DEPTH,
           scrollFactor: INTERIOR_SCROLL_FACTOR,
         },
         {
@@ -709,7 +673,7 @@ export class ParallaxSystem {
           x: segment.x + segment.width * 0.82,
           y: 948,
           width: 330,
-          depth: 66,
+          depth: FOREGROUND_OCCLUDER_DEPTH,
           scrollFactor: FOREGROUND_SCROLL_FACTOR,
         },
       ],
@@ -730,7 +694,11 @@ export class ParallaxSystem {
         .setDepth(placement.depth)
         .setScrollFactor(placement.scrollFactor, 1)
         .setAlpha(placement.alpha ?? 1);
-      this.root?.add(image);
+      if (placement.depth >= FOREGROUND_OCCLUDER_DEPTH) {
+        this.trackForegroundOccluders([image]);
+      } else {
+        this.root?.add(image);
+      }
     });
   }
 
@@ -755,15 +723,26 @@ export class ParallaxSystem {
     });
   }
 
+  private visualFloorMinY(floorBounds: RuntimeFloorBounds): number {
+    return floorBounds.visualMinY ?? floorBounds.minY;
+  }
+
   private renderEnemyAnchors(segment: RuntimeRoomSegment): void {
     segment.enemySpawns.forEach((name, index) => {
       const x = segment.x + segment.width * (0.62 + index * 0.14);
+      const baseDepth = segment.roomId === 'bedroom' ? BEDROOM_BACKGROUND_MARKER_DEPTH : 16;
       const eyes = this.scene.add
         .rectangle(x, 485, 76, 34, 0x24192c, 0.92)
-        .setDepth(16)
+        .setDepth(baseDepth)
         .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
-      const leftEye = this.scene.add.circle(x - 12, 484, 5, 0xb3e15d, 1).setDepth(17).setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
-      const rightEye = this.scene.add.circle(x + 12, 484, 5, 0xb3e15d, 1).setDepth(17).setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
+      const leftEye = this.scene.add
+        .circle(x - 12, 484, 5, 0xb3e15d, 1)
+        .setDepth(baseDepth + 1)
+        .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
+      const rightEye = this.scene.add
+        .circle(x + 12, 484, 5, 0xb3e15d, 1)
+        .setDepth(baseDepth + 1)
+        .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
       const label = this.scene.add
         .text(x, 512, name, {
           color: '#9dbf73',
@@ -772,7 +751,7 @@ export class ParallaxSystem {
           wordWrap: { width: 128 },
         })
         .setOrigin(0.5)
-        .setDepth(18)
+        .setDepth(baseDepth + 2)
         .setScrollFactor(INTERIOR_SCROLL_FACTOR, 1);
       this.root?.add([eyes, leftEye, rightEye, label]);
     });

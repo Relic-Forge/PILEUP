@@ -35,6 +35,10 @@ const roomLabel = (roomId: string): string =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
+const VISUAL_FLOOR_MIN_Y = 532;
+const WALKABLE_FLOOR_MIN_Y = 556;
+const FLOOR_MAX_Y = 850;
+
 const defaultPlacementForNode = (nodeId: string): RuntimeSearchPlacement => {
   if (['under_bed', 'hamper', 'trash_bag', 'front_door_clutter'].includes(nodeId)) {
     return { nodeId, resultType: 'ambush' };
@@ -118,8 +122,9 @@ export const adaptRoomFromSource = (room: SourceRoomData, startX = 0): RuntimeRo
     floorBounds: {
       minX: startX + 120,
       maxX: Math.max(120, cursorX - 120),
-      minY: 560,
-      maxY: 850,
+      visualMinY: VISUAL_FLOOR_MIN_Y,
+      minY: WALKABLE_FLOOR_MIN_Y,
+      maxY: FLOOR_MAX_Y,
     },
     segments,
     roomTransitions: [{ roomId: room.id, label: roomLabel(room.id), x: startX, width: cursorX - startX, order: room.order }],
@@ -169,8 +174,9 @@ export const adaptLevelFromSource = (level: SourceLevelData, seed: string): Runt
     floorBounds: {
       minX: 120,
       maxX: Math.max(120, cursorX - 120),
-      minY: 560,
-      maxY: 850,
+      visualMinY: VISUAL_FLOOR_MIN_Y,
+      minY: WALKABLE_FLOOR_MIN_Y,
+      maxY: FLOOR_MAX_Y,
     },
     segments,
     roomTransitions,

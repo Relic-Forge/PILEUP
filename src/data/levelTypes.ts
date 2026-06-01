@@ -81,6 +81,7 @@ export interface RuntimeBlocker {
 export interface RuntimeFloorBounds {
   minX: number;
   maxX: number;
+  visualMinY?: number;
   minY: number;
   maxY: number;
 }

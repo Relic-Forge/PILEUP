@@ -1,0 +1,50 @@
+{
+  "schema": "pileup_bedroom_flooring_v1",
+  "assetId": "room.level01_bedroom.flooring.carpet",
+  "artVersion": "0.1.0",
+  "lifecycleState": "candidate",
+  "sourceFiles": {
+    "carpet": "art/source/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_source.png"
+  },
+  "runtimeBasePath": "assets/rooms/level01/bedroom/flooring/v0_1",
+  "designSpace": {
+    "designWidth": 1920,
+    "designHeight": 1080,
+    "bedroomWidthScreens": 2.25,
+    "visibleFloorSpan": [4320, 560],
+    "carpetBleededRuntimeSize": [5120, 640],
+    "visibleCropOriginInBleededAsset": [400, 0]
+  },
+  "runtimeFiles": {
+    "carpetBleeded": "bedroom_carpet_floor_v0_1_5120x640.png",
+    "carpetVisibleReviewCrop": "bedroom_carpet_floor_v0_1_visible_4320x560.png",
+    "preview": "bedroom_carpet_floor_v0_1_preview.png"
+  },
+  "layering": {
+    "carpetLayer": "mainGameplay",
+    "baseboard": "hidden_for_current_carpet_pass",
+    "foregroundClutter": "runtime_overlay"
+  },
+  "placementGuidance": {
+    "floorVisibleCrop": {
+      "x": 0,
+      "y": 0,
+      "width": 4320,
+      "height": 560
+    },
+    "carpetRuntimeDisplayHeight": 430,
+    "carpetWallOverlap": 48,
+    "topAlphaFade": 132,
+    "visualFloorMinY": 532,
+    "walkableFloorMinY": 556,
+    "walkableFloorMaxY": 850,
+    "notes": "The carpet is independent from walls, baseboard, props, and baked shadows so its y position, scale, and crop can be tuned without repainting the room. The baseboard is not rendered in the current pass so bedroom props sit directly on carpet against the wall."
+  },
+  "qaNotes": [
+    "Carpet contains no wall, baseboard, props, characters, labels, text, or baked object shadows.",
+    "Bleeded export includes 400px horizontal padding on each side around the 4320px visible bedroom span.",
+    "Runtime export uses a soft alpha fade at the top edge so the carpet can tuck against the wall without a visible rectangular seam.",
+    "Off-cream tone keeps the floor readable under flashlight and spotlight while retaining dusty domestic wear.",
+    "Generated source should remain candidate until art-direction review confirms the texture is painterly enough for final production."
+  ]
+}

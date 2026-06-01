@@ -1,6 +1,13 @@
 export const WINDOW_OUTSIDE_WORLD_TEXTURE_KEY = 'room-window-outside-world-v0-1';
 export const WINDOW_OUTSIDE_WORLD_URL = `${import.meta.env.BASE_URL}assets/rooms/level01/outside_world/window_outside_world_layer_v0_1.png`;
 
+export const BEDROOM_WALL_BASE_TEXTURE_KEY = 'bedroom-wall-base-v0-1';
+export const BEDROOM_BASEBOARD_TEXTURE_KEY = 'bedroom-baseboard-v0-1';
+export const BEDROOM_CARPET_FLOOR_TEXTURE_KEY = 'bedroom-carpet-floor-v0-1';
+export const BEDROOM_WALL_BASE_URL = `${import.meta.env.BASE_URL}assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_5120x768.png`;
+export const BEDROOM_BASEBOARD_URL = `${import.meta.env.BASE_URL}assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_5120x192.png`;
+export const BEDROOM_CARPET_FLOOR_URL = `${import.meta.env.BASE_URL}assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_5120x640.png`;
+
 export interface BedroomStaticPropAsset {
   id: string;
   textureKey: string;

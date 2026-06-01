@@ -1,7 +1,7 @@
 {
   "schema": "pileup_asset_registry_v1",
   "project": "PILEUP",
-  "updated_utc": "2026-05-31T06:10:00Z",
+  "updated_utc": "2026-06-01T15:18:00Z",
   "id_policy": {
     "canonical_format": "category.slug",
     "runtime_alias_policy": "Existing gameplay keys may remain as aliases until code and data are migrated.",
@@ -265,6 +265,81 @@
         "segment extension that does not stretch art"
       ],
       "notes": "Prototype room concept is directional only; final room requires layered source and tiered runtime exports."
+    },
+    {
+      "assetId": "room.level01_bedroom.wall_base",
+      "aliases": [
+        "bedroom_wall_base_v0_1",
+        "bedroom_baseboard_v0_1"
+      ],
+      "displayName": "Level 01 Bedroom Wall Base and Baseboard",
+      "category": "room_layer",
+      "status": "candidate",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": "art/source/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_source.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1.asset.json",
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_5120x768.png",
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_visible_4320x560.png",
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_5120x192.png",
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_baseboard_v0_1_visible_4320x192.png",
+        "public/assets/rooms/level01/bedroom/wall_base/v0_1/bedroom_wall_base_v0_1_preview.png"
+      ],
+      "lockedIdentity": {
+        "camera": "continuous side-view kid bedroom far wall with independently adjustable baseboard",
+        "palette": "cold blue-grey lavender night wall, muted off-white worn trim, subtle domestic grime",
+        "materialLanguage": "painted plaster wall, worn painted wood trim, soft night shadow"
+      },
+      "doNotChange": [
+        "no baked windows or window cutouts",
+        "baseboard remains separate from wall surface",
+        "neutral backdrop for dynamic wall decorations"
+      ],
+      "allowedVariations": [
+        "window frame placement",
+        "baseboard y position and scale",
+        "wall decoration overlays",
+        "minor crop and color tuning"
+      ],
+      "notes": "Generated as a neutral base wall plus separate baseboard so windows and decorations can be moved at runtime without repainting the wall."
+    },
+    {
+      "assetId": "room.level01_bedroom.flooring.carpet",
+      "aliases": [
+        "bedroom_carpet_floor_v0_1"
+      ],
+      "displayName": "Level 01 Bedroom Carpet Floor",
+      "category": "room_layer",
+      "status": "candidate",
+      "artVersion": "0.1.0",
+      "owner": "art-direction",
+      "sourceReference": "art/source/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_source.png",
+      "approvedContactSheet": null,
+      "runtimeFiles": [
+        "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1.asset.json",
+        "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_5120x640.png",
+        "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_visible_4320x560.png",
+        "public/assets/rooms/level01/bedroom/flooring/v0_1/bedroom_carpet_floor_v0_1_preview.png"
+      ],
+      "lockedIdentity": {
+        "camera": "continuous side-view kid bedroom main floor material with independently adjustable crop and y placement",
+        "palette": "dusty off-cream warm ivory carpet with cool night shadow and spotlight-readable highlights",
+        "materialLanguage": "low-pile worn bedroom carpet, dust, lint, compressed walk paths, subtle domestic grime"
+      },
+      "doNotChange": [
+        "carpet remains separate from wall, baseboard, props, and foreground clutter",
+        "no baked object shadows or furniture",
+        "neutral domestic floor material that supports player movement readability"
+      ],
+      "allowedVariations": [
+        "runtime scale",
+        "runtime y position",
+        "minor crop and color tuning",
+        "future room-specific dust and wear overlays"
+      ],
+      "notes": "Generated as a neutral carpet floor layer so the bedroom floor can extend seamlessly across the full room and still move independently as the foreground composition changes."
     },
     {
       "assetId": "room.level01_bedroom.static_props",
